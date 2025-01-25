@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Protocol, runtime_checkable, List, Tuple
+from typing import Protocol, runtime_checkable, List, Tuple, Union
 import numpy as np
 
 @runtime_checkable
@@ -15,7 +15,7 @@ class DependentObject(Protocol):
         在 add_dependent 中添加依赖关系时， obj1.add_dependent(obj2) 会使 obj2 依赖于 obj1，即 obj2 随着 obj1 的变化而更新。
         """
 
-class BaseGeometry(DependentObject):
+class BaseGeometry(DependentObject, ABC):
     """几何对象基类"""
     def __init__(self, name: str = "") -> None:
         self._name = name # 名称
@@ -23,7 +23,6 @@ class BaseGeometry(DependentObject):
 
         """懒更新的对象数据"""
         self.ret_updated = True # 返回值 lazy tag
-        self.ret_data = None # 返回值
     
     @property
     def name(self) -> str:
@@ -44,13 +43,22 @@ class BaseGeometry(DependentObject):
         for dep in self.dependents:
             dep.update()
 
+    @abstractmethod
+    def _recalculate(self):
+        """重新计算"""
+        ...
+
 class PointLike(BaseGeometry, ABC):
-    """点类型协议"""
-    ret_data: np.ndarray
+    """
+    ## 点类型
+    
+    点类型具有 `_coord` 属性，表示点的坐标，在此之上派生不同的几何构造。
+    """
+    _coord: np.ndarray
 
     def __init__(self, name: str = ""):
         super().__init__(name)
-        self.ret_data = np.zeros(2)
+        self._coord = np.zeros(2)
 
     @property
     def coord(self) -> np.ndarray:
@@ -58,12 +66,12 @@ class PointLike(BaseGeometry, ABC):
         if self.ret_updated:
             self._recalculate()
             self.ret_updated = False
-        return self.ret_data.copy()
+        return self._coord.copy()
     
     @coord.setter
     def coord(self, value: np.ndarray):
         self.update()
-        self.ret_data = value.copy()
+        self._coord = value.copy()
 
     @abstractmethod
     def _recalculate(self):
@@ -71,41 +79,49 @@ class PointLike(BaseGeometry, ABC):
         ...
 
 class LineLike(BaseGeometry, ABC):
-    """线类型协议"""
-    ret_data: tuple[np.ndarray, np.ndarray]
+    """
+    ## 线类型
+
+    线类型具有 `_start` 和 `_end` 属性，表示线的起点和终点（或途径点），在此之上派生不同的几何构造。
+    """
+    _start: PointLike
+    _end: PointLike
 
     def __init__(self, name: str = ""):
         super().__init__(name)
-        self.ret_data = (np.zeros(2), np.zeros(2))
 
     @property
-    def direction(self) -> np.ndarray:
-        """单位方向向量"""
+    def start(self) -> PointLike:
+        """起点点"""
         if self.ret_updated:
             self._recalculate()
             self.ret_updated = False
-        return self.ret_data[0].copy()
+        return self._start
     
     @property
-    def base_point(self) -> np.ndarray:
-        """基点坐标"""
+    def end(self) -> PointLike:
+        """终点点"""
         if self.ret_updated:
             self._recalculate()
             self.ret_updated = False
-        return self.ret_data[1].copy()
+        return self._end
     
-    @direction.setter
-    def direction(self, value: np.ndarray):
+    @start.setter
+    def start(self, value: PointLike):
         self.update()
-        self.ret_data = (value.copy(), self.ret_data[1].copy())
+        self._start = value
 
-    @base_point.setter
-    def base_point(self, value: np.ndarray):
+    @end.setter
+    def end(self, value: PointLike):
         self.update()
-        self.ret_data = (self.ret_data[0].copy(), value.copy())
+        self._end = value
     
-    def check_range(self, t, epsilon=1e-7) -> bool:
-        """线对象参数范围检查"""
+    def check_range(self, t: Union[int, float], epsilon: float=1e-7) -> bool:
+        """
+        线对象参数范围检查
+
+        不同线型具有的参数范围不同，通过 `check_range` 方法进行检查。
+        """
         from manimgeo.components.lines import LineSegment, Ray, InfinityLine
         if isinstance(self, LineSegment):
             return -epsilon <= t <= 1 + epsilon
@@ -115,8 +131,14 @@ class LineLike(BaseGeometry, ABC):
             return True
         return False
     
-    def is_point_on_line(self, point, epsilon=1e-7) -> bool:
-        line_dir = self._though - self._start
+    def is_point_on_line(self, point: Union[PointLike, np.ndarray], epsilon: float=1e-7) -> bool:
+        """
+        判断点是否在线上
+        """
+        if isinstance(point, PointLike):
+            point = point.coord
+
+        line_dir = self._end - self._start
         if np.allclose(line_dir, np.zeros_like(line_dir), atol=epsilon):
             return np.allclose(point, self._start, atol=epsilon) and self.check_range(0)
         
@@ -129,20 +151,23 @@ class LineLike(BaseGeometry, ABC):
         return self.check_range(t)
     
     @staticmethod
-    def find_intersection(line1: LineLike, line2: LineLike, infinty: bool = False) -> Tuple[bool, List[np.ndarray]]:
+    def find_intersection(line1: LineLike, line2: LineLike, as_infinty: bool = False) -> Tuple[bool, List[np.ndarray]]:
         """
         计算两条线的交点
-        对于单个交点，返回值为 (has_intersection, [intesection_point])
-        对于无穷多交点，返回值为端点  (has_intersection, [intesection_points])
+
+        `as_infinity`: 是否将线视作无穷长线
+
+         - 对于单个交点，返回值为 (has_intersection, [intesection_point])
+         - 对于无穷多交点，返回值为端点  (has_intersection, [intesection_points])
         """
         from manimgeo.components.lines import LineSegment, Ray, InfinityLine
         epsilon = 1e-7
         points = []
 
-        p1: np.ndarray = line1._start.coord
-        p2: np.ndarray = line1._through.coord if not isinstance(line1, LineSegment) else line1._end.coord
-        q1: np.ndarray = line2._start.coord
-        q2: np.ndarray = line2._through.coord if not isinstance(line2, LineSegment) else line2._end.coord
+        p1: np.ndarray = line1.start.coord
+        p2: np.ndarray = line1.end.coord
+        q1: np.ndarray = line2.start.coord
+        q2: np.ndarray = line2.end.coord
 
         u = p2 - p1
         v = q2 - q1
@@ -163,7 +188,7 @@ class LineLike(BaseGeometry, ABC):
             return False, []
 
         # 单线退化处理
-        if infinty and (line1_degenerate or line2_degenerate):
+        if as_infinty and (line1_degenerate or line2_degenerate):
             return (False, [])
         
         if line1_degenerate:
@@ -179,7 +204,7 @@ class LineLike(BaseGeometry, ABC):
             t = np.cross(w, v) / cross
             s = -np.cross(u, w) / cross
 
-            if (line1.check_range(t) and line2.check_range(s)) or infinty:
+            if (line1.check_range(t) and line2.check_range(s)) or as_infinty:
                 intersection = p1 + t * u
                 return True, [intersection]
             return False, []
@@ -190,22 +215,27 @@ class LineLike(BaseGeometry, ABC):
 
         # 共线时的投影参数计算
         def get_projection(line: LineLike, ref_line: LineLike) -> Tuple[float, float]:
-            ref_dir = ref_line._through - ref_line._start
+            line_start = line.start.coord
+            line_end = line.end.coord
+            ref_start = ref_line.start.coord
+            ref_end = ref_line.end.coord
+
+            ref_dir = ref_end - ref_start
             sqrlen_ref = np.dot(ref_dir, ref_dir)
             if sqrlen_ref < epsilon:
-                return (0.0, 0.0) if np.allclose(line._start, ref_line._start, atol=epsilon) else (np.nan, np.nan)
+                return (0.0, 0.0) if np.allclose(line_start, ref_start, atol=epsilon) else (np.nan, np.nan)
 
-            vec_start = line._start - ref_line._start
-            vec_end = line._through - ref_line._start
+            vec_start = line_start - ref_start
+            vec_end = line_end - ref_start
             t_start = np.dot(vec_start, ref_dir) / sqrlen_ref
             t_end = np.dot(vec_end, ref_dir) / sqrlen_ref
 
             if isinstance(line, LineSegment):
                 return sorted([t_start, t_end])
             elif isinstance(line, Ray):
-                dir_dot = np.dot(line._through - line._start, ref_dir)
+                dir_dot = np.dot(line_end - line_start, ref_dir)
                 return (t_start, np.inf) if dir_dot > 0 else (-np.inf, t_start)
-            else:  # InfinityLine
+            elif isinstance(line, InfinityLine):
                 return (-np.inf, np.inf)
 
         # 获取两条线在参考线上的投影范围
@@ -226,13 +256,13 @@ class LineLike(BaseGeometry, ABC):
 
         # 生成交点坐标
         if abs(lower - upper) < epsilon:  # 单点接触
-            point = ref_line._start + lower * (ref_line._through - ref_line._start)
+            point = ref_line.start.coord + lower * (ref_line.end.coord - ref_line.start.coord)
             return True, [point]
         else:  # 区间重叠
             points = []
             for t in [lower, upper]:
                 if not np.isinf(t):
-                    points.append(ref_line._start + t * (ref_line._through - ref_line._start))
+                    points.append(ref_line.start.coord + t * (ref_line._end.coord - ref_line.start.coord))
             return True, points
 
     @abstractmethod
@@ -245,46 +275,11 @@ class LineLike(BaseGeometry, ABC):
         """重新计算"""
         ...
 
-class BaseGeometryLike(BaseGeometry, ABC):
-    """普通几何图形对象"""
-    def __init__(self, name: str = ""):
-        super().__init__(name)
-        self.ret_data = None
-
-    @property
-    def data(self) -> np.ndarray:
-        if self.ret_updated:
-            self._recalculate()
-            self.ret_updated = False
-        return self.ret_data
-    
-    @data.setter
-    def data(self, value: np.ndarray):
-        self.update()
-        self.ret_data = value
-
-    @abstractmethod
-    def _recalculate(self):
-        """重新计算"""
-        ...
-
 class ParametricGeometryLike(BaseGeometry, ABC):
     """参数几何图形对象"""
     def __init__(self, name: str = ""):
         super().__init__(name)
         self.ret_data = None
-
-    @property
-    def data(self) -> np.ndarray:
-        if self.ret_updated:
-            self._recalculate()
-            self.ret_updated = False
-        return self.ret_data
-    
-    @data.setter
-    def data(self, value: np.ndarray):
-        self.update()
-        self.ret_data = value
 
     @abstractmethod
     def parametric(self, t: float) -> np.ndarray:
@@ -295,3 +290,13 @@ class ParametricGeometryLike(BaseGeometry, ABC):
     def _recalculate(self):
         """重新计算"""
         ...
+
+class ParamLike(BaseGeometry, ABC):
+    """数量参数基类"""
+    def __init__(self, name: str = ""):
+        super().__init__(name)
+
+    @abstractmethod
+    def _recalculate(self):
+        ...
+    

@@ -1,5 +1,4 @@
-from manimgeo.components.base import BaseGeometryLike, PointLike, LineLike
-from manimgeo.components.points import ImplicitPoint
+from manimgeo.components.base import PointLike, LineLike
 from manimgeo.utils.utils import GeoUtils
 
 from typing import overload, Union, List, Literal
