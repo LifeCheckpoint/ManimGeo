@@ -235,6 +235,35 @@ class LineLike(BaseGeometry, ABC):
                     points.append(ref_line._start + t * (ref_line._through - ref_line._start))
             return True, points
 
+    @abstractmethod
+    def parametric(self, t: float) -> np.ndarray:
+        """参数方程"""
+        ...
+
+    @abstractmethod
+    def _recalculate(self):
+        """重新计算"""
+        ...
+
+class ParametricGeometry(BaseGeometry, ABC):
+    """参数几何图形对象"""
+    def __init__(self, name: str = ""):
+        super().__init__(name)
+        self.ret_data = None
+
+    @property
+    def data(self) -> np.ndarray:
+        if self.ret_updated:
+            self._recalculate()
+            self.ret_updated = False
+        return self.ret_data
+    
+    @data.setter
+    def data(self, value: np.ndarray):
+        self.update()
+        self.ret_data = value
+
+    @abstractmethod
     def parametric(self, t: float) -> np.ndarray:
         """参数方程"""
         ...

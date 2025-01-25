@@ -32,6 +32,7 @@ P = IntersectionPoint(AN, OB, "P")
 # 打印 P 依赖关系
 print("Dependencies of A:")
 GeoUtils.print_dependencies(A)
+print("")
 
 # 输出移动前坐标
 print("Before moving B:")
