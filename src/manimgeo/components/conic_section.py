@@ -8,6 +8,17 @@ class Circle(ParametricGeometry):
     """简单圆类型"""
     data: tuple[np.ndarray, Union[float, np.ndarray]] # center, radius or radius_point
 
+    @property
+    def center(self) -> np.ndarray:
+        return self.data[0]
+    
+    @property
+    def radius(self) -> float:
+        if isinstance(self.data[1], np.ndarray):
+            return np.linalg.norm(self.data[1] - self.data[0])
+        else:
+            return self.data[1]
+
     @overload
     def __init__(self, center: PointLike, radius: float, name: str = ""):
         ...
@@ -54,6 +65,14 @@ class Circle(ParametricGeometry):
 class ThreePointCircle(ParametricGeometry):
     """三点外接圆类型"""
     data: tuple[np.ndarray, float] # center, radius
+
+    @property
+    def center(self) -> np.ndarray:
+        return self.data[0]
+    
+    @property
+    def radius(self) -> float:
+        return self.data[1]
 
     def __init__(self, point1: PointLike, point2: PointLike, point3: PointLike, name: str = ""):
         super().__init__(name)

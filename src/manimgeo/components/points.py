@@ -147,3 +147,23 @@ class RotationPoint(PointLike):
         relative_coord = self.point.coord - self.center.coord
         # 计算旋转后的坐标
         self.coord = np.dot(rot_matrix, relative_coord) + self.center.coord
+
+class InversionPoint(PointLike):
+    """反演点"""
+    from manimgeo.components.conic_section import Circle, ThreePointCircle
+
+    def __init__(self, point: PointLike, circle: Union[Circle, ThreePointCircle], radius: float, name: str = ""):
+        super().__init__(name)
+        self._point = point
+        self._circle = circle
+
+        self._point.add_dependent(self)
+        self._circle.add_dependent(self)
+
+    def _recalculate(self):
+        op = self._point.coord - self._circle.center
+        d_squared = np.dot(op, op)
+        if d_squared == 0:
+            raise ValueError("Point p coincides with the center, inversion undefined.")
+        k = (self._circle.radius ** 2) / d_squared
+        self.coord = self._circle.center + op * k
