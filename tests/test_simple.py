@@ -1,5 +1,5 @@
-from manimgeo.components.points import FreePoint, MidPoint, ExtensionPoint, IntersectionPoint
-from manimgeo.components.lines import LineSegment, Ray
+from manimgeo.components.points import FreePoint, MidPointL, ExtensionPointPP, IntersectionPointLL
+from manimgeo.components.lines import LineSegmentPP, RayPP
 from manimgeo.utils.utils import GeoUtils
 
 import numpy as np
@@ -10,24 +10,24 @@ B = FreePoint(np.array([4, 0]), "B")
 C = FreePoint(np.array([1, 3]), "C")
 
 # 构造线段AB, BC, AC
-AB = LineSegment(A, B, "AB")
-BC = LineSegment(B, C, "BC")
-AC = LineSegment(A, C, "AC")
+AB = LineSegmentPP(A, B, "AB")
+BC = LineSegmentPP(B, C, "BC")
+AC = LineSegmentPP(A, C, "AC")
 
 # 创建中点M
-M = MidPoint(AB, None, "M")
+M = MidPointL(AB, "M")
 
 # 构造线段CM
-CM = LineSegment(C, M, "CM")
+CM = LineSegmentPP(C, M, "CM")
 
 # 创建延长点N, O
-N = ExtensionPoint(C, M, factor=2.0, name="N")
-O = ExtensionPoint(C, M, factor=3.0, name="O")
+N = ExtensionPointPP(C, M, factor=2.0, name="N")
+O = ExtensionPointPP(C, M, factor=3.0, name="O")
 
 # 构造射线AN，交OB于P
-AN = Ray(A, N, "AN")
-OB = Ray(O, B, "OB")
-P = IntersectionPoint(AN, OB, "P")
+AN = RayPP(A, N, "AN")
+OB = RayPP(O, B, "OB")
+P = IntersectionPointLL(AN, OB, "P")
 
 # 打印 P 依赖关系
 print("Dependencies of A:")

@@ -3,13 +3,12 @@ from manimgeo.components.vector import VectorParam
 from manimgeo.components.angle import AnglePP
 from manimgeo.utils.utils import GeoUtils
 
-from typing import List, overload, Optional, Union
 import numpy as np
 
 class FreePoint(PointLike):
     """自由点类型（叶子节点）"""
     def __init__(self, coord: np.ndarray, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"FreePoint@{id(self)}")
         self._coord = coord
 
     def _recalculate(self):
@@ -22,7 +21,7 @@ class MidPointPP(PointLike):
     point2: PointLike
 
     def __init__(self, point1: PointLike, point2: PointLike, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"MidPoint@{id(self)}")
         self.point1 = point1
         self.point2 = point2
 
@@ -34,11 +33,11 @@ class MidPointPP(PointLike):
 
 class MidPointL(PointLike):
     """中点类型（线段）"""
-    from manimgeo.components.lines import LineSegment
+    from manimgeo.components.lines import LineSegmentPP
     line: LineLike
 
-    def __init__(self, line: LineSegment, name: str = ""):
-        super().__init__(name)
+    def __init__(self, line: LineSegmentPP, name: str = ""):
+        super().__init__(name if name is not "" else f"MidPointL@{id(self)}")
 
         # 依赖于线段
         self.line = line
@@ -64,7 +63,7 @@ class ExtensionPointPP(PointLike):
         self._factor = value
 
     def __init__(self, start_point: PointLike, through_point: PointLike, factor: float = 2.0, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"ExtensionPointPP@{id(self)}")
         self._factor = factor
         self.start_point = start_point
         self.through_point = through_point
@@ -81,7 +80,7 @@ class IntersectionPointLL(PointLike):
     line2: LineLike
 
     def __init__(self, line1: LineLike, line2: LineLike, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"IntersectionPointLL@{id(self)}")
         self.line1 = line1
         self.line2 = line2
         
@@ -103,7 +102,7 @@ class AxisymmetricPointPL(PointLike):
     line: LineLike
 
     def __init__(self, point: PointLike, line: LineLike, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"AxisymmetricPointPL@{id(self)}")
         self.point = point
         self.line = line
         
@@ -125,7 +124,7 @@ class TranslationPoint(PointLike):
     vector: VectorParam
 
     def __init__(self, point: PointLike, vector: VectorParam, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"TranslationPoint@{id(self)}")
         self.point = point
         self.vector = vector
 
@@ -142,7 +141,7 @@ class RotationPoint(PointLike):
     angle: AnglePP
 
     def __init__(self, point: PointLike, center: PointLike, angle: AnglePP, name: str = ""):
-        super().__init__(name)
+        super().__init__(name if name is not "" else f"RotationPoint@{id(self)}")
         self.point = point
         self.center = center
         self.angle = angle
@@ -160,6 +159,57 @@ class RotationPoint(PointLike):
         relative_coord = self.point.coord - self.center.coord
         # 计算旋转后的坐标
         self._coord = np.dot(rot_matrix, relative_coord) + self.center.coord
+
+class VerticalPointPL(PointLike):
+    """垂点"""
+    point: PointLike
+    line: LineLike
+
+    def __init__(self, point: PointLike, line: LineLike, name: str = ""):
+        super().__init__(name if name is not "" else f"VerticalPoint@{id(self)}")
+        self.point = point
+        self.line = line
+
+        self.point.add_dependent(self)
+        self.line.add_dependent(self)
+
+    def _recalculate(self):
+        direction = GeoUtils.unit_direction_vector(self.line.start.coord, self.line.end.coord)
+        self._coord = self.point.coord + np.array([-direction[1], direction[0]]) * GeoUtils.point_to_line_distance(
+            self.line.start.coord, direction, self.point.coord
+        )
+
+class ParallelPointPL(PointLike):
+    """平行点"""
+    point: PointLike
+    line: LineLike
+    _distance: float
+
+    @property
+    def distance(self) -> float:
+        """构造距离"""
+        return self._distance
+    
+    @distance.setter
+    def distance(self, value: float):
+        self.update()
+        self._distance = value
+
+    def __init__(self, point: PointLike, line: LineLike, distance: float = 1.0, name: str = ""):
+        super().__init__(name if name is not "" else f"ParallelPointPL@{id(self)}")
+        self.point = point
+        self.line = line
+        self._distance = distance
+
+        self.point.add_dependent(self)
+        self.line.add_dependent(self)
+
+    def _recalculate(self):
+        direction = GeoUtils.unit_direction_vector(self.line.start.coord, self.line.end.coord)
+        self._coord = self.point.coord + self._distance*direction
+
+class AngleBisectorPointPPP(PointLike):
+    pass
 
 # class InversionPoint(PointLike):
 #     """反演点"""

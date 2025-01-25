@@ -122,12 +122,12 @@ class LineLike(BaseGeometry, ABC):
 
         不同线型具有的参数范围不同，通过 `check_range` 方法进行检查。
         """
-        from manimgeo.components.lines import LineSegment, Ray, InfinityLine
-        if isinstance(self, LineSegment):
+        from manimgeo.components.lines import LineSegmentPP, RayPP, InfinityLinePP
+        if isinstance(self, LineSegmentPP):
             return -epsilon <= t <= 1 + epsilon
-        elif isinstance(self, Ray):
+        elif isinstance(self, RayPP):
             return t >= -epsilon
-        elif isinstance(self, InfinityLine):
+        elif isinstance(self, InfinityLinePP):
             return True
         return False
     
@@ -160,7 +160,7 @@ class LineLike(BaseGeometry, ABC):
          - 对于单个交点，返回值为 (has_intersection, [intesection_point])
          - 对于无穷多交点，返回值为端点  (has_intersection, [intesection_points])
         """
-        from manimgeo.components.lines import LineSegment, Ray, InfinityLine
+        from manimgeo.components.lines import LineSegmentPP, RayPP, InfinityLinePP
         epsilon = 1e-7
         points = []
 
@@ -230,18 +230,18 @@ class LineLike(BaseGeometry, ABC):
             t_start = np.dot(vec_start, ref_dir) / sqrlen_ref
             t_end = np.dot(vec_end, ref_dir) / sqrlen_ref
 
-            if isinstance(line, LineSegment):
+            if isinstance(line, LineSegmentPP):
                 return sorted([t_start, t_end])
-            elif isinstance(line, Ray):
+            elif isinstance(line, RayPP):
                 dir_dot = np.dot(line_end - line_start, ref_dir)
                 return (t_start, np.inf) if dir_dot > 0 else (-np.inf, t_start)
-            elif isinstance(line, InfinityLine):
+            elif isinstance(line, InfinityLinePP):
                 return (-np.inf, np.inf)
 
         # 获取两条线在参考线上的投影范围
         ref_line = line1
-        line1_t = (0.0, 1.0) if isinstance(line1, LineSegment) else \
-                 (0.0, np.inf) if isinstance(line1, Ray) else \
+        line1_t = (0.0, 1.0) if isinstance(line1, LineSegmentPP) else \
+                 (0.0, np.inf) if isinstance(line1, RayPP) else \
                  (-np.inf, np.inf)
 
         line2_t = get_projection(line2, ref_line)
@@ -265,10 +265,11 @@ class LineLike(BaseGeometry, ABC):
                     points.append(ref_line.start.coord + t * (ref_line._end.coord - ref_line.start.coord))
             return True, points
 
-    @abstractmethod
     def parametric(self, t: float) -> np.ndarray:
         """参数方程"""
-        ...
+        if not self.check_range(t):
+            raise ValueError("Invalid parameter t")
+        return self.start.coord + t*(self.end.coord - self.start.coord)
 
     @abstractmethod
     def _recalculate(self):
