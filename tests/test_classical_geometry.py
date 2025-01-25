@@ -4,50 +4,62 @@ from manimgeo.components.points import FreePoint, MidPoint, IntersectionPoint, E
 from manimgeo.components.lines import LineSegment, VerticalLine
 from manimgeo.components.conic_section import Circle, ThreePointCircle
 from manimgeo.components.base import PointLike
+from manimgeo.utils.utils import GeoUtils
 
 class TestClassicalGeometry:
     def test_nine_point_circle(self):
         # 构造三角形ABC
         A = FreePoint(np.array([0, 0]), "A")
+        print(f"顶点 {A.name} 坐标: {A.coord}")
         B = FreePoint(np.array([5, 0]), "B")
+        print(f"顶点 {B.name} 坐标: {B.coord}")
         C = FreePoint(np.array([2, 3]), "C")
+        print(f"顶点 {C.name} 坐标: {C.coord}")
         
         # 构造中点
         AB_mid = MidPoint(A, B, "AB_mid")
+        print(f"中点 {AB_mid.name} 坐标: {AB_mid.coord}")
         BC_mid = MidPoint(B, C, "BC_mid")
+        print(f"中点 {BC_mid.name} 坐标: {BC_mid.coord}")
         AC_mid = MidPoint(A, C, "AC_mid")
+        print(f"中点 {AC_mid.name} 坐标: {AC_mid.coord}")
         
+        # 构造边
+        AB = LineSegment(A, B, "AB")
+        BC = LineSegment(B, C, "BC")
+        AC = LineSegment(A, C, "AC")
+
         # 构造垂足
-        AB_foot = IntersectionPoint(
-            VerticalLine(C, LineSegment(A, B)),
-            LineSegment(A, B),
-            "AB_foot"
-        )
-        BC_foot = IntersectionPoint(
-            VerticalLine(A, LineSegment(B, C)),
-            LineSegment(B, C),
-            "BC_foot"
-        )
-        AC_foot = IntersectionPoint(
-            VerticalLine(B, LineSegment(A, C)),
-            LineSegment(A, C),
-            "AC_foot"
-        )
+        C_AB_perp = VerticalLine(C, AB, "C_AB_perp")
+        AB_foot = IntersectionPoint(C_AB_perp, AB, "AB_foot")
+        print(f"垂足 {AB_foot.name} 坐标: {AB_foot.coord}")
+
+        A_BC_prep = VerticalLine(A, BC, "A_BC_perp")
+        BC_foot = IntersectionPoint(A_BC_prep, BC, "BC_foot")
+        print(f"垂足 {BC_foot.name} 坐标: {BC_foot.coord}")
+        
+        B_AC_perp = VerticalLine(B, AC, "B_AC_perp")
+        AC_foot = IntersectionPoint(B_AC_perp, AC, "AC_foot")
+        print(f"垂足 {AC_foot.name} 坐标: {AC_foot.coord}")
         
         # 构造欧拉点
-        orthocenter = IntersectionPoint(
-            VerticalLine(A, LineSegment(B, C)),
-            VerticalLine(B, LineSegment(A, C)),
-            "Orthocenter"
-        )
+        orthocenter = IntersectionPoint(A_BC_prep, B_AC_perp, "Orthocenter")
+        print(f"垂心 {orthocenter.name} 坐标: {orthocenter.coord}")
         euler_points = [
-            MidPoint(A, orthocenter),
-            MidPoint(B, orthocenter),
-            MidPoint(C, orthocenter)
+            MidPoint(A, orthocenter, "A_orthocenter_mid"),
+            MidPoint(B, orthocenter, "B_orthocenter_mid"),
+            MidPoint(C, orthocenter, "C_orthocenter_mid")
         ]
+        for point in euler_points:
+            print(f"欧拉点 {point.name} 坐标: {point.coord}")
         
         # 构造九点圆
-        nine_point_circle = ThreePointCircle(AB_mid, BC_mid, AC_mid)
+        nine_point_circle = ThreePointCircle(AB_mid, BC_mid, AC_mid, "NinePointCircle")
+
+        # 打印依赖关系
+        print("Dependencies of A:")
+        GeoUtils.print_dependencies(A)
+        print("")
         
         # 验证所有点都在九点圆上
         for point in [AB_mid, BC_mid, AC_mid, AB_foot, BC_foot, AC_foot] + euler_points:
@@ -60,20 +72,27 @@ class TestClassicalGeometry:
         B = FreePoint(np.array([4, 0]), "B")
         C = FreePoint(np.array([2, 3]), "C")
         
+        # 构造边
+        AB = LineSegment(A, B, "AB")
+        BC = LineSegment(B, C, "BC")
+        AC = LineSegment(A, C, "AC")
+        
         # 找到重心
         centroid = (A.coord + B.coord + C.coord) / 3
         
         # 找到垂心
         orthocenter = IntersectionPoint(
-            VerticalLine(A, LineSegment(B, C)),
-            VerticalLine(B, LineSegment(A, C)),
+            VerticalLine(A, BC),
+            VerticalLine(B, AC),
             "Orthocenter"
         )
         
         # 找到外心
-        perpendicular_bisector_AB = VerticalLine(MidPoint(A, B), LineSegment(A, B))
-        perpendicular_bisector_AC = VerticalLine(MidPoint(A, C), LineSegment(A, C))
-        circumcenter = IntersectionPoint(perpendicular_bisector_AB, perpendicular_bisector_AC)
+        AB_mid = MidPoint(A, B, "AB_mid")
+        AC_mid = MidPoint(A, C, "AC_mid")
+        perpendicular_bisector_AB = VerticalLine(AB_mid, AB, "AB_perp_bisector")
+        perpendicular_bisector_AC = VerticalLine(AC_mid, AC, "AC_perp_bisector")
+        circumcenter = IntersectionPoint(perpendicular_bisector_AB, perpendicular_bisector_AC, "Circumcenter")
         
         # 验证三点共线
         vectors = np.array([
@@ -89,6 +108,11 @@ class TestClassicalGeometry:
         B = FreePoint(np.array([4, 0]), "B")
         C = FreePoint(np.array([2, 3]), "C")
         
+        # 构造边
+        AB = LineSegment(A, B, "AB")
+        BC = LineSegment(B, C, "BC")
+        AC = LineSegment(A, C, "AC")
+        
         # 构造外接圆
         circumcircle = ThreePointCircle(A, B, C)
         
@@ -97,16 +121,19 @@ class TestClassicalGeometry:
         
         # 构造西姆松线
         foot_AB = IntersectionPoint(
-            VerticalLine(P, LineSegment(A, B)),
-            LineSegment(A, B)
+            VerticalLine(P, AB, "P_AB_perp"),
+            AB,
+            "foot_AB"
         )
         foot_BC = IntersectionPoint(
-            VerticalLine(P, LineSegment(B, C)),
-            LineSegment(B, C)
+            VerticalLine(P, BC, "P_BC_perp"),
+            BC,
+            "foot_BC"
         )
         foot_CA = IntersectionPoint(
-            VerticalLine(P, LineSegment(C, A)),
-            LineSegment(C, A)
+            VerticalLine(P, AC, "P_AC_perp"),
+            AC,
+            "foot_CA"
         )
         
         # 验证三点共线
@@ -123,18 +150,26 @@ class TestClassicalGeometry:
         B = FreePoint(np.array([4, 0]), "B")
         C = FreePoint(np.array([2, 3]), "C")
         
+        # 构造边
+        AB = LineSegment(A, B, "AB")
+        BC = LineSegment(B, C, "BC")
+        AC = LineSegment(A, C, "AC")
+        
         # 构造垂足三角形
         foot_A = IntersectionPoint(
-            VerticalLine(A, LineSegment(B, C)),
-            LineSegment(B, C)
+            VerticalLine(A, BC, "A_BC_perp"),
+            BC,
+            "foot_A"
         )
         foot_B = IntersectionPoint(
-            VerticalLine(B, LineSegment(A, C)),
-            LineSegment(A, C)
+            VerticalLine(B, AC, "B_AC_perp"),
+            AC,
+            "foot_B"
         )
         foot_C = IntersectionPoint(
-            VerticalLine(C, LineSegment(A, B)),
-            LineSegment(A, B)
+            VerticalLine(C, AB, "C_AB_perp"),
+            AB,
+            "foot_C"
         )
         
         # 验证垂足三角形性质
@@ -155,10 +190,10 @@ class TestClassicalGeometry:
         P = FreePoint(np.array([3, 0]), "P")
         
         # 计算反演点P'
-        OP = LineSegment(O, P)
+        OP = LineSegment(O, P, "OP")
         OP_length = np.linalg.norm(P.coord - O.coord)
         inversion_radius = inversion_circle.radius**2 / OP_length
-        P_prime = ExtensionPoint(O, P, factor=inversion_radius/OP_length)
+        P_prime = ExtensionPoint(O, P, factor=inversion_radius/OP_length, name="P_prime")
         
         # 验证反演性质
         assert np.isclose(
@@ -173,9 +208,11 @@ class TestClassicalGeometry:
         C = FreePoint(np.array([2, 3.464]), "C")
         
         # 构造费马点
+        circle_AB = Circle(A, B, 60, "circle_AB")
+        circle_BC = Circle(B, C, 60, "circle_BC")
         fermat_point = IntersectionPoint(
-            Circle(A, B, 60),
-            Circle(B, C, 60),
+            circle_AB,
+            circle_BC,
             "FermatPoint"
         )
         

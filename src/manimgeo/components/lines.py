@@ -99,22 +99,37 @@ class InfinityLine(LineLike):
         """参数方程, t in R"""
         return self._start.coord + t*(self._through.coord - self._start.coord)
     
-class VerticalLine(LineLike):
-    def __init__(self, point: PointLike, line: LineLike, name: str = ""):
-        super().__init__(name)
-        self._point = point
+class VerticalLine(LineSegment):
+    """垂线段"""
+    _start: PointLike
+    _end: ImplicitPoint
+
+    def __init__(self, point: PointLike, line: LineSegment, name: str = ""):
         self._line = line
 
+        base_direction = GeoUtils.normalize(self._line.direction).copy()
+        end_coord = point.coord + np.array([-base_direction[1], base_direction[0]]) * GeoUtils.point_to_line_distance(
+            self._line.base_point, base_direction, point.coord
+        )
+
+        self._imp_foot = ImplicitPoint(end_coord, f"{name}_end@{id(self)}")
+        super().__init__(point, self._imp_foot, name) # 已经处理依赖
+
         # 垂线依赖点和线
-        self._point.add_dependent(self)
         self._line.add_dependent(self)
 
     def _recalculate(self):
-        direction = GeoUtils.normalize(self._line.direction).copy()
-        base_point = self._point.coord.copy()
+        # 更新隐式点
+        base_direction = GeoUtils.normalize(self._line.direction).copy()
+        self._imp_foot.coord = self._start.coord + np.array([-base_direction[1], base_direction[0]]) * GeoUtils.point_to_line_distance(
+            self._line.base_point, base_direction, self._start.coord
+        )
 
-        self.direction = np.array([-direction[1], direction[0]])
-        self.base_point = base_point
+        # 本体计算
+        super()._recalculate()
+
+    def parametric(self, t):
+        return super().parametric(t)
 
 class ParallelLine(LineLike):
     def __init__(self, point: PointLike, line: LineLike, name: str = ""):
@@ -132,6 +147,9 @@ class ParallelLine(LineLike):
 
         self.direction = direction
         self.base_point = base_point
+
+    def parametric(self, t):
+        return super().parametric(t)
 
 class PerpendicularLine(LineLike):
     @overload
@@ -170,6 +188,9 @@ class PerpendicularLine(LineLike):
         direction = GeoUtils.normalize(self._point2.coord - self._point1.coord).copy()
         self.direction = np.array([-direction[1], direction[0]])
         self.base_point = (self._point1.coord.copy() + self._point2.coord.copy()) / 2
+
+    def parametric(self, t):
+        return super().parametric(t)
 
 class AngleBisector(LineLike):
     @overload
@@ -225,6 +246,9 @@ class AngleBisector(LineLike):
                 self.base_point = intersection[1][0]
             else:
                 raise ValueError("No intersection found even though infinite lines are given")
+            
+    def parametric(self, t):
+        return super().parametric(t)
 
 class TangentLine(BaseGeometryLike):
     from manimgeo.components.conic_section import Circle, ThreePointCircle

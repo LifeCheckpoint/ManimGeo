@@ -26,6 +26,22 @@ class GeoUtils:
                 min(A[1], B[1]) - epsilon <= P[1] <= max(A[1], B[1]) + epsilon)
     
     @staticmethod
+    def point_to_line_distance(base_point: np.ndarray, unit_direction: np.ndarray, point: np.ndarray):
+        """计算点到直线距离"""
+        # 转换为NumPy数组
+        base_point = np.array(base_point)
+        unit_direction = np.array(unit_direction)
+        point = np.array(point)
+        # 计算向量 v
+        v = point - base_point
+        # 计算投影向量
+        v_proj = np.dot(v, unit_direction) * unit_direction
+        # 计算垂直向量
+        v_perp = v - v_proj
+        # 返回垂直向量的长度
+        return np.linalg.norm(v_perp)
+    
+    @staticmethod
     def print_dependencies(root, depth=0, max_depth=10, visited=None):
         """绘制依赖关系"""
         if root is None:

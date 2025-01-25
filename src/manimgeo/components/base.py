@@ -140,9 +140,9 @@ class LineLike(BaseGeometry, ABC):
         points = []
 
         p1: np.ndarray = line1._start.coord
-        p2: np.ndarray = line1._through.coord
+        p2: np.ndarray = line1._through.coord if not isinstance(line1, LineSegment) else line1._end.coord
         q1: np.ndarray = line2._start.coord
-        q2: np.ndarray = line2._through.coord
+        q2: np.ndarray = line2._through.coord if not isinstance(line2, LineSegment) else line2._end.coord
 
         u = p2 - p1
         v = q2 - q1
@@ -267,7 +267,7 @@ class BaseGeometryLike(BaseGeometry, ABC):
     def _recalculate(self):
         """重新计算"""
         ...
-        
+
 class ParametricGeometryLike(BaseGeometry, ABC):
     """参数几何图形对象"""
     def __init__(self, name: str = ""):
