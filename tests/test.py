@@ -15,7 +15,7 @@ BC = LineSegment(B, C, "BC")
 AC = LineSegment(A, C, "AC")
 
 # 创建中点M
-M = MidPoint(A, B, "M")
+M = MidPoint(AB, None, "M")
 
 # 构造线段CM
 CM = LineSegment(C, M, "CM")

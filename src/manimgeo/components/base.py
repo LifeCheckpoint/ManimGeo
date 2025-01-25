@@ -129,7 +129,12 @@ class LineLike(BaseGeometry, ABC):
         return self.check_range(t)
     
     @staticmethod
-    def find_intersection(line1: LineLike, line2: LineLike) -> Tuple[bool, List[np.ndarray]]:
+    def find_intersection(line1: LineLike, line2: LineLike, infinty: bool = False) -> Tuple[bool, List[np.ndarray]]:
+        """
+        计算两条线的交点
+        对于单个交点，返回值为 (has_intersection, [intesection_point])
+        对于无穷多交点，返回值为端点  (has_intersection, [intesection_points])
+        """
         from manimgeo.components.lines import LineSegment, Ray, InfinityLine
         epsilon = 1e-7
         points = []
@@ -158,6 +163,9 @@ class LineLike(BaseGeometry, ABC):
             return False, []
 
         # 单线退化处理
+        if infinty and (line1_degenerate or line2_degenerate):
+            return (False, [])
+        
         if line1_degenerate:
             on_line = line2.is_point_on_line(p1, epsilon)
             return (on_line, [p1.copy()]) if on_line else (False, [])
@@ -171,7 +179,7 @@ class LineLike(BaseGeometry, ABC):
             t = np.cross(w, v) / cross
             s = -np.cross(u, w) / cross
 
-            if line1.check_range(t) and line2.check_range(s):
+            if (line1.check_range(t) and line2.check_range(s)) or infinty:
                 intersection = p1 + t * u
                 return True, [intersection]
             return False, []
