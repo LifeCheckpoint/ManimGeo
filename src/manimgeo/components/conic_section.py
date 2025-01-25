@@ -1,10 +1,10 @@
-from manimgeo.components.base import PointLike, ParametricGeometry
+from manimgeo.components.base import PointLike, ParametricGeometryLike
 from manimgeo.utils.utils import GeoUtils
 
 from typing import overload, Union, Optional, Literal
 import numpy as np
 
-class Circle(ParametricGeometry):
+class Circle(ParametricGeometryLike):
     """简单圆类型"""
     data: tuple[np.ndarray, Union[float, np.ndarray]] # center, radius or radius_point
 
@@ -62,7 +62,7 @@ class Circle(ParametricGeometry):
             center, radius = self.data[0], np.linalg.norm(self.data[1] - self.data[0])
         return center + radius*np.array([np.cos(t), np.sin(t)])
     
-class ThreePointCircle(ParametricGeometry):
+class ThreePointCircle(ParametricGeometryLike):
     """三点外接圆类型"""
     data: tuple[np.ndarray, float] # center, radius
 
@@ -97,7 +97,7 @@ class ThreePointCircle(ParametricGeometry):
         center, radius = self.data
         return center + radius*np.array([np.cos(t), np.sin(t)])
 
-class EllipseAB(ParametricGeometry):
+class EllipseAB(ParametricGeometryLike):
     """长短轴椭圆类型"""
     data: tuple[np.ndarray, np.ndarray, np.ndarray] # center, a, b
 
@@ -161,7 +161,7 @@ class EllipseAB(ParametricGeometry):
         center, a, b = self._center, self._x_axis, self._y_axis
         return center + np.array([a*np.cos(t), b*np.sin(t)])
     
-class EllipseCE(ParametricGeometry):
+class EllipseCE(ParametricGeometryLike):
     @overload
     def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: Union[int, float], name: str = ""):
         """
@@ -243,7 +243,7 @@ class EllipseCE(ParametricGeometry):
         center, a, b = self.data
         return center + np.array([a*np.cos(t), b*np.sin(t)])
 
-class HyperbolaAB(ParametricGeometry):
+class HyperbolaAB(ParametricGeometryLike):
     """双曲线类型"""
     data: tuple[np.ndarray, np.ndarray, np.ndarray] # center, a, b
 
@@ -307,7 +307,7 @@ class HyperbolaAB(ParametricGeometry):
         center, a, b = self._center, self._x_axis, self._y_axis
         return center + np.array([a*np.cosh(t), b*np.sinh(t)])
     
-class HyperbolaCE(ParametricGeometry):
+class HyperbolaCE(ParametricGeometryLike):
     @overload
     def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: Union[int, float], name: str = ""):
         """
@@ -389,7 +389,7 @@ class HyperbolaCE(ParametricGeometry):
         center, a, b = self.data
         return center + np.array([a*np.cosh(t), b*np.sinh(t)])
 
-class Parabola(ParametricGeometry):
+class Parabola(ParametricGeometryLike):
     """抛物线类型"""
     data: tuple[np.ndarray, np.ndarray] # center, p
 
