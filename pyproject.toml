@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ManimGeo"
+version = "0.1.0"
+description = "A library for Manim to create geometric animations"
+authors = [
+    { name = "lifecheckpoint", email = "lifechpt@qq.com" }
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.21.0",
+    # "manim>=0.17.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

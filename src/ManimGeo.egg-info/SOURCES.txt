@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+src/ManimGeo.egg-info/PKG-INFO
+src/ManimGeo.egg-info/SOURCES.txt
+src/ManimGeo.egg-info/dependency_links.txt
+src/ManimGeo.egg-info/requires.txt
+src/ManimGeo.egg-info/top_level.txt
+src/manimgeo/__init__.py
+src/manimgeo/components/__init__.py
+src/manimgeo/components/dependent.py
+src/manimgeo/components/lines.py
+src/manimgeo/components/points.py
+src/manimgeo/utils/__init__.py
+src/manimgeo/utils/utils.py
+tests/test.py
