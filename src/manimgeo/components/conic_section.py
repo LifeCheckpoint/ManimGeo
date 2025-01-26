@@ -75,7 +75,7 @@ class CirclePPP(ParametricGeometryLike):
 
     @property
     def radius_and_center(self) -> Tuple[float, float]:
-        """半径"""
+        """半径与圆心"""
         p1, p2, p3 = self.point1.coord, self.point2.coord, self.point3.coord
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p1 - p3)
@@ -100,6 +100,14 @@ class CirclePPP(ParametricGeometryLike):
 
         center = np.linalg.solve(A, B)
         return r, center
+    
+    @property
+    def radius(self) -> float:
+        return self.radius_and_center[0]
+    
+    @property
+    def center(self) -> np.ndarray:
+        return self.radius_and_center[1]
 
     def _recalculate(self):
         pass

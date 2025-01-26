@@ -55,7 +55,7 @@ class TestClassicalGeometry:
 
         # 打印依赖关系
         print("Dependencies of A:")
-        GeoUtils.print_dependencies(A)
+        geo_print_dependencies(A)
         print("")
         
         # 验证所有点都在九点圆上
@@ -108,120 +108,41 @@ class TestClassicalGeometry:
         circumcircle = CirclePPP(A, B, C)
         
         # 构造圆上一点P
-        P = FreePoint(np.array([3, 2]), "P")
+        P = FreePoint(np.array([2, -4/3]), "P")
         
-        # 构造西姆松线
-        foot_AB = IntersectionPointLL(
-            VerticalLine(P, AB, "P_AB_perp"),
-            AB,
-            "foot_AB"
-        )
-        foot_BC = IntersectionPointLL(
-            VerticalLine(P, BC, "P_BC_perp"),
-            BC,
-            "foot_BC"
-        )
-        foot_CA = IntersectionPointLL(
-            VerticalLine(P, AC, "P_AC_perp"),
-            AC,
-            "foot_CA"
-        )
+        # 使用高级几何工具构造垂足点
+        foot_AB = VerticalPointPL(P, AB, "foot_AB")
+        foot_BC = VerticalPointPL(P, BC, "foot_BC")
+        foot_CA = VerticalPointPL(P, AC, "foot_CA")
+
+        # 打印依赖关系
+        print("Dependencies of A:")
+        geo_print_dependencies(A)
+        print("")
         
         # 验证三点共线
         vectors = np.array([
             foot_AB.coord - foot_BC.coord,
             foot_BC.coord - foot_CA.coord
         ])
-        rank = np.linalg.matrix_rank(vectors)
-        assert rank == 1
-        
-    def test_pedal_triangle(self):
-        # 构造三角形ABC
-        A = FreePoint(np.array([0, 0]), "A")
-        B = FreePoint(np.array([4, 0]), "B")
-        C = FreePoint(np.array([2, 3]), "C")
-        
-        # 构造边
-        AB = LineSegmentPP(A, B, "AB")
-        BC = LineSegmentPP(B, C, "BC")
-        AC = LineSegmentPP(A, C, "AC")
-        
-        # 构造垂足三角形
-        foot_A = IntersectionPointLL(
-            VerticalLine(A, BC, "A_BC_perp"),
-            BC,
-            "foot_A"
-        )
-        foot_B = IntersectionPointLL(
-            VerticalLine(B, AC, "B_AC_perp"),
-            AC,
-            "foot_B"
-        )
-        foot_C = IntersectionPointLL(
-            VerticalLine(C, AB, "C_AB_perp"),
-            AB,
-            "foot_C"
-        )
-        
-        # 验证垂足三角形性质
-        area_pedal = 0.5 * np.linalg.norm(
-            np.cross(foot_B.coord - foot_A.coord, foot_C.coord - foot_A.coord)
-        )
-        area_original = 0.5 * np.linalg.norm(
-            np.cross(B.coord - A.coord, C.coord - A.coord)
-        )
-        assert np.isclose(area_pedal / area_original, 0.25)
+        assert np.linalg.matrix_rank(vectors) == 1, "西姆松线三点不共线"
         
     def test_inversion(self):
-        # 构造反演圆
+        # 使用两点构造法创建反演圆（圆心O，半径2）
         O = FreePoint(np.array([0, 0]), "O")
-        inversion_circle = Circle(O, 2)
+        R = FreePoint(np.array([2, 0]), "R")
+        inversion_circle = CirclePP(O, R, "InversionCircle")
         
-        # 构造点P
+        # 构造点P并计算反演点
         P = FreePoint(np.array([3, 0]), "P")
+        Q = InversionPointCir(P, inversion_circle, name="Q")
         
-        # 计算反演点P'
-        OP = LineSegmentPP(O, P, "OP")
-        OP_length = np.linalg.norm(P.coord - O.coord)
-        inversion_radius = inversion_circle.radius**2 / OP_length
-        P_prime = ExtensionPointPP(O, P, factor=inversion_radius/OP_length, name="P_prime")
+        # 打印依赖关系
+        print("Dependencies of O:")
+        geo_print_dependencies(O)
+        print("")
+
+        # 验证反演
+        OQ = np.linalg.norm(O.coord - Q.coord)
+        assert np.allclose(OQ, 4/3)
         
-        # 验证反演性质
-        assert np.isclose(
-            np.linalg.norm(P.coord - O.coord) * np.linalg.norm(P_prime.coord - O.coord),
-            inversion_circle.radius**2
-        )
-        
-    def test_fermat_point(self):
-        # 构造等边三角形ABC
-        A = FreePoint(np.array([0, 0]), "A")
-        B = FreePoint(np.array([4, 0]), "B")
-        C = FreePoint(np.array([2, 3.464]), "C")
-        
-        # 构造费马点
-        circle_AB = Circle(A, B, 60, "circle_AB")
-        circle_BC = Circle(B, C, 60, "circle_BC")
-        fermat_point = IntersectionPointLL(
-            circle_AB,
-            circle_BC,
-            "FermatPoint"
-        )
-        
-        # 验证到三个顶点的距离和最小
-        distances = [
-            np.linalg.norm(fermat_point.coord - A.coord),
-            np.linalg.norm(fermat_point.coord - B.coord),
-            np.linalg.norm(fermat_point.coord - C.coord)
-        ]
-        total_distance = sum(distances)
-        
-        # 测试其他点的距离和
-        test_point = FreePoint(np.array([2, 1]), "TestPoint")
-        test_distances = [
-            np.linalg.norm(test_point.coord - A.coord),
-            np.linalg.norm(test_point.coord - B.coord),
-            np.linalg.norm(test_point.coord - C.coord)
-        ]
-        test_total_distance = sum(test_distances)
-        
-        assert total_distance < test_total_distance

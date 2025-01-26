@@ -3,7 +3,7 @@ from manimgeo.components.vector import VectorParam, VectorPP
 from manimgeo.components.angle import AnglePP
 from manimgeo.utils.utils import GeoUtils
 
-from typing import Union
+from typing import Union, TypeAlias
 import numpy as np
 
 class FreePoint(PointLike):
@@ -211,22 +211,31 @@ class ParallelPointPL(PointLike):
 class AngleBisectorPointPPP(PointLike):
     pass
 
-# class InversionPoint(PointLike):
-#     """反演点"""
-#     from manimgeo.components.conic_section import Circle, ThreePointCircle
+class InversionPointCir(PointLike):
+    """反演点"""
+    from manimgeo.components.conic_section import CircleP, CirclePP, CirclePPP
+    Circles: TypeAlias = Union[CircleP, CirclePP, CirclePPP]
 
-#     def __init__(self, point: PointLike, circle: Union[Circle, ThreePointCircle], radius: float, name: str = ""):
-#         super().__init__(name)
-#         self._point = point
-#         self._circle = circle
+    point: PointLike
+    circle: Circles
 
-#         self._point.add_dependent(self)
-#         self._circle.add_dependent(self)
+    def __init__(self, point: PointLike, circle: Circles, name: str = ""):
+        super().__init__(name if name is not "" else f"InversionPointCir@{id(self)}")
+        self.point = point
+        self.circle = circle
 
-#     def _recalculate(self):
-#         op = self._point.coord - self._circle.center
-#         d_squared = np.dot(op, op)
-#         if d_squared == 0:
-#             raise ValueError("Point p coincides with the center, inversion undefined.")
-#         k = (self._circle.radius ** 2) / d_squared
-#         self.coord = self._circle.center + op * k
+        self.point.add_dependent(self)
+        self.circle.add_dependent(self)
+
+    def _recalculate(self):
+        # 对于 PPP
+        from manimgeo.components.conic_section import CirclePPP
+        center_coord = self.circle.center.coord if not isinstance(self.circle, CirclePPP) else self.circle.center
+        radius = np.linalg.norm(self.circle.center.coord - self.circle.point.coord) if not isinstance(self.circle, CirclePPP) else self.circle.radius
+
+        op = self.point.coord - center_coord
+        d_squared = np.dot(op, op)
+        if d_squared == 0:
+            raise ValueError("Point p coincides with the center, inversion undefined.")
+        k = (radius ** 2) / d_squared
+        self._coord = center_coord + op * k
