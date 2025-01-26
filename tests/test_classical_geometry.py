@@ -28,7 +28,7 @@ class TestClassicalGeometry:
         OB = RayPP(O, B, "OB")
         P = IntersectionPointLL(AN, OB, "P")
 
-        # 打印 P 依赖关系
+        # 打印 A 依赖关系
         print("Dependencies of A:")
         geo_print_dependencies(A)
         print("")

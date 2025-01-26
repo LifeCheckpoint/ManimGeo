@@ -1,16 +1,14 @@
-# ManimGeo
+# ManimGeo - 几何动画辅助库
 
-**developing...**
+ManimGeo 是一个用于简化几何图形创建和动画生成的辅助库。它提供了丰富的几何元素和操作，帮助快速构建复杂的几何场景。
 
-ManimGeo 是一个用于简化 Manim 动画中创建几何图形及其依赖的辅助库。
+## 主要特性
 
-## 特性
-
-- 简化几何图形的创建 (正在做)
-- 提供常用的几何操作 (做着呢)
-- 兼容 Manim 的动画系统 (还没做)
-
-单元测试也没做...
+- **几何元素创建**：支持点、线、圆、角等基本几何元素的创建
+- **几何关系处理**：自动处理中点、垂足、交点等几何关系
+- **几何变换**：支持反演等几何变换操作
+- **依赖管理**：自动维护几何元素间的依赖关系
+- **动画集成**：与 Manim 动画系统无缝集成
 
 ## 安装
 
@@ -20,53 +18,28 @@ ManimGeo 是一个用于简化 Manim 动画中创建几何图形及其依赖的�
 pip install manimgeo
 ```
 
-## 使用示例
+## 快速开始
 
 ```python
-from manimgeo.components.points import FreePoint, MidPoint, ExtensionPoint, IntersectionPoint
-from manimgeo.components.lines import LineSegment, Ray
-from manimgeo.utils.utils import GeoUtils
+from manimgeo import *
 
-import numpy as np
+# 创建三角形ABC
+A = FreePoint([0, 0], "A")
+B = FreePoint([4, 0], "B") 
+C = FreePoint([2, 3], "C")
 
-# 创建自由点
-A = FreePoint(np.array([0, 0]), "A")
-B = FreePoint(np.array([4, 0]), "B")
-C = FreePoint(np.array([1, 3]), "C")
+# 构造边和中点
+AB = LineSegmentPP(A, B, "AB")
+M = MidPointL(AB, "M")
 
-# 构造线段AB, BC, AC
-AB = LineSegment(A, B, "AB")
-BC = LineSegment(B, C, "BC")
-AC = LineSegment(A, C, "AC")
+# 构造九点圆
+nine_point_circle = CirclePPP(
+    MidPointPP(A, B),
+    MidPointPP(B, C),
+    MidPointPP(A, C)
+)
 
-# 创建中点M
-M = MidPoint(AB, None, "M")
-
-# 构造线段CM
-CM = LineSegment(C, M, "CM")
-
-# 创建延长点N, O
-N = ExtensionPoint(C, M, factor=2.0, name="N")
-O = ExtensionPoint(C, M, factor=3.0, name="O")
-
-# 构造射线AN，交OB于P
-AN = Ray(A, N, "AN")
-OB = Ray(O, B, "OB")
-P = IntersectionPoint(AN, OB, "P")
-
-# 打印 P 依赖关系
+# 打印依赖关系
 print("Dependencies of A:")
-GeoUtils.print_dependencies(A)
-print("")
-
-# 输出移动前坐标
-print("Before moving B:")
-print(f"{P.name}: {P.coord}")
-
-# 移动B时的级联更新
-B.coord = np.array([5, 0])
-
-# 输出移动后坐标
-print("After moving P:")
-print(f"{P.name}: {P.coord}")
+geo_print_dependencies(A)
 ```
