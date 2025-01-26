@@ -9,6 +9,10 @@ class LineSegmentPP(LineLike):
     """线段类型（两点）"""
     def __init__(self, start: PointLike, end: PointLike, name: str = ""):
         super().__init__(name if name is not "" else f"LineSegment@{id(self)}")
+
+        if np.allclose(start.coord, end.coord):
+            raise ValueError(f"For line {self.name}, Points {start.name} and {end.name} causing degenerating")
+        
         self.start = start
         self.end = end
 
@@ -24,6 +28,10 @@ class RayPP(LineLike):
     """射线类型（两点）"""
     def __init__(self, start: PointLike, end: PointLike, name: str = ""):
         super().__init__(name if name is not "" else f"RayPP@{id(self)}")
+
+        if np.allclose(start.coord, end.coord):
+            raise ValueError(f"For line {self.name}, Points {start.name} and {end.name} causing degenerating")
+        
         self.start = start
         self.end = end
 
@@ -40,6 +48,9 @@ class InfinityLinePP(LineLike):
     
     def __init__(self, start: PointLike, end: PointLike, name: str = ""):
         super().__init__(name if name is not "" else f"InfinityLinePP@{id(self)}")
+
+        if np.allclose(start.coord, end.coord):
+            raise ValueError(f"For line {self.name}, Points {start.name} and {end.name} causing degenerating")
 
         self.start = start
         self.end = end

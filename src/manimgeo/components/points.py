@@ -92,9 +92,9 @@ class IntersectionPointLL(PointLike):
         if has_intersection and len(res) == 1:
             self.coord = res[0]
         elif has_intersection and len(res) >= 1:
-            raise ValueError("Multiple intersections found")
+            raise ValueError(f"For {self.line1.name} and {self.line2.name}, Multiple intersections found")
         else:
-            raise ValueError("No intersection found")
+            raise ValueError(f"For {self.line1.name} and {self.line2.name}, No intersection found")
         
 class AxisymmetricPointPL(PointLike):
     """轴对称点"""
@@ -175,9 +175,8 @@ class VerticalPointPL(PointLike):
 
     def _recalculate(self):
         direction = GeoUtils.unit_direction_vector(self.line.start.coord, self.line.end.coord)
-        self._coord = self.point.coord + np.array([-direction[1], direction[0]]) * GeoUtils.point_to_line_distance(
-            self.line.start.coord, direction, self.point.coord
-        )
+        projection_scalar = np.dot(self.point.coord - self.line.start.coord, direction)
+        self._coord = self.line.start.coord + projection_scalar * direction
 
 class ParallelPointPL(PointLike):
     """平行点"""

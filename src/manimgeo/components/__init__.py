@@ -1,9 +1,6 @@
-from typing import Protocol
-
-class DependentObject(Protocol):
-    """依赖更新协议"""
-    def update(self) -> None:
-        ...
-    
-    def add_dependent(self, obj: 'DependentObject') -> None:
-        ...
+from manimgeo.components.angle import *
+from manimgeo.components.base import *
+from manimgeo.components.conic_section import *
+from manimgeo.components.lines import *
+from manimgeo.components.points import *
+from manimgeo.components.vector import *

@@ -1,10 +1,5 @@
 import numpy as np
-import pytest
-from manimgeo.components.points import FreePoint, MidPointPP, MidPointL, IntersectionPointLL, ExtensionPointPP, VerticalPointPL
-from manimgeo.components.lines import LineSegmentPP, InfinityLinePP
-from manimgeo.components.conic_section import Circle, ThreePointCircle
-from manimgeo.components.base import PointLike
-from manimgeo.utils.utils import GeoUtils
+from manimgeo.components import *
 
 class TestClassicalGeometry:
     def test_nine_point_circle(self):
@@ -55,7 +50,8 @@ class TestClassicalGeometry:
             print(f"欧拉点 {point.name} 坐标: {point.coord}")
         
         # 构造九点圆
-        # nine_point_circle = ThreePointCircle(AB_mid, BC_mid, AC_mid, "NinePointCircle")
+        nine_point_circle = CirclePPP(AB_mid, BC_mid, AC_mid, "NinePointCircle")
+        print(f"九点圆 {nine_point_circle.name} 半径与圆心: {nine_point_circle.radius_and_center}")
 
         # 打印依赖关系
         print("Dependencies of A:")
@@ -63,42 +59,48 @@ class TestClassicalGeometry:
         print("")
         
         # 验证所有点都在九点圆上
-        # for point in [AB_mid, BC_mid, AC_mid, AB_foot, BC_foot, AC_foot] + euler_points:
-        #     point: PointLike
-        #     assert np.isclose(nine_point_circle.radius, np.linalg.norm(point.coord - nine_point_circle.center))
+        for point in [AB_mid, BC_mid, AC_mid, AB_foot, BC_foot, AC_foot] + euler_points:
+            point: PointLike
+            r, c = nine_point_circle.radius_and_center
+            assert np.isclose(r, np.linalg.norm(point.coord - c))
         
     def test_euler_line(self):
         # 构造三角形ABC
         A = FreePoint(np.array([0, 0]), "A")
-        B = FreePoint(np.array([4, 0]), "B")
+        B = FreePoint(np.array([5, 0]), "B")
         C = FreePoint(np.array([2, 3]), "C")
         
         # 构造边
-        AB = LineSegment(A, B, "AB")
-        BC = LineSegment(B, C, "BC")
-        AC = LineSegment(A, C, "AC")
+        AB = InfinityLinePP(A, B, "AB")
+        BC = InfinityLinePP(B, C, "BC")
+        AC = InfinityLinePP(A, C, "AC")
         
         # 找到重心
         centroid = (A.coord + B.coord + C.coord) / 3
         
         # 找到垂心
-        orthocenter = IntersectionPoint(
-            VerticalLine(A, BC),
-            VerticalLine(B, AC),
+        orthocenter = IntersectionPointLL(
+            InfinityLinePP(A, VerticalPointPL(A, BC)),
+            InfinityLinePP(B, VerticalPointPL(B, AC)),
             "Orthocenter"
         )
         
         # 找到外心
-        AB_mid = MidPoint(A, B, "AB_mid")
-        AC_mid = MidPoint(A, C, "AC_mid")
-        perpendicular_bisector_AB = VerticalLine(AB_mid, AB, "AB_perp_bisector")
-        perpendicular_bisector_AC = VerticalLine(AC_mid, AC, "AC_perp_bisector")
-        circumcenter = IntersectionPoint(perpendicular_bisector_AB, perpendicular_bisector_AC, "Circumcenter")
+        AB_mid = MidPointPP(A, B, "AB_mid")
+        AC_mid = MidPointPP(A, C, "AC_mid")
+        perpendicular_bisector_AB = InfinityLinePP(AB_mid, VerticalPointPL(AB_mid, AB), "AB_perp_bisector")
+        perpendicular_bisector_AC = InfinityLinePP(AC_mid, VerticalPointPL(AC_mid, AC), "AC_perp_bisector")
+        circumcenter = IntersectionPointLL(perpendicular_bisector_AB, perpendicular_bisector_AC, "Circumcenter")
+
+        # 打印依赖关系
+        print("Dependencies of A:")
+        GeoUtils.print_dependencies(A)
+        print("")
         
         # 验证三点共线
         vectors = np.array([
-            centroid - orthocenter,
-            circumcenter - orthocenter
+            centroid - orthocenter.coord,
+            circumcenter.coord - orthocenter.coord
         ])
         rank = np.linalg.matrix_rank(vectors)
         assert rank == 1
@@ -110,28 +112,28 @@ class TestClassicalGeometry:
         C = FreePoint(np.array([2, 3]), "C")
         
         # 构造边
-        AB = LineSegment(A, B, "AB")
-        BC = LineSegment(B, C, "BC")
-        AC = LineSegment(A, C, "AC")
+        AB = LineSegmentPP(A, B, "AB")
+        BC = LineSegmentPP(B, C, "BC")
+        AC = LineSegmentPP(A, C, "AC")
         
         # 构造外接圆
-        circumcircle = ThreePointCircle(A, B, C)
+        circumcircle = CirclePPP(A, B, C)
         
         # 构造圆上一点P
         P = FreePoint(np.array([3, 2]), "P")
         
         # 构造西姆松线
-        foot_AB = IntersectionPoint(
+        foot_AB = IntersectionPointLL(
             VerticalLine(P, AB, "P_AB_perp"),
             AB,
             "foot_AB"
         )
-        foot_BC = IntersectionPoint(
+        foot_BC = IntersectionPointLL(
             VerticalLine(P, BC, "P_BC_perp"),
             BC,
             "foot_BC"
         )
-        foot_CA = IntersectionPoint(
+        foot_CA = IntersectionPointLL(
             VerticalLine(P, AC, "P_AC_perp"),
             AC,
             "foot_CA"
@@ -152,22 +154,22 @@ class TestClassicalGeometry:
         C = FreePoint(np.array([2, 3]), "C")
         
         # 构造边
-        AB = LineSegment(A, B, "AB")
-        BC = LineSegment(B, C, "BC")
-        AC = LineSegment(A, C, "AC")
+        AB = LineSegmentPP(A, B, "AB")
+        BC = LineSegmentPP(B, C, "BC")
+        AC = LineSegmentPP(A, C, "AC")
         
         # 构造垂足三角形
-        foot_A = IntersectionPoint(
+        foot_A = IntersectionPointLL(
             VerticalLine(A, BC, "A_BC_perp"),
             BC,
             "foot_A"
         )
-        foot_B = IntersectionPoint(
+        foot_B = IntersectionPointLL(
             VerticalLine(B, AC, "B_AC_perp"),
             AC,
             "foot_B"
         )
-        foot_C = IntersectionPoint(
+        foot_C = IntersectionPointLL(
             VerticalLine(C, AB, "C_AB_perp"),
             AB,
             "foot_C"
@@ -191,10 +193,10 @@ class TestClassicalGeometry:
         P = FreePoint(np.array([3, 0]), "P")
         
         # 计算反演点P'
-        OP = LineSegment(O, P, "OP")
+        OP = LineSegmentPP(O, P, "OP")
         OP_length = np.linalg.norm(P.coord - O.coord)
         inversion_radius = inversion_circle.radius**2 / OP_length
-        P_prime = ExtensionPoint(O, P, factor=inversion_radius/OP_length, name="P_prime")
+        P_prime = ExtensionPointPP(O, P, factor=inversion_radius/OP_length, name="P_prime")
         
         # 验证反演性质
         assert np.isclose(
@@ -211,7 +213,7 @@ class TestClassicalGeometry:
         # 构造费马点
         circle_AB = Circle(A, B, 60, "circle_AB")
         circle_BC = Circle(B, C, 60, "circle_BC")
-        fermat_point = IntersectionPoint(
+        fermat_point = IntersectionPointLL(
             circle_AB,
             circle_BC,
             "FermatPoint"

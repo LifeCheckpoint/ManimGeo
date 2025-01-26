@@ -1,100 +1,112 @@
 from manimgeo.components.base import PointLike, ParametricGeometryLike
 from manimgeo.utils.utils import GeoUtils
 
-from typing import overload, Union, Optional, Literal
+from typing import overload, Union, Optional, Literal, Tuple
 import numpy as np
 
-class Circle(ParametricGeometryLike):
-    """简单圆类型"""
-    data: tuple[np.ndarray, Union[float, np.ndarray]] # center, radius or radius_point
+class CirclePP(ParametricGeometryLike):
+    """圆心+半径点构造圆"""
+    center: PointLike
+    point: PointLike
 
-    @property
-    def center(self) -> np.ndarray:
-        return self.data[0]
-    
-    @property
-    def radius(self) -> float:
-        if isinstance(self.data[1], np.ndarray):
-            return np.linalg.norm(self.data[1] - self.data[0])
-        else:
-            return self.data[1]
-
-    @overload
-    def __init__(self, center: PointLike, radius: float, name: str = ""):
-        ...
-
-    @overload
     def __init__(self, center: PointLike, point: PointLike, name: str = ""):
-        ...
+        super().__init__(name if name is not "" else f"CirclePP@{id(self)}")
 
-    def __init__(self, center: PointLike, radius_or_point: Union[int, float, PointLike], name: str = ""):
-        super().__init__(name)
-        self._center = center
+        self.center = center
+        self.point = point
 
-        # 依赖于圆心与半径
-        if isinstance(radius_or_point, (int, float)):
-            self._radius = radius_or_point
-
-        # 依赖于圆心与半径点
-        elif isinstance(radius_or_point, PointLike):
-            self._radius_point = radius_or_point
-            self._radius_point.add_dependent(self)
-
-        else:
-            raise ValueError("Invalid input arguments")
-
-        # 圆依赖圆心
-        self._center.add_dependent(self)
+        self.center.add_dependent(self)
+        self.point.add_dependent(self)
 
     def _recalculate(self):
-        if hasattr(self, "_radius"):
-            # 圆心与半径确定圆
-            self.data = (self._center.coord, self._radius)
-        else:
-            # 圆心与半径点确定圆
-            self.data = (self._center.coord, self._radius_point.coord)
+        pass
 
     def parametric(self, t: float) -> np.ndarray:
-        """参数方程, 0 <= t <= 2π"""
-        if hasattr(self, "_radius"):
-            center, radius = self.data
-        else:
-            center, radius = self.data[0], np.linalg.norm(self.data[1] - self.data[0])
+        """0 <= t <= 2π"""
+        center, radius = self.center.coord, np.linalg.norm(self.point.coord - self.center.coord)
         return center + radius*np.array([np.cos(t), np.sin(t)])
     
-class ThreePointCircle(ParametricGeometryLike):
-    """三点外接圆类型"""
-    data: tuple[np.ndarray, float] # center, radius
+class CircleP(ParametricGeometryLike):
+    """圆心+半径构造圆"""
+    center: PointLike
+    _radius: float
 
-    @property
-    def center(self) -> np.ndarray:
-        return self.data[0]
-    
     @property
     def radius(self) -> float:
-        return self.data[1]
+        """半径"""
+        return self._radius
+    
+    @radius.setter
+    def radius(self, value: float):
+        self.update()
+        self._radius = value
 
-    def __init__(self, point1: PointLike, point2: PointLike, point3: PointLike, name: str = ""):
-        super().__init__(name)
-        self._point1 = point1
-        self._point2 = point2
-        self._point3 = point3
-        self._point1.add_dependent(self)
-        self._point2.add_dependent(self)
-        self._point3.add_dependent(self)
+    def __init__(self, center: PointLike, radius: float, name: str = ""):
+        super().__init__(name if name is not "" else f"CircleP@{id(self)}")
+
+        self.center = center
+        self._radius = radius
+
+        self.center.add_dependent(self)
 
     def _recalculate(self):
-        p1, p2, p3 = self._point1.coord, self._point2.coord, self._point3.coord
+        pass
+
+    def parametric(self, t: float) -> np.ndarray:
+        """0 <= t <= 2π"""
+        return self.center.coord + self.radius*np.array([np.cos(t), np.sin(t)])
+    
+class CirclePPP(ParametricGeometryLike):
+    """三点构造外接圆"""
+    point1: PointLike
+    point2: PointLike
+    point3: PointLike
+
+    def __init__(self, point1: PointLike, point2: PointLike, point3: PointLike, name: str = ""):
+        super().__init__(name if name is not "" else f"CirclePPP@{id(self)}")
+
+        self.point1 = point1
+        self.point2 = point2
+        self.point3 = point3
+
+        self.point1.add_dependent(self)
+        self.point2.add_dependent(self)
+        self.point3.add_dependent(self)
+
+    @property
+    def radius_and_center(self) -> Tuple[float, float]:
+        """半径"""
+        p1, p2, p3 = self.point1.coord, self.point2.coord, self.point3.coord
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p1 - p3)
         c = np.linalg.norm(p1 - p2)
         s = (a + b + c) / 2
-        r = a*b*c / (4*np.sqrt(s*(s-a)*(s-b)*(s-c)))
-        self.data = ((a*p1 + b*p2 + c*p3) / (a + b + c), r)
+        r = a * b * c / (4 * np.sqrt(s * (s - a) * (s - b) * (s - c)))
+
+        # 计算圆心
+        x1, y1 = p1
+        x2, y2 = p2
+        x3, y3 = p3
+
+        # 构造垂直平分线的方程组
+        A = np.array([
+            [2 * (x2 - x1), 2 * (y2 - y1)],
+            [2 * (x3 - x2), 2 * (y3 - y2)]
+        ])
+        B = np.array([
+            x2**2 + y2**2 - x1**2 - y1**2,
+            x3**2 + y3**2 - x2**2 - y2**2
+        ])
+
+        center = np.linalg.solve(A, B)
+        return r, center
+
+    def _recalculate(self):
+        pass
 
     def parametric(self, t: float) -> np.ndarray:
-        """参数方程, 0 <= t <= 2π"""
-        center, radius = self.data
+        """0 <= t <= 2π"""
+        radius, center = self.radius_and_center
         return center + radius*np.array([np.cos(t), np.sin(t)])
 
 class EllipseAB(ParametricGeometryLike):
