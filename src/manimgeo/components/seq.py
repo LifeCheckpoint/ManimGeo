@@ -83,7 +83,7 @@ def CircumcenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, nam
     GeometrySequence([pb_12, ops1, pb_23, ops2, intersection], name)
     return intersection, [pb_12, ops1, pb_23, ops2, intersection]
 
-def CircumcenterCirPPP(circle: CirclePPP, name: str = "") -> Tuple[IntersectionPointLL, List[BaseGeometry]]:
+def CircumcenterCir(circle: CirclePPP, name: str = "") -> Tuple[IntersectionPointLL, List[BaseGeometry]]:
     """
     ## 外接圆三点圆心
 
