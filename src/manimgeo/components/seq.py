@@ -91,20 +91,50 @@ def CircumcenterCir(circle: CirclePPP, name: str = "") -> Tuple[IntersectionPoin
     """
     return CircumcenterPPP(circle.point1, circle.point2, circle.point3, name)
 
-# def AngleBisectorLL(line1: LineLike, line2: LineLike, name: str = "") -> Tuple[InfinityLinePP, List[BaseGeometry]]:
-#     """
-#     ## 两线角平分线
-    
-#     return: InfinityLinePP, [IntersectionPointLL, RotationPoint, InfinityLinePP]
-#     """
-#     intersection = IntersectionPointLL(line1, line2, f"Intersection")
-#     direction1 = VectorPP(intersection, line1.end, f"Direction1")
-#     direction2 = VectorPP(intersection, line2.end, f"Direction2")
-#     bisector_direction = RotationPoint(direction2.end, intersection, AnglePP(np.pi/2, intersection, direction1.end), f"BisectorDirection")
-#     inf_line = InfinityLinePP(intersection, bisector_direction, f"InfinityLine")
+def AngleBisectorLL(line1: LineLike, line2: LineLike, sort: bool = True, name: str = "") -> Tuple[InfinityLinePP, InfinityLinePP, List[BaseGeometry]]:
+    """
+    ## 两线角平分线
 
-#     GeometrySequence([intersection, direction1, direction2, bisector_direction, inf_line], name)
-#     return inf_line, [intersection, direction1, direction2, bisector_direction, inf_line]
+    两条平分线的角度将按照锐角 → 钝角顺序排列
+    
+    return: InfinityLinePP, InfinityLinePP, [IntersectionPointLL, CircleP, IntersectionPointLCir, IntersectionPointLCir, LineSegmentPP, LineSegmentPP, MidPointL, MidPointL, InfinityLinePP, InfinityLinePP]
+    """
+    intersection = IntersectionPointLL(line1, line2, f"Intersection")
+    radius = min(
+        0.1, 
+        np.linalg.norm(intersection.coord - line1.start),
+        np.linalg.norm(intersection.coord - line1.end),
+        np.linalg.norm(intersection.coord - line2.start),
+        np.linalg.norm(intersection.coord - line2.end)
+    )
+    cir = CircleP(intersection, radius, f"Circle")
+    l1_intersections = IntersectionPointLCir(line1, cir, f"IntersectionPointLine1")
+    l2_intersections = IntersectionPointLCir(line2, cir, f"IntersectionPointLine2")
+
+    seg_line1 = LineSegmentPP(l1_intersections.point1, l2_intersections.point1, f"LineSegment1")
+    seg_line2 = LineSegmentPP(l1_intersections.point1, l2_intersections.point2, f"LineSegment2")
+
+    mid1 = MidPointL(seg_line1, f"MidPoint1")
+    mid2 = MidPointL(seg_line2, f"MidPoint2")
+
+    bis1 = InfinityLinePP(mid1, intersection, f"AngleBisector1")
+    bis2 = InfinityLinePP(mid2, intersection, f"AngleBisector2")
+
+    # 计算角度并排序
+    angle1 = min(
+        GeoUtils.calculate_angle(intersection.coord, mid1.coord, l2_intersections.point1.coord),
+        GeoUtils.calculate_angle(intersection.coord, mid1.coord, l2_intersections.point2.coord)   
+    )
+    angle2 = min(
+        GeoUtils.calculate_angle(intersection.coord, mid2.coord, l1_intersections.point1.coord),
+        GeoUtils.calculate_angle(intersection.coord, mid2.coord, l1_intersections.point2.coord)   
+    )
+    # 锐角角平分线在前
+    if sort and angle1 > angle2:
+        bis1, bis2 = bis2, bis1
+
+    GeometrySequence([intersection, cir, l1_intersections, l2_intersections, seg_line1, seg_line2, mid1, mid2, bis1, bis2], name)
+    return bis1, bis2, [intersection, cir, l1_intersections, l2_intersections, seg_line1, seg_line2, mid1, mid2, bis1, bis2]
 
 # def IncenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, name: str = "") -> Tuple[IntersectionPointLL, List[BaseGeometry]]:
 #     """
@@ -112,15 +142,6 @@ def CircumcenterCir(circle: CirclePPP, name: str = "") -> Tuple[IntersectionPoin
     
 #     return: IntersectionPointLL, [LineLike, LineLike, *AngleBisectorLL, LineLike, LineLike, *AngleBisectorLL, IntersectionPointLL]
 #     """
-#     line12 = LineSegmentPP(point1, point2, f"Line12")
-#     line23 = LineSegmentPP(point2, point3, f"Line23")
-#     bisector12, ops1 = AngleBisectorLL(line12, line23, f"Bisector12")
-#     line31 = LineSegmentPP(point3, point1, f"Line31")
-#     bisector23, ops2 = AngleBisectorLL(line23, line31, f"Bisector23")
-#     intersection = IntersectionPointLL(bisector12, bisector23, "Incenter")
-
-#     GeometrySequence([line12, line23, bisector12, ops1, line31, bisector23, ops2, intersection], name)
-#     return intersection, [line12, line23, bisector12, ops1, line31, bisector23, ops2, intersection]
 
 def OrthocenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, name: str = "") -> Tuple[IntersectionPointLL, List[BaseGeometry]]:
     """
@@ -137,3 +158,77 @@ def OrthocenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, name
     GeometrySequence([line12, altitude3, ops1, line23, altitude1, ops2, intersection], name)
     return intersection, [line12, altitude3, ops1, line23, altitude1, ops2, intersection]
 
+Circles = Union[CircleP, CirclePP, CirclePPP]
+
+def TangentLineCirP(circle: Circles, point: PointLike, name: str = "") -> Tuple[InfinityLinePP, List[BaseGeometry]]:
+    """
+    ## 作圆上一点切线
+
+    如果该点不在圆上则会作出平行线
+
+    See Also `TangentLineCir2`
+
+    return: InfinityLinePP, [InfinityLinePP, InfinityLinePP, *VerticalInfinieLinePL]
+    """
+    line = InfinityLinePP(circle.center, point, f"Line")
+    tangent, ops = VerticalInfinieLinePL(point, line, f"Tangent")
+
+    GeometrySequence([line, tangent, ops], name)
+    return tangent, [line, tangent, ops]
+
+def TangentLineCirCir(circle1: Circles, circle2: Circles, name: str = "") -> Tuple[InfinityLinePP, List[BaseGeometry]]:
+    """
+    ## 作两圆切线
+    
+    如果两圆相切则作出切线，否则作出平行线
+
+    return: InfinityLinePP, [InfinityLinePP, *VerticalInfinieLinePL]
+    """
+    tangent, ops = PerpendicularBisectorInfiniteLinePP(circle1.center, circle2.center, f"Tangent")
+
+    GeometrySequence([tangent, ops], name)
+    return tangent, [tangent, ops]
+
+def TangentLineCirP2(circle: Circles, point: PointLike, name: str = "") -> Tuple[InfinityLinePP, InfinityLinePP, List[BaseGeometry]]:
+    """
+    ## 尺规作过一点圆两条切线
+
+    See Also `TangentLineCirP`
+
+    return: InfinityLinePP, InfinityLinePP, [LineSegmentPP, MidPointL, CirclePP, IntersectionPointCirCir, InfinityLinePP, InfinityLinePP]
+    """
+    line_OP = LineSegmentPP(circle.center, point, f"LineOP")
+    mid = MidPointL(line_OP, f"Mid")
+    cir_M = CirclePP(mid, circle.center, f"CircleM")
+    intersections = IntersectionPointCirCir(cir_M, circle, f"IntersectionsMO")
+    tangent1 = InfinityLinePP(point, intersections.point1, f"Tangent1")
+    tangent2 = InfinityLinePP(point, intersections.point2, f"Tangent2")
+
+    GeometrySequence([line_OP, mid, cir_M, intersections, tangent1, tangent2], name)
+    return tangent1, tangent2, [line_OP, mid, cir_M, intersections, tangent1, tangent2]
+
+def PolarInfiniteLineCirP(circle: Circles, point: PointLike, name: str = "") -> Tuple[InfinityLinePP, List[BaseGeometry]]:
+    """
+    ## 作圆外极点对应极线
+
+    return: InfinityLinePP, [InfinityLinePP, InfinityLinePP, *TangentLineCirP2, InfinityLinePP]
+    """
+    tg1, tg2, ops = TangentLineCirP2(circle, point, "TangentLines")
+    polar = InfinityLinePP(ops[3].point1, ops[3].point2, f"PolarInfiniteLine") # 依赖于 TangentLineCirP2
+
+    GeometrySequence([tg1, tg2, ops, polar], name)
+    return polar, [tg1, tg2, ops, polar]
+
+def PolePointCirL(circle: Circles, line: LineLike, name: str = "") -> Tuple[IntersectionPointLL, List[BaseGeometry]]:
+    """
+    ## 作圆内极线对应极点
+
+    return: IntersectionPointLL, [IntersectionPointLCir, InfinityLinePP, *TangentLineCirP, InfinityLinePP, *TangentLineCirP, IntersectionPointLL]
+    """
+    intersections = IntersectionPointLCir(circle, line, "Intersections")
+    tangent1, ops1 = TangentLineCirP(circle, intersections.point1, "Tangent1")
+    tangent2, ops2 = TangentLineCirP(circle, intersections.point2, "Tangent2")
+    polar = IntersectionPointLL(tangent1, tangent2, "PolePoint")
+
+    GeometrySequence([intersections, tangent1, ops1, tangent2, ops2, polar], name)
+    return polar, [intersections, tangent1, ops1, tangent2, ops2, polar]

@@ -1,21 +1,45 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.1
 Name: ManimGeo
-Version: 0.1.0
-Summary: A library for Manim to create geometric animations
+Version: 1.0.1
+Summary: A library for Geometry constructing and animation generating.
+Home-page: 
+Author: lifechpt
 Author-email: lifecheckpoint <lifechpt@qq.com>
+License: Copyright (c) 2018 The Python Packaging Authority
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
+License-File: LICENSE
 Requires-Dist: numpy>=1.21.0
 
-# ManimGeo
+# ManimGeo - 几何动画辅助库
 
-ManimGeo 是一个用于简化 Manim 动画中创建几何图形及其依赖的辅助库。
+ManimGeo 是一个用于简化几何图形创建和动画生成的辅助库。它提供了丰富的几何元素和操作，帮助快速构建复杂的几何场景。
 
-## 特性
+## 主要特性
 
-- 简化几何图形的创建
-- 提供常用的几何操作
-- 兼容 Manim 的动画系统
+- **几何元素创建**：支持点、线、圆、角等基本几何元素的创建
+- **几何关系处理**：自动处理中点、垂足、交点等几何关系
+- **几何变换**：支持反演等几何变换操作
+- **依赖管理**：自动维护几何元素间的依赖关系
+- **动画集成**：与 Manim 动画系统无缝集成
 
 ## 安装
 
@@ -25,8 +49,28 @@ ManimGeo 是一个用于简化 Manim 动画中创建几何图形及其依赖的�
 pip install manimgeo
 ```
 
-## 使用示例
+## 快速开始
 
 ```python
-...
+from manimgeo import *
+
+# 创建三角形ABC
+A = FreePoint([0, 0], "A")
+B = FreePoint([4, 0], "B") 
+C = FreePoint([2, 3], "C")
+
+# 构造边和中点
+AB = LineSegmentPP(A, B, "AB")
+M = MidPointL(AB, "M")
+
+# 构造九点圆
+nine_point_circle = CirclePPP(
+    MidPointPP(A, B),
+    MidPointPP(B, C),
+    MidPointPP(A, C)
+)
+
+# 打印依赖关系
+print("Dependencies of A:")
+geo_print_dependencies(A)
 ```

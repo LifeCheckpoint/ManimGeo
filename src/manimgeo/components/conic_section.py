@@ -5,7 +5,7 @@ from typing import overload, Union, Optional, Literal, Tuple
 import numpy as np
 
 class CirclePP(ParametricGeometryLike):
-    """圆心+半径点构造圆"""
+    """圆心半径点构造圆"""
     center: PointLike
     point: PointLike
 
@@ -27,7 +27,7 @@ class CirclePP(ParametricGeometryLike):
         return center + radius*np.array([np.cos(t), np.sin(t)])
     
 class CircleP(ParametricGeometryLike):
-    """圆心+半径构造圆"""
+    """圆心半径构造圆"""
     center: PointLike
     _radius: float
 
@@ -117,346 +117,177 @@ class CirclePPP(ParametricGeometryLike):
         radius, center = self.radius_and_center
         return center + radius*np.array([np.cos(t), np.sin(t)])
 
-# class EllipseAB(ParametricGeometryLike):
-#     """长短轴椭圆类型"""
-#     data: tuple[np.ndarray, np.ndarray, np.ndarray] # center, a, b
+class EllipseAB(ParametricGeometryLike):
+    """轴点构造椭圆"""
+    x_point: PointLike
+    y_point: PointLike
+    center: PointLike
 
-#     @overload
-#     def __init__(self, center: PointLike, x_axis: Union[int, float], y_axis: Union[int, float], name: str = ""):
-#         """
-#         x_axis: a
-#         y_axis: b
-#         """
-#         ...
+    def __init__(self, center: PointLike, x_point: PointLike, y_point: PointLike, name: str = ""):
+        super().__init__(name if name is not "" else f"EllipseAB@{id(self)}")
 
-#     @overload
-#     def __init__(self, center: PointLike, x_axis_point: PointLike, y_axis_point: PointLike, name: str = ""):
-#         """points 必须与 center 处于同一水平或垂直线上"""
-#         ...
+        if np.all(center.coord == x_point.coord) or np.all(center.coord == y_point.coord):
+            raise ValueError("Invalid input arguments")
+        if x_point.coord[1] != center.coord[1] or y_point.coord[0] != center.coord[0]:
+            raise ValueError("Invalid input arguments")
 
-#     def __init__(
-#         self,
-#         center: PointLike,
-#         x_axis_or_point: Union[int, float, PointLike],
-#         y_axis_or_point: Union[int, float, PointLike],
-#         name: Optional[str] = ""
-#     ):
-#         super().__init__(name)
-#         self._center = center
+        self.center = center
+        self.x_point = x_point
+        self.y_point = y_point
 
-#         # 依赖于中心与 x y 轴
-#         if isinstance(x_axis_or_point, (int, float)) and isinstance(x_axis_or_point, (int, float)):
-#             if x_axis_or_point <= 0 or y_axis_or_point <= 0:
-#                 raise ValueError("Invalid input arguments")
-#             self._x_axis = x_axis_or_point
-#             self._y_axis = y_axis_or_point
+        self.center.add_dependent(self)
+        self.x_point.add_dependent(self)
+        self.y_point.add_dependent(self)
 
-#         # 依赖于中心与 x y 轴点
-#         elif isinstance(x_axis_or_point, PointLike) and isinstance(y_axis_or_point, PointLike):
-#             if np.all(center.coord == x_axis_or_point.coord) or np.all(center.coord == y_axis_or_point.coord):
-#                 raise ValueError("Invalid input arguments")
-#             if x_axis_or_point.coord[1] != center.coord[1] or y_axis_or_point.coord[0] != center.coord[0]:
-#                 raise ValueError("Invalid input arguments")
-            
-#             self._x_axis_point = x_axis_or_point
-#             self._y_axis_point = y_axis_or_point
-#             self._x_axis_point.add_dependent(self)
-#             self._y_axis_point.add_dependent(self)
+    def _recalculate(self):
+        pass
 
-#         else:
-#             raise ValueError("Invalid input arguments")
-        
-#         self._center.add_dependent(self)
+    def parametric(self, t: float) -> np.ndarray:
+        """0 <= t <= 2π"""
+        center = self.center.coord
+        a = np.linalg.norm(self.x_point.coord - center)
+        b = np.linalg.norm(self.y_point.coord - center)
+        return center + np.array([a*np.cos(t), b*np.sin(t)])
 
-#     def _recalculate(self):
-#         if hasattr(self, "_x_axis"):
-#             # 中心与轴确定椭圆
-#             self.data = (self._center.coord, self._x_axis, self._y_axis)
-#         elif hasattr("_x_axis_point"):
-#             # 中心与轴点确定椭圆
-#             self.data = (self._center.coord, abs(self._x_axis_point.coord[0] - self._center.coord[0]), abs(self._y_axis_point.coord[1] - self._center.coord[1]))
+class EllipseCE(ParametricGeometryLike):
+    """焦点离心率构造椭圆"""
+    center: PointLike
+    focal_point: PointLike
+    _eccentricity: float
 
-#     def parametric(self, t: float) -> np.ndarray:
-#         """参数方程, 0 <= t <= 2π"""
-#         center, a, b = self._center, self._x_axis, self._y_axis
-#         return center + np.array([a*np.cos(t), b*np.sin(t)])
+    @property
+    def eccentricity(self) -> float:
+        """离心率"""
+        return self._eccentricity
     
-# class EllipseCE(ParametricGeometryLike):
-#     @overload
-#     def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: Union[int, float], name: str = ""):
-#         """
-#         焦点离心率确定椭圆，focal_point 必须与 center 处于同一水平或垂直线上
-#         focal_point: 焦点
-#         eccentricity: 离心率 e
-#         """
-#         ...
+    @eccentricity.setter
+    def eccentricity(self, value: float):
+        self.update()
+        self._eccentricity = value
 
-#     @overload
-#     def __init__(self, center: PointLike, focal_distance: Union[int, float], eccentricity: Union[int, float], axis: Literal["x", "y"], name: str = ""):
-#         """
-#         焦距离心率确定椭圆
-#         axis: 焦点位置
-#         focal_distance: 焦距
-#         eccentricity: 离心率 e
-#         """
-#         ...
+    def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: float, name: str = ""):
+        super().__init__(name if name is not "" else f"EllipseCE@{id(self)}")
 
-#     def __init__(
-#         self,
-#         center: PointLike,
-#         focal_or_focal_distance: Union[PointLike, int, float],
-#         eccentricity: Union[int, float],
-#         axis_or_name: Optional[Literal["x", "y"]] = None,
-#         name: Optional[str] = ""
-#     ):
-#         self._center = center
-
-#         # 依赖于中心与焦点
-#         if isinstance(focal_or_focal_distance, PointLike) and isinstance(axis_or_name, (int, float)):
-#             super().__init__(axis_or_name)
-
-#             if np.all(center.coord == focal_or_focal_distance.coord):
-#                 raise ValueError("Invalid input arguments")
-#             if focal_or_focal_distance.coord[1] != center.coord[1] and focal_or_focal_distance.coord[0] != center.coord[0]:
-#                 raise ValueError("Invalid input arguments")
-            
-#             self._focal_point = focal_or_focal_distance
-#             self._focal_point.add_dependent(self)
-#             self._eccentricity = eccentricity
-
-#         # 依赖于中心与焦距
-#         elif isinstance(focal_or_focal_distance, (int, float)) and isinstance(axis_or_name, (int, float)):
-#             super().__init__(name)
-
-#             self._focal_distance = focal_or_focal_distance
-#             self._eccentricity = eccentricity
-#             self._axis = axis_or_name
-
-#         else:
-#             raise ValueError("Invalid input arguments")
+        if np.all(center.coord == focal_point.coord):
+            raise ValueError("Invalid input arguments")
+        if focal_point.coord[1] != center.coord[1] and focal_point.coord[0] != center.coord[0]:
+            raise ValueError("Invalid input arguments")
         
-#         self._center.add_dependent(self)
+        self.center = center
+        self.focal_point = focal_point
+        self._eccentricity = eccentricity
 
-#     def _recalculate(self):
-#         if hasattr(self, "_focal_point"):
-#             # 中心与焦点确定椭圆
-#             e = self._eccentricity
-#             c = np.linalg.norm(self._focal_point.coord - self._center.coord)
-#             a = c / e
-#             b = np.sqrt(a**2 - c**2)
-#             self.data = (self._center.coord, a, b)
-#         elif hasattr("_focal_distance"):
-#             # 中心与焦距确定椭圆，axis 为 x 或 y
-#             e = self._eccentricity
-#             c = self._focal_distance / 2
-#             a = c / e
-#             b = np.sqrt(a**2 - c**2)
-#             if self._axis == "x":
-#                 self.data = (self._center.coord, a, b)
-#             elif self._axis == "y":
-#                 self.data = (self._center.coord, b, a)
-#             else:
-#                 raise ValueError("Invalid input arguments")
-            
-#     def parametric(self, t: float) -> np.ndarray:
-#         """参数方程, 0 <= t <= 2π"""
-#         center, a, b = self.data
-#         return center + np.array([a*np.cos(t), b*np.sin(t)])
+        self.center.add_dependent(self)
+        self.focal_point.add_dependent(self)
 
-# class HyperbolaAB(ParametricGeometryLike):
-#     """双曲线类型"""
-#     data: tuple[np.ndarray, np.ndarray, np.ndarray] # center, a, b
+    def _recalculate(self):
+        pass
 
-#     @overload
-#     def __init__(self, center: PointLike, x_axis: Union[int, float], y_axis: Union[int, float], name: str = ""):
-#         """
-#         x_axis: a
-#         y_axis: b
-#         """
-#         ...
+    def parametric(self, t: float) -> np.ndarray:
+        """0 <= t <= 2π"""
+        e = self._eccentricity
+        c = np.linalg.norm(self.focal_point.coord - self.center.coord)
+        a = c / e
+        b = np.sqrt(a**2 - c**2)
+        return self.center.coord + np.array([a*np.cos(t), b*np.sin(t)])
 
-#     @overload
-#     def __init__(self, center: PointLike, x_axis_point: PointLike, y_axis_point: PointLike, name: str = ""):
-#         """points 必须与 center 处于同一水平或垂直线上"""
-#         ...
+class HyperbolaAB(ParametricGeometryLike):
+    """轴点构造双曲线"""
+    x_point: PointLike
+    y_point: PointLike
+    center: PointLike
 
-#     def __init__(
-#         self,
-#         center: PointLike,
-#         x_axis_or_point: Union[int, float, PointLike],
-#         y_axis_or_point: Union[int, float, PointLike],
-#         name: Optional[str] = ""
-#     ):
-#         super().__init__(name)
-#         self._center = center
+    def __init__(self, center: PointLike, x_point: PointLike, y_point: PointLike, name: str = ""):
+        super().__init__(name if name is not "" else f"HyperbolaAB@{id(self)}")
 
-#         # 依赖于中心与 x y 轴
-#         if isinstance(x_axis_or_point, (int, float)) and isinstance(x_axis_or_point, (int, float)):
-#             if x_axis_or_point <= 0 or y_axis_or_point <= 0:
-#                 raise ValueError("Invalid input arguments")
-#             self._x_axis = x_axis_or_point
-#             self._y_axis = y_axis_or_point
+        if np.all(center.coord == x_point.coord) or np.all(center.coord == y_point.coord):
+            raise ValueError("Invalid input arguments")
+        if x_point.coord[1] != center.coord[1] or y_point.coord[0] != center.coord[0]:
+            raise ValueError("Invalid input arguments")
 
-#         # 依赖于中心与 x y 轴点
-#         elif isinstance(x_axis_or_point, PointLike) and isinstance(y_axis_or_point, PointLike):
-#             if np.all(center.coord == x_axis_or_point.coord) or np.all(center.coord == y_axis_or_point.coord):
-#                 raise ValueError("Invalid input arguments")
-#             if x_axis_or_point.coord[1] != center.coord[1] or y_axis_or_point.coord[0] != center.coord[0]:
-#                 raise ValueError("Invalid input arguments")
-            
-#             self._x_axis_point = x_axis_or_point
-#             self._y_axis_point = y_axis_or_point
-#             self._x_axis_point.add_dependent(self)
-#             self._y_axis_point.add_dependent(self)
+        self.center = center
+        self.x_point = x_point
+        self.y_point = y_point
 
-#         else:
-#             raise ValueError("Invalid input arguments")
-        
-#         self._center.add_dependent(self)
-        
-#     def _recalculate(self):
-#         if hasattr(self, "_x_axis"):
-#             # 中心与轴确定双曲线
-#             self.data = (self._center.coord, self._x_axis, self._y_axis)
-#         elif hasattr("_x_axis_point"):
-#             # 中心与轴点确定双曲线
-#             self.data = (self._center.coord, abs(self._x_axis_point.coord[0] - self._center.coord[0]), abs(self._y_axis_point.coord[1] - self._center.coord[1]))
+        self.center.add_dependent(self)
+        self.x_point.add_dependent(self)
+        self.y_point.add_dependent(self)
 
-#     def parametric(self, t: float) -> np.ndarray:
-#         """参数方程, 0 <= t <= 2π"""
-#         center, a, b = self._center, self._x_axis, self._y_axis
-#         return center + np.array([a*np.cosh(t), b*np.sinh(t)])
+    def _recalculate(self):
+        pass
+
+    def parametric(self, t: float) -> np.ndarray:
+        """0 <= t <= 2π"""
+        center = self.center.coord
+        a = np.linalg.norm(self.x_point.coord - center)
+        b = np.linalg.norm(self.y_point.coord - center)
+        return center + np.array([a*np.cosh(t), b*np.sinh(t)])
     
-# class HyperbolaCE(ParametricGeometryLike):
-#     @overload
-#     def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: Union[int, float], name: str = ""):
-#         """
-#         焦点离心率确定双曲线，focal_point 必须与 center 处于同一水平或垂直线上
-#         focal_point: 焦点
-#         eccentricity: 离心率 e
-#         """
-#         ...
+class HyperbolaCE(ParametricGeometryLike):
+    """焦点离心率构造双曲线"""
+    center: PointLike
+    focal_point: PointLike
+    _eccentricity: float
 
-#     @overload
-#     def __init__(self, center: PointLike, focal_distance: Union[int, float], eccentricity: Union[int, float], axis: Literal["x", "y"], name: str = ""):
-#         """
-#         焦距离心率确定双曲线
-#         axis: 焦点位置
-#         focal_distance: 焦距
-#         eccentricity: 离心率 e
-#         """
-#         ...
+    @property
+    def eccentricity(self) -> float:
+        """离心率"""
+        return self._eccentricity
+    
+    @eccentricity.setter
+    def eccentricity(self, value: float):
+        self.update()
+        self._eccentricity = value
 
-#     def __init__(
-#         self,
-#         center: PointLike,
-#         focal_or_focal_distance: Union[PointLike, int, float],
-#         eccentricity: Union[int, float],
-#         axis_or_name: Optional[Literal["x", "y"]] = None,
-#         name: Optional[str] = ""
-#     ):
-#         self._center = center
+    def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: float, name: str = ""):
+        super().__init__(name if name is not "" else f"HyperbolaCE@{id(self)}")
 
-#         # 依赖于中心与焦点
-#         if isinstance(focal_or_focal_distance, PointLike) and isinstance(axis_or_name, (int, float)):
-#             super().__init__(axis_or_name)
-
-#             if np.all(center.coord == focal_or_focal_distance.coord):
-#                 raise ValueError("Invalid input arguments")
-#             if focal_or_focal_distance.coord[1] != center.coord[1] and focal_or_focal_distance.coord[0] != center.coord[0]:
-#                 raise ValueError("Invalid input arguments")
-            
-#             self._focal_point = focal_or_focal_distance
-#             self._focal_point.add_dependent(self)
-#             self._eccentricity = eccentricity
-
-#         # 依赖于中心与焦距
-#         elif isinstance(focal_or_focal_distance, (int, float)) and isinstance(axis_or_name, (int, float)):
-#             super().__init__(name)
-
-#             self._focal_distance = focal_or_focal_distance
-#             self._eccentricity = eccentricity
-#             self._axis = axis_or_name
-
-#         else:
-#             raise ValueError("Invalid input arguments")
+        if np.all(center.coord == focal_point.coord):
+            raise ValueError("Invalid input arguments")
+        if focal_point.coord[1] != center.coord[1] and focal_point.coord[0] != center.coord[0]:
+            raise ValueError("Invalid input arguments")
         
-#         self._center.add_dependent(self)
+        self.center = center
+        self.focal_point = focal_point
+        self._eccentricity = eccentricity
 
-#     def _recalculate(self):
-#         if hasattr(self, "_focal_point"):
-#             # 中心与焦点确定双曲线
-#             e = self._eccentricity
-#             c = np.linalg.norm(self._focal_point.coord - self._center.coord)
-#             a = c / e
-#             b = np.sqrt(a**2 + c**2)
-#             self.data = (self._center.coord, a, b)
-#         elif hasattr("_focal_distance"):
-#             # 中心与焦距确定双曲线，axis 为 x 或 y
-#             e = self._eccentricity
-#             c = self._focal_distance / 2
-#             a = c / e
-#             b = np.sqrt(a**2 + c**2)
-#             if self._axis == "x":
-#                 self.data = (self._center.coord, a, b)
-#             elif self._axis == "y":
-#                 self.data = (self._center.coord, b, a)
-#             else:
-#                 raise ValueError("Invalid input arguments")
-            
-#     def parametric(self, t: float) -> np.ndarray:
-#         """参数方程, 0 <= t <= 2π"""
-#         center, a, b = self.data
-#         return center + np.array([a*np.cosh(t), b*np.sinh(t)])
+        self.center.add_dependent(self)
+        self.focal_point.add_dependent(self)
 
-# class Parabola(ParametricGeometryLike):
-#     """抛物线类型"""
-#     data: tuple[np.ndarray, np.ndarray] # center, p
+    def _recalculate(self):
+        pass
 
-#     @overload
-#     def __init__(self, center: PointLike, focal_length: float, name: str = ""):
-#         """
-#         focal_length: 焦距 p
-#         """
-#         ...
+    def parametric(self, t: float) -> np.ndarray:
+        """0 <= t <= 2π"""
+        e = self._eccentricity
+        c = np.linalg.norm(self.focal_point.coord - self.center.coord)
+        a = c / e
+        b = np.sqrt(c**2 - a**2)
+        return self.center.coord + np.array([a*np.cosh(t), b*np.sinh(t)])
 
-#     @overload
-#     def __init__(self, center: PointLike, focal_point: PointLike, name: str = ""):
-#         """焦点确定抛物线"""
-#         ...
+class Parabola(ParametricGeometryLike):
+    """中心与交点构造抛物线"""
+    center: PointLike
+    focal: PointLike
 
-#     def __init__(self, center: PointLike, focal_or_focal_point: Union[int, float, PointLike], name: str = ""):
-#         super().__init__(name)
-#         self._center = center
-
-#         # 依赖于中心与焦距
-#         if isinstance(focal_or_focal_point, (int, float)):
-#             if focal_or_focal_point <= 0:
-#                 raise ValueError("Invalid input arguments")
-#             self._focal_length = focal_or_focal_point
-
-#         # 依赖于中心与焦点
-#         elif isinstance(focal_or_focal_point, PointLike):
-#             if np.all(center.coord == focal_or_focal_point.coord):
-#                 raise ValueError("Invalid input arguments")
-#             self._focal_point = focal_or_focal_point
-#             self._focal_point.add_dependent(self)
-
-#         else:
-#             raise ValueError("Invalid input arguments")
+    def __init__(self, center: PointLike, focal: PointLike, name: str = ""):
+        super().__init__(name if name is not "" else f"Parabola@{id(self)}")
         
-#         self._center.add_dependent(self)
+        if np.all(center.coord == focal.coord):
+            raise ValueError("Invalid input arguments")
+        if focal.coord[1] != center.coord[1] and focal.coord[0] != center.coord[0]:
+            raise ValueError("Invalid input arguments")
         
-#     def _recalculate(self):
-#         if hasattr(self, "_focal_length"):
-#             # 中心与焦距确定抛物线
-#             self.data = (self._center.coord, self._focal_length)
-#         elif hasattr("_focal_point"):
-#             # 中心与焦点确定抛物线
-#             p = np.linalg.norm(self._focal_point.coord - self._center.coord) / 2
-#             self.data = (self._center.coord, p)
+        self.center = center
+        self.focal = focal
 
-#     def parametric(self, t: float) -> np.ndarray:
-#         """参数方程, 0 <= t <= 2π"""
-#         center, p = self.data
-#         return center + np.array([p*t**2, 2*p*t])
+        self.center.add_dependent(self)
+        self.focal.add_dependent(self)
+
+    def _recalculate(self):
+        pass
+
+    def parametric(self, t: float) -> np.ndarray:
+        center = self.center.coord
+        focal = self.focal.coord
+        return center + np.array([focal[0]*t**2, focal[1]*t])
