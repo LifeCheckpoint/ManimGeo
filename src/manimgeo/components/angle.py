@@ -1,6 +1,8 @@
 from manimgeo.components.base import ParamLike, LineLike, PointLike
 from typing import Union
 
+# 使用弧度
+
 class BaseAngle(ParamLike):
     """角度基类"""
     _angle: float

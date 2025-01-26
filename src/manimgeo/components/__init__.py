@@ -4,3 +4,5 @@ from manimgeo.components.conic_section import *
 from manimgeo.components.lines import *
 from manimgeo.components.points import *
 from manimgeo.components.vector import *
+
+from manimgeo.components.seq import *

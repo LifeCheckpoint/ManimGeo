@@ -74,33 +74,21 @@ class TestClassicalGeometry:
         AB = InfinityLinePP(A, B, "AB")
         BC = InfinityLinePP(B, C, "BC")
         AC = InfinityLinePP(A, C, "AC")
-        
-        # 找到重心
-        centroid = (A.coord + B.coord + C.coord) / 3
-        
-        # 找到垂心
-        orthocenter = IntersectionPointLL(
-            InfinityLinePP(A, VerticalPointPL(A, BC)),
-            InfinityLinePP(B, VerticalPointPL(B, AC)),
-            "Orthocenter"
-        )
-        
-        # 找到外心
-        AB_mid = MidPointPP(A, B, "AB_mid")
-        AC_mid = MidPointPP(A, C, "AC_mid")
-        perpendicular_bisector_AB = InfinityLinePP(AB_mid, VerticalPointPL(AB_mid, AB), "AB_perp_bisector")
-        perpendicular_bisector_AC = InfinityLinePP(AC_mid, VerticalPointPL(AC_mid, AC), "AC_perp_bisector")
-        circumcenter = IntersectionPointLL(perpendicular_bisector_AB, perpendicular_bisector_AC, "Circumcenter")
+
+        # 重心 垂心 外心
+        centroid = CentroidPPP(A, B, C, "Centroid")[0].coord
+        orthocenter = OrthocenterPPP(A, B, C, "Orthocenter")[0].coord
+        circumcenter = CircumcenterPPP(A, B, C, "Circumcenter")[0].coord
 
         # 打印依赖关系
         print("Dependencies of A:")
-        GeoUtils.print_dependencies(A)
+        geo_print_dependencies(A)
         print("")
         
         # 验证三点共线
         vectors = np.array([
-            centroid - orthocenter.coord,
-            circumcenter.coord - orthocenter.coord
+            centroid - orthocenter,
+            circumcenter - orthocenter
         ])
         rank = np.linalg.matrix_rank(vectors)
         assert rank == 1

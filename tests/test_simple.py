@@ -1,6 +1,4 @@
-from manimgeo.components.points import FreePoint, MidPointL, ExtensionPointPP, IntersectionPointLL
-from manimgeo.components.lines import LineSegmentPP, RayPP
-from manimgeo.utils.utils import GeoUtils
+from manimgeo.components import *
 
 import numpy as np
 

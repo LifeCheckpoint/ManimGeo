@@ -1,8 +1,9 @@
 from manimgeo.components.base import PointLike, LineLike
-from manimgeo.components.vector import VectorParam
+from manimgeo.components.vector import VectorParam, VectorPP
 from manimgeo.components.angle import AnglePP
 from manimgeo.utils.utils import GeoUtils
 
+from typing import Union
 import numpy as np
 
 class FreePoint(PointLike):
@@ -121,9 +122,9 @@ class AxisymmetricPointPL(PointLike):
 class TranslationPoint(PointLike):
     """平移点"""
     point: PointLike
-    vector: VectorParam
+    vector: Union[VectorParam, VectorPP]
 
-    def __init__(self, point: PointLike, vector: VectorParam, name: str = ""):
+    def __init__(self, point: PointLike, vector: Union[VectorParam, VectorPP], name: str = ""):
         super().__init__(name if name is not "" else f"TranslationPoint@{id(self)}")
         self.point = point
         self.vector = vector

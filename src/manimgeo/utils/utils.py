@@ -34,23 +34,3 @@ class GeoUtils:
     def unit_direction_vector(base_point: np.ndarray, target_point: np.ndarray):
         """计算单位方向向量"""
         return (target_point - base_point) / np.linalg.norm(target_point - base_point)
-    
-    @staticmethod
-    def print_dependencies(root, depth=0, max_depth=10, visited=None):
-        """绘制依赖关系"""
-        if root is None:
-            print("  "*depth + "· None")
-            return
-            
-        if depth > max_depth:
-            print("  "*depth + "· ... (max depth reached)")
-            return
-        
-        name_str = f" ({root.name})" if hasattr(root, 'name') and root.name else ""
-        print("  "*depth + f"· {type(root).__name__}{name_str}")
-        
-        if not hasattr(root, 'dependents'):
-            return
-            
-        for dep in root.dependents:
-            GeoUtils.print_dependencies(dep, depth+1, max_depth, visited)

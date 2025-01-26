@@ -29,6 +29,10 @@ class BaseGeometry(DependentObject, ABC):
         """返回几何对象的名称"""
         return self._name
     
+    @property
+    def name_colored(self) -> str:
+        return self._name
+    
     @name.setter
     def name(self, value: str) -> None:
         self._name = value

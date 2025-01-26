@@ -1,8 +1,7 @@
 from manimgeo.components.base import PointLike, LineLike
 from manimgeo.utils.utils import GeoUtils
-from manimgeo.components.vector import VectorParam
 
-from typing import overload, Union, List, Literal
+# from typing import overload, Union, List, Literal
 import numpy as np
 
 class LineSegmentPP(LineLike):
