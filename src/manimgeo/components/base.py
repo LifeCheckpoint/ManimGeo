@@ -19,7 +19,7 @@ class BaseGeometry(DependentObject, ABC):
     """几何对象基类"""
     def __init__(self, name: str = "") -> None:
         self._name = name # 名称
-        self.dependents: list[DependentObject] = [] # 依赖对象列表
+        self.dependents: list[BaseGeometry] = [] # 依赖对象列表
 
         """懒更新的对象数据"""
         self.ret_updated = True # 返回值 lazy tag

@@ -99,6 +99,7 @@ def AngleBisectorLL(line1: LineLike, line2: LineLike, sort: bool = True, name: s
     
     return: InfinityLinePP, InfinityLinePP, [IntersectionPointLL, CircleP, IntersectionPointLCir, IntersectionPointLCir, LineSegmentPP, LineSegmentPP, MidPointL, MidPointL, InfinityLinePP, InfinityLinePP]
     """
+    # TODO 重新设计以保证单解性
     intersection = IntersectionPointLL(line1, line2, f"Intersection")
     radius = min(
         0.1, 
@@ -170,7 +171,7 @@ def TangentLineCirP(circle: Circles, point: PointLike, name: str = "") -> Tuple[
 
     return: InfinityLinePP, [InfinityLinePP, InfinityLinePP, *VerticalInfinieLinePL]
     """
-    line = InfinityLinePP(circle.center, point, f"Line")
+    line = InfinityLinePP(circle.center_point, point, f"Line")
     tangent, ops = VerticalInfinieLinePL(point, line, f"Tangent")
 
     GeometrySequence([line, tangent, ops], name)
@@ -184,7 +185,7 @@ def TangentLineCirCir(circle1: Circles, circle2: Circles, name: str = "") -> Tup
 
     return: InfinityLinePP, [InfinityLinePP, *VerticalInfinieLinePL]
     """
-    tangent, ops = PerpendicularBisectorInfiniteLinePP(circle1.center, circle2.center, f"Tangent")
+    tangent, ops = PerpendicularBisectorInfiniteLinePP(circle1.center_point, circle2.center_point, f"Tangent")
 
     GeometrySequence([tangent, ops], name)
     return tangent, [tangent, ops]
@@ -197,9 +198,9 @@ def TangentLineCirP2(circle: Circles, point: PointLike, name: str = "") -> Tuple
 
     return: InfinityLinePP, InfinityLinePP, [LineSegmentPP, MidPointL, CirclePP, IntersectionPointCirCir, InfinityLinePP, InfinityLinePP]
     """
-    line_OP = LineSegmentPP(circle.center, point, f"LineOP")
+    line_OP = LineSegmentPP(circle.center_point, point, f"LineOP")
     mid = MidPointL(line_OP, f"Mid")
-    cir_M = CirclePP(mid, circle.center, f"CircleM")
+    cir_M = CirclePP(mid, circle.center_point, f"CircleM")
     intersections = IntersectionPointCirCir(cir_M, circle, f"IntersectionsMO")
     tangent1 = InfinityLinePP(point, intersections.point1, f"Tangent1")
     tangent2 = InfinityLinePP(point, intersections.point2, f"Tangent2")

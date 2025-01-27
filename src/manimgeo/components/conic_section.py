@@ -6,16 +6,16 @@ import numpy as np
 
 class CirclePP(ParametricGeometryLike):
     """圆心半径点构造圆"""
-    center: PointLike
+    center_point: PointLike
     point: PointLike
 
     def __init__(self, center: PointLike, point: PointLike, name: str = ""):
         super().__init__(name if name is not "" else f"CirclePP@{id(self)}")
 
-        self.center = center
+        self.center_point = center
         self.point = point
 
-        self.center.add_dependent(self)
+        self.center_point.add_dependent(self)
         self.point.add_dependent(self)
 
     def _recalculate(self):
@@ -23,12 +23,12 @@ class CirclePP(ParametricGeometryLike):
 
     def parametric(self, t: float) -> np.ndarray:
         """0 <= t <= 2π"""
-        center, radius = self.center.coord, np.linalg.norm(self.point.coord - self.center.coord)
+        center, radius = self.center_point.coord, np.linalg.norm(self.point.coord - self.center_point.coord)
         return center + radius*np.array([np.cos(t), np.sin(t)])
     
 class CircleP(ParametricGeometryLike):
     """圆心半径构造圆"""
-    center: PointLike
+    center_point: PointLike
     _radius: float
 
     @property
@@ -44,17 +44,17 @@ class CircleP(ParametricGeometryLike):
     def __init__(self, center: PointLike, radius: float, name: str = ""):
         super().__init__(name if name is not "" else f"CircleP@{id(self)}")
 
-        self.center = center
+        self.center_point = center
         self._radius = radius
 
-        self.center.add_dependent(self)
+        self.center_point.add_dependent(self)
 
     def _recalculate(self):
         pass
 
     def parametric(self, t: float) -> np.ndarray:
         """0 <= t <= 2π"""
-        return self.center.coord + self.radius*np.array([np.cos(t), np.sin(t)])
+        return self.center_point.coord + self.radius*np.array([np.cos(t), np.sin(t)])
     
 class CirclePPP(ParametricGeometryLike):
     """三点构造外接圆"""
@@ -265,7 +265,7 @@ class HyperbolaCE(ParametricGeometryLike):
         b = np.sqrt(c**2 - a**2)
         return self.center.coord + np.array([a*np.cosh(t), b*np.sinh(t)])
 
-class Parabola(ParametricGeometryLike):
+class ParabolaPP(ParametricGeometryLike):
     """中心与交点构造抛物线"""
     center: PointLike
     focal: PointLike

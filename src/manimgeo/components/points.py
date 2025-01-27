@@ -218,8 +218,8 @@ class InversionPointPCir(PointLike):
     def _recalculate(self):
         # 对于 PPP
         from manimgeo.components.conic_section import CirclePPP
-        center_coord = self.circle.center.coord if not isinstance(self.circle, CirclePPP) else self.circle.center
-        radius = np.linalg.norm(self.circle.center.coord - self.circle.point.coord) if not isinstance(self.circle, CirclePPP) else self.circle.radius
+        center_coord = self.circle.center_point.coord if not isinstance(self.circle, CirclePPP) else self.circle.center
+        radius = np.linalg.norm(self.circle.center_point.coord - self.circle.point.coord) if not isinstance(self.circle, CirclePPP) else self.circle.radius
 
         op = self.point.coord - center_coord
         d_squared = np.dot(op, op)
@@ -296,8 +296,8 @@ class IntersectionPointLCir(BaseGeometry):
         # 对于 PPP
         from manimgeo.components.conic_section import CirclePPP
 
-        center_coord = self.circle.center.coord if not isinstance(self.circle, CirclePPP) else self.circle.center
-        radius = np.linalg.norm(self.circle.center.coord - self.circle.point.coord) if not isinstance(self.circle, CirclePPP) else self.circle.radius
+        center_coord = self.circle.center_point.coord if not isinstance(self.circle, CirclePPP) else self.circle.center
+        radius = np.linalg.norm(self.circle.center_point.coord - self.circle.point.coord) if not isinstance(self.circle, CirclePPP) else self.circle.radius
 
         intersections = GeoUtils.line_circle_intersection(self.line.start, self.line.end, center_coord, radius)
 
@@ -342,11 +342,11 @@ class IntersectionPointCirCir(BaseGeometry):
         # 对于 PPP
         from manimgeo.components.conic_section import CirclePPP
 
-        center_coord1 = self.circle1.center.coord if not isinstance(self.circle1, CirclePPP) else self.circle1.center
-        radius1 = np.linalg.norm(self.circle1.center.coord - self.circle1.point.coord) if not isinstance(self.circle1, CirclePPP) else self.circle1.radius
+        center_coord1 = self.circle1.center_point.coord if not isinstance(self.circle1, CirclePPP) else self.circle1.center
+        radius1 = np.linalg.norm(self.circle1.center_point.coord - self.circle1.point.coord) if not isinstance(self.circle1, CirclePPP) else self.circle1.radius
 
-        center_coord2 = self.circle2.center.coord if not isinstance(self.circle2, CirclePPP) else self.circle2.center
-        radius2 = np.linalg.norm(self.circle2.center.coord - self.circle2.point.coord) if not isinstance(self.circle2, CirclePPP) else self.circle2.radius
+        center_coord2 = self.circle2.center_point.coord if not isinstance(self.circle2, CirclePPP) else self.circle2.center
+        radius2 = np.linalg.norm(self.circle2.center_point.coord - self.circle2.point.coord) if not isinstance(self.circle2, CirclePPP) else self.circle2.radius
 
         intersections = GeoUtils.circle_circle_intersection(center_coord1, radius1, center_coord2, radius2)
 
