@@ -159,4 +159,7 @@ class EulerLine(Scene):
             self.wait(20)
 ```
 
-<video controls src="resources/EulerLine.mp4" title="Title"></video>
+
+https://github.com/user-attachments/assets/36fec8c6-ad72-4b34-b9fc-f636a6808cfb
+
+
