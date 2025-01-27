@@ -5,7 +5,7 @@ from typing import Dict
 
 dim_23 = lambda x: np.append(x, 0)
 
-class GeoMapManager:
+class GeoManimGLMap:
     """管理 ManimGL Mobject 和几何对象之间的自动映射"""
     start_update: bool
 
@@ -94,6 +94,7 @@ class GeoMapManager:
 
     def update_leaf(self, mobj: Mobject, obj: BaseGeometry):
         """叶子 Updater，读取部件信息并应用至 FreePoint 坐标"""
+        
         if not self.start_update:
             return
         
@@ -167,8 +168,6 @@ class GeoMapManager:
     def __enter__(self):
         """
         追踪所有部件几何运动
-
-        #### 由于 ManimGL 会替换一些 Mobject 的实际内存位置，请在对 Mobject 执行任何动画前进入该域，否则有可能造成错误
         """
         self.start_update = True
 

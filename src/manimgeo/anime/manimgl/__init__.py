@@ -1,1 +1,1 @@
-from manimgeo.anime.manimgl.mobjects import GeoMapManager
+from manimgeo.anime.manimgl.mobjects import GeoManimGLMap

@@ -2,8 +2,7 @@ from manimlib import *
 
 sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
 from manimgeo.components import *
-from manimgeo.utils.output import generate_simple_color
-from manimgeo.anime.manimgl import GeoMapManager as GMM
+from manimgeo.anime.manimgl import GeoManimGLMap
 
 class NinePointCircle(Scene):
     def construct(self):
@@ -52,9 +51,10 @@ class NinePointCircle(Scene):
         # 构造九点圆
         NINE_POINT_CIRCLE = CirclePPP(AB_MID, BC_MID, AC_MID, "NinePointCircle")
 
-        ## 进行动画构建
-        gmm = GMM()
+        # 创建几何动画管理器
+        gmm = GeoManimGLMap()
 
+        # 创建 ManimGL VMobject 图形
         def create_mobj(geos: List[BaseGeometry]) -> List[VMobject]:
             return [gmm.create_mobject_from_geometry(geo) for geo in geos]
 
@@ -67,46 +67,45 @@ class NinePointCircle(Scene):
         euler_a, euler_b, euler_c = create_mobj([EULER_A, EULER_B, EULER_C])
         orth, npc = create_mobj([ORTHOCENTER, NINE_POINT_CIRCLE])
 
-        def fit_color(*mobs: VMobject): 
-            r, g, b = generate_simple_color()
-            color = rgb_to_color((r / 255, g / 255, b / 255))
+        # 美化
+        def fit_color(*mobs: VMobject, hex_color: str = "#FFFFFF"):
+            color = rgb_to_color(hex_to_rgb(hex_color))
+            [mob.set_color(color) for mob in mobs]
 
-            for mob in mobs:
-                if isinstance(mob, Dot):
-                    mob.set_color(color)
-                else:
-                    mob.set_color(color)
+        fit_color(dot_a, dot_b, dot_c, hex_color="#845EC2")
+        fit_color(l_ab, l_bc, l_ac, hex_color="#845EC2")
+        fit_color(ab_m, bc_m, ac_m, hex_color="#FF6F91")
+        fit_color(l_ab_v, l_bc_v, l_ac_v, hex_color="#FF9671")
+        fit_color(ab_f, bc_f, ac_f, hex_color="#FF9671")
+        fit_color(orth, hex_color="#FF9671")
+        fit_color(l_euler_a, l_euler_b, l_euler_c, hex_color="#D65DB1")
+        fit_color(euler_a, euler_b, euler_c, hex_color="#F9F871")
+        fit_color(npc, hex_color="#F9F871")
+        
+        # 添加到场景演示
+        self.wait(1)
+        self.play(Write(dot_a), Write(dot_b), Write(dot_c))
+        self.wait(1)
+        self.play(Write(l_ab), Write(l_bc), Write(l_ac))
+        self.wait(1)
+        self.play(Write(ab_m), Write(bc_m), Write(ac_m))
+        self.wait(1)
+        self.play(Write(l_ab_v), Write(l_bc_v), Write(l_ac_v))
+        self.wait(1)
+        self.play(Write(ab_f), Write(bc_f), Write(ac_f))
+        self.wait(1)
+        self.play(Write(orth))
+        self.wait(1)
+        self.play(Write(l_euler_a), Write(l_euler_b), Write(l_euler_c))
+        self.wait(1)
+        self.play(Write(euler_a), Write(euler_b), Write(euler_c))
+        self.wait(1)
+        self.play(Write(npc))
+        self.wait(2)
 
-        fit_color(dot_a, dot_b, dot_c)
-        fit_color(l_ab, l_bc, l_ac)
-        fit_color(ab_m, bc_m, ac_m)
-        fit_color(l_ab_v, l_bc_v, l_ac_v)
-        fit_color(ab_f, bc_f, ac_f)
-        fit_color(orth)
-        fit_color(l_euler_a, l_euler_b, l_euler_c)
-        fit_color(euler_a, euler_b, euler_c)
-        fit_color(npc)
-
+        # 在几何管理器下执行约束动画变换
         with gmm:
+            self.play(dot_a.animate.shift(RIGHT*4 + UP * 3), run_time=5, rate_func=smooth)
             self.wait(1)
-            self.play(Write(dot_a), Write(dot_b), Write(dot_c))
-            self.wait(1)
-            self.play(Write(l_ab), Write(l_bc), Write(l_ac))
-            self.wait(1)
-            self.play(Write(ab_m), Write(bc_m), Write(ac_m))
-            self.wait(1)
-            self.play(Write(l_ab_v), Write(l_bc_v), Write(l_ac_v))
-            self.wait(1)
-            self.play(Write(ab_f), Write(bc_f), Write(ac_f))
-            self.wait(1)
-            self.play(Write(orth))
-            self.wait(1)
-            self.play(Write(l_euler_a), Write(l_euler_b), Write(l_euler_c))
-            self.wait(1)
-            self.play(Write(euler_a), Write(euler_b), Write(euler_c))
-            self.wait(1)
-            self.play(Write(npc))
-            self.wait(3)
-
-            self.play(dot_a.animate.shift(RIGHT*1 + DOWN * 1), run_time=3)
+            self.play(dot_b.animate.shift(RIGHT*0.5 + DOWN * 2), run_time=5, rate_func=smooth)
             self.wait(2)
