@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
 from manimgeo.components import *
 
 class TestClassicalGeometry:
