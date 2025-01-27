@@ -4,10 +4,66 @@ sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路�
 from manimgeo.components import *
 from manimgeo.anime.manimgl import GeoManimGLMap
 
+class EulerLine(Scene):
+    def construct(self):
+        # 构造三角形ABC
+        A = FreePoint(np.array([-5, -1]), "A")
+        B = FreePoint(np.array([3, -2]), "B")
+        C = FreePoint(np.array([2, 3]), "C")
+        AB = LineSegmentPP(A, B, "AB")
+        BC = LineSegmentPP(B, C, "BC")
+        AC = LineSegmentPP(A, C, "AC")
+
+        # 重心 垂心 外心
+        CENTROID, _ = CentroidPPP(A, B, C, "Centroid")
+        ORTHOCENTER, _ = OrthocenterPPP(A, B, C, "Orthocenter")
+        CIRCUMCENTER, _ = CircumcenterPPP(A, B, C, "Circumcenter")
+
+        # 创建几何动画管理器
+        gmm = GeoManimGLMap()
+        
+        # 创建 ManimGL VMobject 图形
+        dot_a, dot_b, dot_c = gmm.create_mobjects_from_geometry([A, B, C])
+        l_ab, l_bc, l_ac = gmm.create_mobjects_from_geometry([AB, BC, AC])
+        dot_ct, dot_orth, dot_cir = gmm.create_mobjects_from_geometry([CENTROID, ORTHOCENTER, CIRCUMCENTER])
+
+        text_ct = Text("Centroid", font="Arial").move_to(dot_ct.get_center() + 0.2*(UP + RIGHT)).scale(0.3)
+        text_orth = Text("Orthocenter", font="Arial").move_to(dot_orth.get_center() + 0.2*(UP + RIGHT)).scale(0.3)
+        text_cir = Text("Circumcenter", font="Arial").move_to(dot_cir.get_center() + 0.2*(UP + RIGHT)).scale(0.3)
+
+        # 设置颜色
+        def fit_color(*mobs: VMobject, hex_color: str = "#FFFFFF"):
+            color = rgb_to_color(hex_to_rgb(hex_color))
+            [mob.set_color(color) for mob in mobs]       
+
+        fit_color(dot_a, dot_b, dot_c, l_ab, l_bc, l_ac, hex_color="#F9F871")
+        fit_color(dot_ct, text_ct, hex_color="#FF9671")
+        fit_color(dot_orth, text_orth, hex_color="#FF6F91")
+        fit_color(dot_cir, text_cir, hex_color="#845EC2")
+
+        # 添加到场景演示
+        self.wait(1)
+        self.play(Write(dot_a), Write(dot_b), Write(dot_c))
+        self.play(Write(l_ab), Write(l_bc), Write(l_ac))
+        self.play(Write(dot_ct), Write(text_ct))
+        self.play(Write(dot_orth), Write(text_orth))
+        self.play(Write(dot_cir), Write(text_cir))
+        self.wait(1)
+        
+        text_ct.add_updater(lambda m: m.move_to(dot_ct.get_center() + 0.2*(UP + RIGHT)))
+        text_orth.add_updater(lambda m: m.move_to(dot_orth.get_center() + 0.2*(UP + RIGHT)))
+        text_cir.add_updater(lambda m: m.move_to(dot_cir.get_center() + 0.2*(UP + RIGHT)))
+
+        # 在几何管理器下执行约束动画变换
+        with gmm:
+            now = self.time
+            dot_a.add_updater(lambda m: m.shift(0.01 * UP * math.sin((self.time - now)*2.5)))
+            dot_b.add_updater(lambda m: m.shift(0.01 * RIGHT * math.cos((self.time - now)*2)))
+            dot_c.add_updater(lambda m: m.shift(0.005 * (UP + LEFT) * math.sin((self.time - now)*1.5)))
+            self.wait(20)
+
 class NinePointCircle(Scene):
     def construct(self):
-        ## 进行几何构建
-
         # 构造三角形ABC
         A = FreePoint(np.array([-4, -2]), "A")
         B = FreePoint(np.array([3, -1]), "B")
@@ -32,7 +88,7 @@ class NinePointCircle(Scene):
         BC_VERTICAL = LineSegmentPP(BC_FOOT, A, "BC_vertical")
         AC_VERTICAL = LineSegmentPP(AC_FOOT, B, "AC_vertical")
         
-        # 构造欧拉点
+        # 构造垂点
         ORTHOCENTER = IntersectionPointLL(
             InfinityLinePP(AB_FOOT, C),
             InfinityLinePP(BC_FOOT, A), 
@@ -54,7 +110,7 @@ class NinePointCircle(Scene):
         # 创建几何动画管理器
         gmm = GeoManimGLMap()
 
-        # 创建 ManimGL VMobject 图形
+        # 手动创建 ManimGL VMobject 图形
         def create_mobj(geos: List[BaseGeometry]) -> List[VMobject]:
             return [gmm.create_mobject_from_geometry(geo) for geo in geos]
 
@@ -85,27 +141,19 @@ class NinePointCircle(Scene):
         # 添加到场景演示
         self.wait(1)
         self.play(Write(dot_a), Write(dot_b), Write(dot_c))
-        self.wait(1)
         self.play(Write(l_ab), Write(l_bc), Write(l_ac))
-        self.wait(1)
         self.play(Write(ab_m), Write(bc_m), Write(ac_m))
-        self.wait(1)
         self.play(Write(l_ab_v), Write(l_bc_v), Write(l_ac_v))
-        self.wait(1)
         self.play(Write(ab_f), Write(bc_f), Write(ac_f))
-        self.wait(1)
         self.play(Write(orth))
-        self.wait(1)
         self.play(Write(l_euler_a), Write(l_euler_b), Write(l_euler_c))
-        self.wait(1)
         self.play(Write(euler_a), Write(euler_b), Write(euler_c))
-        self.wait(1)
         self.play(Write(npc))
         self.wait(2)
 
         # 在几何管理器下执行约束动画变换
         with gmm:
-            self.play(dot_a.animate.shift(RIGHT*4 + UP * 3), run_time=5, rate_func=smooth)
+            self.play(dot_a.animate.shift(RIGHT*4 + UP * 2), run_time=5, rate_func=smooth)
             self.wait(1)
             self.play(dot_b.animate.shift(RIGHT*0.5 + DOWN * 2), run_time=5, rate_func=smooth)
             self.wait(2)
