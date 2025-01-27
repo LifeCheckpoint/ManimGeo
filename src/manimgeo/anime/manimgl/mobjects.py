@@ -6,13 +6,11 @@ from typing import Dict
 dim_23 = lambda x: np.append(x, 0)
 
 class GeoMapManager:
-    """管理几何对象到 Mobject 映射"""
-    maps: Dict[BaseGeometry, Mobject]
-    reverse_maps: Dict[Mobject, BaseGeometry]
+    """管理 ManimGL Mobject 和几何对象之间的自动映射"""
+    start_update: bool
 
     def __init__(self):
-        self.maps = {}
-        self.reverse_maps = {}
+        self.start_update = False
 
     def create_mobject_from_geometry(
             self,
@@ -73,136 +71,109 @@ class GeoMapManager:
             case _:
                 raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
             
-        self.maps.update({obj: mobject})
-        self.reverse_maps = {v: k for k, v in self.maps.items()}
+        self.register_updater(obj, mobject)
         return mobject
     
-    def bond(self, obj: Dict[BaseGeometry, Mobject]):
+    def bond(self, obj: BaseGeometry, mobj: Mobject):
         """
         关联
         """
-        self.maps.update(obj)
-        self.reverse_maps = {v: k for k, v in self.maps.items()}
-            
-    def release(self, obj: Union[BaseGeometry, List[BaseGeometry]]):
+        self.register_updater(obj, mobj)
+
+    def register_updater(self, obj: BaseGeometry, mobj: Mobject):
         """
-        解除关联
+        注册更新器
         """
-        if isinstance(obj, list):
-            for o in obj:
-                self.release(o)
+        if isinstance(obj, (FreePoint, )):
+            # 自由点，叶子节点
+            mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
         else:
-            if isinstance(self.maps.pop(obj, False), bool):
-                print(f"Cannot release object: {obj}")
+            # 非自由对象
+            mobj.add_updater(lambda mobj: self.update_node(mobj, obj))
+
+
+    def update_leaf(self, mobj: Mobject, obj: BaseGeometry):
+        """叶子 Updater，读取部件信息并应用至 FreePoint 坐标"""
+        if not self.start_update:
+            return
+        
+        if isinstance(obj, FreePoint):
+            obj.coord = mobj.get_center()[:2]
+        else:
+            raise NotImplementedError(f"Cannot update object of type: {type(obj)}")
+
+    def update_node(self, mobj: Mobject, obj: BaseGeometry):
+        """被约束对象 Updater，读取约束更改后信息应用到 Mobject"""
+        INFINITY_LINE_SCALE = 114
+
+        if not self.start_update:
+            return
+
+        # 注意匹配父子顺序
+        match obj:
+            case PointLike():
+                mobj.move_to(dim_23(obj.coord))
+
+            case LineLike():
+                from manimlib import Line as MLine
+                mobj: MLine
+
+                if isinstance(obj, LineSegmentPP):
+                    mobj.set_points_by_ends(dim_23(obj.start.coord), dim_23(obj.end.coord))
+
+                elif isinstance(obj, RayPP):
+                    mobj.set_points_by_ends(
+                        dim_23(obj.start.coord), 
+                        dim_23(obj.start.coord + INFINITY_LINE_SCALE*(obj.end.coord - obj.start.coord))
+                    )
+
+                elif isinstance(obj, InfinityLinePP):
+                    mobj.set_points_by_ends(
+                        dim_23(obj.end.coord + obj*(obj.start.coord - obj.end.coord)),
+                        dim_23(obj.start.coord + obj*(obj.end.coord - obj.start.coord))
+                    )
+
+            case CircleP() | CirclePP():
+                from manimlib import Circle as MCircle
+                mobj: MCircle
+
+                # 需要通过半径计算实际相对缩放
+                r = mobj.get_radius()
+                mobj.scale(obj.radius/r).move_to(dim_23(obj.center_point.coord))
+
+            case CirclePPP():
+                from manimlib import Circle as MCircle
+                mobj: MCircle
+
+                # 需要通过半径计算实际相对缩放
+                r = mobj.get_radius()
+                mobj.scale(obj.radius/r).move_to(dim_23(obj.center))
+
+            case EllipseAB() | EllipseCE():
+                print("developing")
+                pass
+
+            case HyperbolaAB() | HyperbolaCE():
+                print("developing")
+                pass
+
+            case ParabolaPP():
+                print("developing")
+                pass
+
+            case _:
+                raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
     
-    def release_all(self):
-        """
-        解除所有关联
-        """
-        self.maps.clear()
-
-    def update_coord(self, p: Mobject):
-        """根据 Mobject 更新反向更新对应 FreePoint 坐标，并传递到各个依赖"""
-
-        # 更新叶子
-        self.reverse_maps[p].coord = p.get_center()[:2]
-
-        # 将自动更新的坐标值设置到部件上
-        def update_mobject(obj: BaseGeometry, /, infinity_line_scale: float = 114):
-            # 获取所有依赖
-            dependences = obj.dependents
-
-            for dependence in dependences:
-                dependence_mobject = self.maps[dependence]
-
-                # 注意匹配父子顺序
-                match dependence:
-                    case PointLike():
-                        dependence_mobject.move_to(dim_23(dependence.coord))
-
-                    case LineLike():
-                        from manimlib import Line as MLine
-                        dependence_mobject: MLine
-
-                        if isinstance(dependence, LineSegmentPP):
-                            dependence_mobject.set_points_by_ends(dim_23(dependence.start.coord), dim_23(dependence.end.coord))
-
-                        elif isinstance(dependence, RayPP):
-                            dependence_mobject.set_points_by_ends(
-                                dim_23(dependence.start.coord), 
-                                dim_23(dependence.start.coord + infinity_line_scale*(dependence.end.coord - dependence.start.coord))
-                            )
-
-                        elif isinstance(dependence, InfinityLinePP):
-                            dependence_mobject.set_points_by_ends(
-                                dim_23(dependence.end.coord + infinity_line_scale*(dependence.start.coord - dependence.end.coord)),
-                                dim_23(dependence.start.coord + infinity_line_scale*(dependence.end.coord - dependence.start.coord))
-                            )
-
-                    case CircleP() | CirclePP():
-                        from manimlib import Circle as MCircle
-                        dependence_mobject: MCircle
-
-                        # 需要通过半径计算实际相对缩放
-                        r = dependence_mobject.get_radius()
-                        dependence_mobject.scale(dependence.radius/r).move_to(dim_23(dependence.center_point.coord))
-
-                    case CirclePPP():
-                        from manimlib import Circle as MCircle
-                        dependence_mobject: MCircle
-
-                        # 需要通过半径计算实际相对缩放
-                        r = dependence_mobject.get_radius()
-                        dependence_mobject.scale(dependence.radius/r).move_to(dim_23(dependence.center))
-
-                    case EllipseAB() | EllipseCE():
-                        print("developing")
-                        pass
-
-                    case HyperbolaAB() | HyperbolaCE():
-                        print("developing")
-                        pass
-
-                    case ParabolaPP():
-                        print("developing")
-                        pass
-
-                    case _:
-                        raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
-                    
-                # 当前物件完成更新，对其依赖进行更新
-                update_mobject(dependence)
-
-        # 从当前叶子节点开始更新
-        update_mobject(self.reverse_maps[p])
-
     def __enter__(self):
         """
-        通过叶子节点追踪所有部件几何运动
+        追踪所有部件几何运动
 
-        叶子节点:
-         - `FreePoint`
-         - ...
+        #### 由于 ManimGL 会替换一些 Mobject 的实际内存位置，请在对 Mobject 执行任何动画前进入该域，否则有可能造成错误
         """
-
-        # 反向查找推导
-        self.reverse_maps = {v: k for k, v in self.maps.items()}
-
-        for obj, mobject in self.maps.items():
-            obj: BaseGeometry
-            mobject: Mobject
-
-            if isinstance(obj, FreePoint):
-                mobject.add_updater(self.update_coord)
+        self.start_update = True
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        结束 Trace，清理
+        结束 Trace
         """
-
-        for obj, mobject in self.maps.items():
-            obj: BaseGeometry
-            mobject: Mobject
-
-            if isinstance(obj, FreePoint):
-                mobject.remove_updater(self.update_coord)
+        self.start_update = False
