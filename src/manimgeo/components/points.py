@@ -107,7 +107,7 @@ class AxisymmetricPointPL(PointLike):
         q = base + proj_vec # 投影点坐标
         self._coord = 2 * q - self.point.coord # 对称点坐标为投影点向量的两倍减去原坐标
 
-class TranslationPoint(PointLike):
+class TranslationPointP(PointLike):
     """## 构造平移点"""
     point: PointLike
     vector: Union[VectorParam, VectorPP]
@@ -123,7 +123,7 @@ class TranslationPoint(PointLike):
     def _recalculate(self):
         self._coord = self.point.coord + self.vector.vector
 
-class RotationPoint(PointLike):
+class RotationPointPPA(PointLike):
     """## 构造旋转点"""
     point: PointLike
     center: PointLike
@@ -199,7 +199,7 @@ class ParallelPointPL(PointLike):
 class AngleBisectorPointPPP(PointLike):
     pass
 
-class InversionPointCir(PointLike):
+class InversionPointPCir(PointLike):
     """## 构造反演点"""
     from manimgeo.components.conic_section import CircleP, CirclePP, CirclePPP
     Circles: TypeAlias = Union[CircleP, CirclePP, CirclePPP]

@@ -203,7 +203,7 @@ class TestClassicalGeometry:
         
         # 构造点P并计算反演点
         P = FreePoint(np.array([3, 0]), "P")
-        Q = InversionPointCir(P, inversion_circle, name="Q")
+        Q = InversionPointPCir(P, inversion_circle, name="Q")
         
         # 打印依赖关系
         print("Dependencies of O:")

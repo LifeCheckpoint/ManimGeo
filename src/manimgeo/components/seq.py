@@ -35,8 +35,8 @@ def VerticalInfinieLinePL(point: PointLike, line: LineLike, name: str = "") -> T
     return: InfinityLinePP, [LineDirection, TranslationPoint, VerticalPoint, InfinityLinePP]
     """
     direction = VectorPP(line.start, line.end, f"LineDirection")
-    trans_point = TranslationPoint(point, direction, f"TranslationPoint")
-    vertical_point = RotationPoint(trans_point, point, AnglePP(np.pi/2, point, trans_point), f"VerticalPoint")
+    trans_point = TranslationPointP(point, direction, f"TranslationPoint")
+    vertical_point = RotationPointPPA(trans_point, point, AnglePP(np.pi/2, point, trans_point), f"VerticalPoint")
     inf_line = InfinityLinePP(point, vertical_point, f"InfinityLine")
     
     GeometrySequence([direction, trans_point, vertical_point, inf_line], name)
