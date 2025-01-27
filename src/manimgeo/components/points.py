@@ -261,36 +261,44 @@ class IntersectionPointLCir(BaseGeometry):
 
     line: LineLike
     circle: Circles
-    point1: PointLike
-    point2: PointLike
+    _point1: PointLike
+    _point2: PointLike
 
     @property
     def point1(self) -> PointLike:
         if self.ret_updated:
             self._recalculate()
             self.ret_updated = False
-        return self.point1
+        return self._point1
+    
+    @point1.setter
+    def point1(self, value: PointLike):
+        self._point1 = value
 
     @property
     def point2(self) -> PointLike:
         if self.ret_updated:
             self._recalculate()
             self.ret_updated = False
-        return self.point2
+        return self._point2
+    
+    @point2.setter
+    def point2(self, value: PointLike):
+        self._point2 = value
 
     def __init__(self, line: LineLike, circle: Circles, name: str = ""):
         super().__init__(name if name is not "" else f"IntersectionPointLCir@{id(self)}")
         self.line = line
         self.circle = circle
-        self.point1 = ConstraintPoint(np.zeros(2), "IntersectionPointLCir_P1@{id(self)}")
-        self.point2 = ConstraintPoint(np.zeros(2), "IntersectionPointLCir_P2@{id(self)}")
+        self._point1 = ConstraintPoint(np.zeros(2), "IntersectionPointLCir_P1@{id(self)}")
+        self._point2 = ConstraintPoint(np.zeros(2), "IntersectionPointLCir_P2@{id(self)}")
 
         self.line.add_dependent(self)
         self.circle.add_dependent(self)
 
         # 反向注册
-        self.add_dependent(self.point1)
-        self.add_dependent(self.point2)
+        self.add_dependent(self._point1)
+        self.add_dependent(self._point2)
 
     def _recalculate(self):
         # 对于 PPP
@@ -299,14 +307,14 @@ class IntersectionPointLCir(BaseGeometry):
         center_coord = self.circle.center_point.coord if not isinstance(self.circle, CirclePPP) else self.circle.center
         radius = np.linalg.norm(self.circle.center_point.coord - self.circle.point.coord) if not isinstance(self.circle, CirclePPP) else self.circle.radius
 
-        intersections = GeoUtils.line_circle_intersection(self.line.start, self.line.end, center_coord, radius)
+        intersections = GeoUtils.line_circle_intersection(self.line.start.coord, self.line.end.coord, center_coord, radius)
 
         if len(intersections) == 2:
-            self.point1.coord = intersections[0]
-            self.point2.coord = intersections[1]
+            self._point1.coord = intersections[0]
+            self._point2.coord = intersections[1]
         elif len(intersections) == 1:
-            self.point1.coord = intersections[0]
-            self.point2.coord = intersections[0]
+            self._point1.coord = intersections[0]
+            self._point2.coord = intersections[0]
         else:
             raise ValueError(f"For {self.line.name} and {self.circle.name}, No intersection found")
 

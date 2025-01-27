@@ -59,6 +59,8 @@
 
 #### **组合操作**
 
+组合操作基于一系列几何操作，除了结果本身还会返回过程中的一些构造对象，具体请查阅源码
+
 - **`AngleBisectorLL(line1, line2, sort, name)`**：作两直线的角平分线（按锐角、钝角排序）。
 - **`CentroidPPP(point1, point2, point3, name)`**：计算三角形重心（三中线交点）。
 - **`CircumcenterCir(circle, name)`**：通过外接圆三点计算圆心（见 `CircumcenterPPP`）。

@@ -18,6 +18,10 @@ class VectorParam(ParamLike):
         self.update()
         self._vector = value
 
+    def __init__(self, vector: np.ndarray, name: str = ""):
+        super().__init__(name if name is not "" else f"VectorParam@{id(self)}")
+        self._vector = vector
+
     def _recalculate(self):
         # 定值向量本身不受参数影响，只需要更新依赖
         pass
