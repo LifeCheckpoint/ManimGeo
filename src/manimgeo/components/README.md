@@ -73,6 +73,7 @@
 - **`TangentLineCirP(circle, point, name)`**：作圆上一点的切线（若点不在圆上则作平行线）。
 - **`TangentLineCirP2(circle, point, name)`**：尺规作过圆外一点的两条切线。
 - **`VerticalInfinieLinePL(point, line, name)`**：过一点作直线的垂线。
+- **`SqrtLineL(line, name)`**：尺规作指定线段的算数平方根线段
 
 ---
 

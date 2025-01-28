@@ -85,16 +85,19 @@ class GeoUtils:
         delta = center2 - center1
         d = np.linalg.norm(delta)
         
+        # 处理同心圆情况
+        if np.isclose(d, 0, atol=tol):
+            # 同心圆但半径不同，无交点；半径相同则重合，返回空（无穷交点无法表示）
+            return []
+        
         # 无交点情形
         if d > radius1 + radius2 + tol:  # 两圆分离
             return []
-        if d < np.abs(radius1 - radius2) - tol:  # 一圆包含另一圆
-            return []
-        if np.isclose(d, 0, atol=tol):  # 同心圆
+        if d < abs(radius1 - radius2) - tol:  # 一圆包含另一圆
             return []
         
         # 计算方向向量
-        u = delta / d if d > 0 else np.array([1.0, 0.0])
+        u = delta / d
         
         # 中间参数计算
         a = (radius1**2 - radius2**2 + d**2) / (2*d)

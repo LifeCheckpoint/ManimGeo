@@ -37,7 +37,7 @@ class TestPoint:
     def test_IntersectionPointCirCir(self):
         # 两圆交点测试
 
-        # 相交情况 BUG
+        # 相交情况
         circle1 = CirclePP(FreePoint(np.array([0, 0])), FreePoint(np.array([1, 0])))  # 圆心(0,0)，半径1
         circle2 = CirclePP(FreePoint(np.array([1, 0])), FreePoint(np.array([2, 0])))  # 圆心(1,0)，半径1
         inter_points = IntersectionPointCirCir(circle1, circle2)
@@ -46,7 +46,7 @@ class TestPoint:
         assert (np.allclose(inter_points.point1.coord, expected1) or 
                 np.allclose(inter_points.point1.coord, expected2))
         
-        # 相切情况 BUG
+        # 相切情况
         circle3 = CirclePP(FreePoint(np.array([0, 0])), FreePoint(np.array([2, 0])))  # 半径2
         circle4 = CirclePP(FreePoint(np.array([4, 0])), FreePoint(np.array([2, 0])))  # 圆心(4,0)，半径2
         inter_points2 = IntersectionPointCirCir(circle3, circle4)
@@ -54,7 +54,7 @@ class TestPoint:
 
         # 无交点情况 BUG
         circle5 = CirclePP(FreePoint(np.array([0, 0])), FreePoint(np.array([1, 0])))
-        circle6 = CirclePP(FreePoint(np.array([3, 0])), FreePoint(np.array([1, 0])))
+        circle6 = CirclePP(FreePoint(np.array([3, 0])), FreePoint(np.array([2, 0])))
         try:
             IntersectionPointCirCir(circle5, circle6)
             assert False, "Expected ValueError for no intersection"
@@ -79,7 +79,7 @@ class TestPoint:
         tangent_point = IntersectionPointLCir(ray, circle2)
         assert np.allclose(tangent_point.point1.coord, [0, 1]) and np.allclose(tangent_point.point2.coord, [0, 1])
 
-        # 无限直线不相交 BUG
+        # 无限直线不相交
         inf_line = InfinityLinePP(FreePoint(np.array([3, 0])), FreePoint(np.array([3, 1])))  # x=3
         try:
             IntersectionPointLCir(inf_line, circle)
