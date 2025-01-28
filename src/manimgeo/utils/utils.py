@@ -15,20 +15,20 @@ class GeoUtils:
         return v1[0] * v2[1] - v1[1] * v2[0]
 
     @staticmethod
-    def point_to_line_distance(base_point: np.ndarray, unit_direction: np.ndarray, point: np.ndarray):
+    def point_to_line_distance(line_start: np.ndarray, line_end: np.ndarray, point: np.ndarray):
         """计算点到直线距离"""
-        # 转换为NumPy数组
-        base_point = np.array(base_point)
-        unit_direction = np.array(unit_direction)
-        point = np.array(point)
-        # 计算向量 v
+        base_point = line_start
+        unit_direction = np.linalg.norm(line_end - line_start)
+
         v = point - base_point
-        # 计算投影向量
         v_proj = np.dot(v, unit_direction) * unit_direction
-        # 计算垂直向量
         v_perp = v - v_proj
-        # 返回垂直向量的长度
         return np.linalg.norm(v_perp)
+    
+    @staticmethod
+    def is_point_on_infinite_line(point: np.ndarray, line_start: np.ndarray, line_end: np.ndarray):
+        """判断点是否在直线上"""
+        return np.allclose(GeoUtils.point_to_line_distance(line_start, line_end, point), 0)
     
     @staticmethod
     def unit_direction_vector(base_point: np.ndarray, target_point: np.ndarray):

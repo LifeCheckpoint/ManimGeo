@@ -65,15 +65,17 @@
 - **`CentroidPPP(point1, point2, point3, name)`**：计算三角形重心（三中线交点）。
 - **`CircumcenterCir(circle, name)`**：通过外接圆三点计算圆心（见 `CircumcenterPPP`）。
 - **`CircumcenterPPP(point1, point2, point3, name)`**：计算三角形外心（垂直平分线交点）。
+- **`MultiplicationLineLL`**：尺规作一根线段，其长度为 line1 的 line2 倍
 - **`OrthocenterPPP(point1, point2, point3, name)`**：计算三角形垂心（三高线交点）。
+- **`ParallelLineLP(line, point, radius_out)`**：尺规作一根过 point 直线，平行于 line
 - **`PerpendicularBisectorInfiniteLinePP(point1, point2, name)`**：作两点的垂直平分线。
 - **`PolarInfiniteLineCirP(circle, point, name)`**：作圆外极点对应的极线。
 - **`PolePointCirL(circle, line, name)`**：作圆内极线对应的极点。
+- **`SqrtLineL(line, name)`**：尺规作指定线段的算数平方根线段
 - **`TangentLineCirCir(circle1, circle2, name)`**：作两圆的切线（若两圆相切则作切线，否则作平行线）。
 - **`TangentLineCirP(circle, point, name)`**：作圆上一点的切线（若点不在圆上则作平行线）。
 - **`TangentLineCirP2(circle, point, name)`**：尺规作过圆外一点的两条切线。
 - **`VerticalInfinieLinePL(point, line, name)`**：过一点作直线的垂线。
-- **`SqrtLineL(line, name)`**：尺规作指定线段的算数平方根线段
 
 ---
 

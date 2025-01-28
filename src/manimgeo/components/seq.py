@@ -234,7 +234,7 @@ def PolePointCirL(circle: Circles, line: LineLike, name: str = "") -> Tuple[Inte
     GeometrySequence([intersections, tangent1, ops1, tangent2, ops2, polar], name)
     return polar, [intersections, tangent1, ops1, tangent2, ops2, polar]
 
-def SqrtLineL(line: LineLike, name: str = "") -> Tuple[LineSegmentPP, List[BaseGeometry]]:
+def SqrtLineL(line: LineSegmentPP, name: str = "") -> Tuple[LineSegmentPP, List[BaseGeometry]]:
     """
     ## 尺规作一根线段，其长度为 line 的算数平方根
 
@@ -261,7 +261,7 @@ def ParallelLineLP(line: LineLike, point: PointLike, radius_out: float = 1, name
     if radius_out <= 0:
         raise ValueError(f"Invalid radius_out: {radius_out}")
 
-    radius_min = GeoUtils.point_to_line_distance(line.start, np.linalg.norm(line.end - line.start), point)
+    radius_min = GeoUtils.point_to_line_distance(line.start.coord, line.end.coord, point.coord)
     r = radius_min + radius_out
     cir1 = CircleP(point, r, "Cir1")
     intersections1 = IntersectionPointLCir(line, cir1, "Intersections1")
@@ -277,7 +277,7 @@ def ParallelLineLP(line: LineLike, point: PointLike, radius_out: float = 1, name
     intersections3 = IntersectionPointCirCir(cir1, cir3, "Intersections3")
 
     # 判断平行点
-    if np.allclose(GeoUtils.point_to_line_distance(line.start, np.linalg.norm(line.end - line.start), intersections3.point1.coord), 0):
+    if GeoUtils.is_point_on_infinite_line(intersections3.point1.coord, line.start.coord, line.end.coord):
         p_final = intersections3.point2
     else:
         p_final = intersections3.point1
@@ -286,8 +286,29 @@ def ParallelLineLP(line: LineLike, point: PointLike, radius_out: float = 1, name
     GeometrySequence([cir1, intersections1, cir2, intersections2, p_long, cir3, intersections3, p_final, seg], name)
     return seg, [cir1, intersections1, cir2, intersections2, p_long, cir3, intersections3, p_final, seg]
 
-def MultiplicationLineLL(line1: LineLike, line2: LineLike, name: str = "") -> Tuple[LineSegmentPP, List[BaseGeometry]]:
+def MultiplicationLineLL(line1: LineSegmentPP, line2: LineSegmentPP, name: str = "") -> Tuple[LineSegmentPP, List[BaseGeometry]]:
     """
     ## 尺规作一根线段，其长度为 line1 的 line2 倍
+    
+    return: LineSegment, []
     """
+    l_v, ops1 = VerticalInfinieLinePL(line1.start, line1, "VeriticalLine1")
+    l_inf = InfinityLinePP(line1.start, line1.end)
+    p_unit = ParallelPointPL(line1.start, l_v, 1, "UnitParallelPoint")
+    l0 = LineSegmentPP(line1.end, p_unit)
+    d = np.linalg.norm(line2.end.coord - line2.start.coord)
+    cir_l2 = CircleP(line1.start, d, "CircleOfLine2")
+    intersections1 = IntersectionPointLCir(l_v, cir_l2, "Intersections")
+    
+    # 找到与单位点距离最近的同侧点
+    if np.linalg.norm(intersections1.point1.coord - p_unit.coord) < np.linalg.norm(intersections1.point2.coord - p_unit.coord):
+        p_b = intersections1.point1
+    else:
+        p_b = intersections1.point2
 
+    l_parallel, ops2 = ParallelLineLP(l0, p_b, name="ParallelLine")
+    intersections2 = IntersectionPointLL(l_inf, l_parallel, "MultiIntersection")
+    l_final = LineSegmentPP(line1.start, intersections2)
+
+    GeometrySequence([l_v, ops1, l_inf, p_unit, l0, cir_l2, intersections1, p_b, l_parallel, ops2, intersections2, l_final], name)
+    return l_final, [l_v, ops1, l_inf, p_unit, l0, cir_l2, intersections1, p_b, l_parallel, ops2, intersections2, l_final]
