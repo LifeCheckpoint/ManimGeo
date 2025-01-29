@@ -70,7 +70,7 @@ class ExtensionPointPP(PointLike):
     
     @factor.setter
     def factor(self, value: float):
-        self.update()
+        self.board_update_msg()
         self._factor = value
 
     def __init__(self, start_point: PointLike, through_point: PointLike, factor: float = 2.0, name: str = ""):
@@ -180,7 +180,7 @@ class ParallelPointPL(PointLike):
     
     @distance.setter
     def distance(self, value: float):
-        self.update()
+        self.board_update_msg()
         self._distance = value
 
     def __init__(self, point: PointLike, line: LineLike, distance: float = 1.0, name: str = ""):

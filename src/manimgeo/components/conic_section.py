@@ -38,7 +38,7 @@ class CircleP(ParametricGeometryLike):
     
     @radius.setter
     def radius(self, value: float):
-        self.update()
+        self.board_update_msg()
         self._radius = value
 
     def __init__(self, center: PointLike, radius: float, name: str = ""):
@@ -162,7 +162,7 @@ class EllipseCE(ParametricGeometryLike):
     
     @eccentricity.setter
     def eccentricity(self, value: float):
-        self.update()
+        self.board_update_msg()
         self._eccentricity = value
 
     def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: float, name: str = ""):
@@ -236,7 +236,7 @@ class HyperbolaCE(ParametricGeometryLike):
     
     @eccentricity.setter
     def eccentricity(self, value: float):
-        self.update()
+        self.board_update_msg()
         self._eccentricity = value
 
     def __init__(self, center: PointLike, focal_point: PointLike, eccentricity: float, name: str = ""):

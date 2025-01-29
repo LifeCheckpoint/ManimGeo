@@ -21,7 +21,7 @@ class VectorLike(BaseGeometry, ABC):
     @vec.setter
     def vec(self, value: np.ndarray, name: str = ""):
         super().__init__(name if name is not "" else f"VectorParam@{id(self)}")
-        self.update()
+        self.board_update_msg()
         self._vector = value
 
     def _recalculate(self):

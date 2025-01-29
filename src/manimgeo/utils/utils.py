@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Sequence
 
 class GeoUtils:
     @staticmethod
@@ -13,28 +14,7 @@ class GeoUtils:
     def cross_product(v1, v2):
         """计算二维向量叉积"""
         return v1[0] * v2[1] - v1[1] * v2[0]
-
-    @staticmethod
-    def point_to_line_distance(line_start: np.ndarray, line_end: np.ndarray, point: np.ndarray):
-        """计算点到直线距离"""
-        base_point = line_start
-        unit_direction = np.linalg.norm(line_end - line_start)
-
-        v = point - base_point
-        v_proj = np.dot(v, unit_direction) * unit_direction
-        v_perp = v - v_proj
-        return np.linalg.norm(v_perp)
     
-    @staticmethod
-    def is_point_on_infinite_line(point: np.ndarray, line_start: np.ndarray, line_end: np.ndarray):
-        """判断点是否在直线上"""
-        return np.allclose(GeoUtils.point_to_line_distance(line_start, line_end, point), 0)
-    
-    @staticmethod
-    def unit_direction_vector(base_point: np.ndarray, target_point: np.ndarray):
-        """计算单位方向向量"""
-        return (target_point - base_point) / np.linalg.norm(target_point - base_point)
-
     @staticmethod
     def line_circle_intersection(start: np.ndarray, end: np.ndarray, center: np.ndarray, radius: float) -> list[np.ndarray]:
         """
@@ -72,49 +52,7 @@ class GeoUtils:
             p2 = start + t2 * dir_vec
             return [p1, p2]
         
-    @staticmethod
-    def circle_circle_intersection(center1: np.ndarray, radius1: float, center2: np.ndarray, radius2: float) -> list[np.ndarray]:
-        """
-        计算两个圆的交点
-        
-        return: 交点列表，可能为 []、[point] 或 [point1, point2]
-        """
-        tol = 1e-8   # 浮点容差
-
-        # 计算圆心距离
-        delta = center2 - center1
-        d = np.linalg.norm(delta)
-        
-        # 处理同心圆情况
-        if np.isclose(d, 0, atol=tol):
-            # 同心圆但半径不同，无交点；半径相同则重合，返回空（无穷交点无法表示）
-            return []
-        
-        # 无交点情形
-        if d > radius1 + radius2 + tol:  # 两圆分离
-            return []
-        if d < abs(radius1 - radius2) - tol:  # 一圆包含另一圆
-            return []
-        
-        # 计算方向向量
-        u = delta / d
-        
-        # 中间参数计算
-        a = (radius1**2 - radius2**2 + d**2) / (2*d)
-        h_squared = radius1**2 - a**2
-        
-        # 处理浮点误差
-        if h_squared < -tol:
-            return []
-        elif abs(h_squared) < tol:  # 相切
-            point = center1 + a * u
-            return [point]
-        else:  # 两个交点
-            h = np.sqrt(h_squared)
-            v_perp = np.array([-u[1], u[0]])  # 垂直单位向量
-            point1 = center1 + a*u + h*v_perp
-            point2 = center1 + a*u - h*v_perp
-            return [point1, point2]
+    
         
     @staticmethod
     def calculate_angle(O: np.ndarray, A: np.ndarray, B: np.ndarray) -> float:
@@ -137,3 +75,21 @@ class GeoUtils:
         cos_theta = np.clip(cos_theta, -1.0, 1.0)
         
         return np.arccos(cos_theta)
+
+    @staticmethod
+    def check_params(objs: Sequence, *expected_types):
+        """检查参数数量与类型"""
+        if len(objs) != len(expected_types):
+            raise ValueError(f"Invalid Param number, expected {len(expected_types)} but got {len(objs)}")
+        
+        for i, (obj, expected_type) in enumerate(zip(objs, expected_types)):
+            if not isinstance(obj, expected_type) and expected_type is not None:
+                raise ValueError(f"Invalid Param {i}, expected {expected_type.__name__} but got {type(obj).__name__}")
+
+    @staticmethod
+    def get_name(default_name: str, obj, construct_type: str):
+        """以统一方式设置几何对象名称"""
+        if default_name is not "":
+            return default_name
+        else:
+            return f"{type(obj).__name__}[{construct_type}]@{id(obj)%10000}"

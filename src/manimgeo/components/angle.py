@@ -15,7 +15,7 @@ class BaseAngle(ParamLike):
     @angle.setter
     def angle(self, value: float, name: str = ""):
         super().__init__(name)
-        self.update()
+        self.board_update_msg()
         self._angle = value
 
     def _recalculate(self):
