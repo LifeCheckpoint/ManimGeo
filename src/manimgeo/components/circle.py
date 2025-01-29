@@ -81,7 +81,6 @@ def CirclePR(center: Point, radius: Number, name: str = ""):
     """
     return Circle("PR", center, radius, name=name)
 
-# 定义一个函数CirclePP，用于创建一个圆，参数为圆心center，点point，名称name
 def CirclePP(center: Point, point: Point, name: str = ""):
     """
     ## 中心与圆上一点构造圆

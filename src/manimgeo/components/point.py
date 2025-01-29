@@ -136,3 +136,139 @@ class Point(BaseGeometry):
         self.objs = objs
         self.adapter = PointAdapter(construct_type, self, *objs)
         self.update()
+
+class Points2(BaseGeometry):
+    attrs = ["coord1", "coord2"]
+    coord1: np.ndarray
+    coord2: np.ndarray
+
+    def __init__(
+            self,
+            construct_type: Literal[
+                "IntersectionLCir", "IntersectionCirCir"
+                ], 
+            *objs, 
+            name: str = ""
+        ):
+        """通过指定构造方式与对象构造两个交点"""
+        super().__init__(GeoUtils.get_name(name, self, construct_type))
+        self.objs = objs
+        self.adapter = PointAdapter(construct_type, self, *objs)
+        self.update()
+
+# Constructing Methods
+
+from manimgeo.components.circle import Circle
+
+# 单点构造
+
+def PointFree(coord: np.ndarray, name: str = ""):
+    """
+    ## 构造自由点（叶子节点）
+
+    `coord`: 点坐标
+    """
+    return Point("Free", coord, name=name)
+
+def PointConstraint(coord: np.ndarray, name: str = ""):
+    """
+    ## 构造约束点（非叶子节点）
+    
+    `coord`: 初始坐标（被后续依赖更新覆盖）
+    """
+    return Point("Constraint", coord, name=name)
+
+def PointMidPP(point1: Point, point2: Point, name: str = ""):
+    """
+    ## 构造两点中点
+    
+    `point1`: 第一个点  
+    `point2`: 第二个点
+    """
+    return Point("MidPP", point1, point2, name=name)
+
+def PointMidL(line: LineSegment, name: str = ""):
+    """
+    ## 构造线段中点
+    
+    `line`: 线段对象
+    """
+    return Point("MidL", line, name=name)
+
+def PointExtensionPP(start: Point, through: Point, factor: Number, name: str = ""):
+    """
+    ## 构造比例延长（位似）点
+    
+    `start`: 起点  
+    `through`: 经过点  
+    `factor`: 延长比例, 1 为恒等延长
+    """
+    return Point("ExtensionPP", start, through, factor, name=name)
+
+def PointAxisymmetricPL(point: Point, line: LineLike, name: str = ""):
+    """
+    ## 构造轴对称点
+    
+    `point`: 原始点  
+    `line`: 对称轴线
+    """
+    return Point("AxisymmetricPL", point, line, name=name)
+
+def PointVerticalPL(point: Point, line: LineLike, name: str = ""):
+    """
+    ## 构造垂足点
+    
+    `point`: 原始基准点
+    `line`: 目标直线
+    """
+    return Point("VerticalPL", point, line, name=name)
+
+def PointParallelPL(point: Point, line: LineLike, distance: Number, name: str = ""):
+    """
+    ## 构造平行线上一点
+    
+    `point`: 基准点
+    `line`: 平行基准线
+    `distance`: 沿平行方向的绝对距离
+    """
+    return Point("ParallelPL", point, line, distance, name=name)
+
+def PointInversionPCir(point: Point, circle: Circle, name: str = ""):
+    """
+    ## 构造反演点
+    
+    `point`: 原始点  
+    `circle`: 反演基准圆
+    """
+    return Point("InversionPCir", point, circle, name=name)
+
+def PointIntersectionLL(line1: LineLike, line2: LineLike, regard_infinite: bool = False, name: str = ""):
+    """
+    ## 构造两线交点
+    
+    `line1`: 第一条线  
+    `line2`: 第二条线  
+    `regard_infinite`: 是否视为无限长直线
+    """
+    return Point("IntersectionLL", line1, line2, regard_infinite, name=name)
+
+# 双点构造
+
+def Points2IntersectionLCir(line: LineLike, circle: Circle, regard_infinite: bool = False, name: str = ""):
+    """
+    ## 构造线与圆的交点对
+    
+    `line`: 直线/线段  
+    `circle`: 圆  
+    `regard_infinite`: 是否视为无限长直线
+    """
+    return Points2("IntersectionLCir", line, circle, regard_infinite, name=name)
+
+def Points2IntersectionCirCir(circle1: Circle, circle2: Circle, name: str = ""):
+    """
+    ## 构造两圆交点对
+    
+    `circle1`: 第一个圆  
+    `circle2`: 第二个圆
+    """
+    return Points2("IntersectionCirCir", circle1, circle2, name=name)
