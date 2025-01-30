@@ -59,7 +59,7 @@ class GeoMathe:
         s = (a + b + c) / 2
         r = a * b * c / (4 * np.sqrt(s * (s - a) * (s - b) * (s - c)))
 
-        if np.linalg.matrix_rank(np.array([a, b])) == 1:
+        if np.linalg.matrix_rank(np.array([p2 - p3, p1 - p3])) == 1:
             raise ValueError("Matrix is singular, points are collinear")
 
         # 计算圆心

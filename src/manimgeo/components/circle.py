@@ -38,7 +38,7 @@ class CircleAdapter(GeometryAdapter):
     def __call__(self, *objs: Union[BaseGeometry, any]):
         from manimgeo.components.point import Point
         from manimgeo.components.line import LineSegment
-        
+
         match self.construct_type:
             case "PR":
                 GeoUtils.check_params(objs, Point, Number)
@@ -57,7 +57,7 @@ class CircleAdapter(GeometryAdapter):
 
             case "PPP":
                 GeoUtils.check_params(objs, Point, Point, Point)
-                self.center, self.radius = GeoMathe.three_points_circle_r_c(
+                self.radius, self.center = GeoMathe.three_points_circle_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 
