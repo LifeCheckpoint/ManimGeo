@@ -1,4 +1,4 @@
-from typing import Tuple, Literal
+from typing import Tuple, Literal, List
 from numbers import Number
 import numpy as np
 
@@ -253,6 +253,78 @@ class GeoMathe:
                     # 判断参数范围是否有交集
                     has_overlap = not (l1_max < l2_min or l2_max < l1_min)
                     return (True, None) if has_overlap else (False, None)
+
+    @staticmethod
+    def intersection_line_cir(
+            l_start: np.ndarray, l_end: np.ndarray, 
+            center: np.ndarray, radius: float, 
+            line_type: Literal["LineSegment", "Ray", "InfinityLine"]
+        ) -> List[np.ndarray]:
+        """计算线段、射线或无限直线与圆的交点"""
+        x1, y1 = l_start[0], l_start[1]
+        x2, y2 = l_end[0], l_end[1]
+        a, b = center[0], center[1]
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # 处理线段退化为点的情况
+        if np.isclose(dx, 0) and np.isclose(dy, 0):
+            distance_sq = (x1 - a)**2 + (y1 - b)**2
+            if np.isclose(distance_sq, radius**2):
+                return [np.array([x1, y1])]
+            else:
+                return []
+
+        # 计算二次方程系数
+        A = dx**2 + dy**2
+        B = 2 * ((x1 - a) * dx + (y1 - b) * dy)
+        C = (x1 - a)**2 + (y1 - b)**2 - radius**2
+
+        # 计算判别式
+        delta = B**2 - 4 * A * C
+        intersections = []
+
+        if delta < 0:
+            return []
+        else:
+            sqrt_delta = np.sqrt(delta)
+            t_values = []
+            if np.isclose(delta, 0):
+                t = -B / (2 * A)
+                t_values.append(t)
+            else:
+                t1 = (-B - sqrt_delta) / (2 * A)
+                t2 = (-B + sqrt_delta) / (2 * A)
+                t_values.extend([t1, t2])
+
+            # 根据线类型筛选有效t值
+            valid_ts = []
+            for t in t_values:
+                if line_type == "LineSegment":
+                    if 0 <= t <= 1:
+                        valid_ts.append(t)
+                elif line_type == "Ray":
+                    if t >= 0:
+                        valid_ts.append(t)
+                elif line_type == "InfinityLine":
+                    valid_ts.append(t)
+
+            # 计算交点并去重
+            for t in valid_ts:
+                x = x1 + t * dx
+                y = y1 + t * dy
+                point = np.array([x, y])
+
+                # 使用np.allclose检查是否重复
+                is_duplicate = False
+                for existing_point in intersections:
+                    if np.allclose(point, existing_point):
+                        is_duplicate = True
+                        break
+                if not is_duplicate:
+                    intersections.append(point)
+
+        return intersections
                 
     @staticmethod
     def intersection_cir_cir(center1: np.ndarray, radius1: Number, center2: np.ndarray, radius2: Number) -> list[np.ndarray]:

@@ -126,8 +126,19 @@ class PointAdapter(GeometryAdapter):
                     raise ValueError("No intersections")
                 
             case "IntersectionLCir":
-                ...
-                # TODO
+                result = GeoMathe.intersection_line_cir(
+                        objs[0].start, objs[0].end,
+                        objs[1].center, objs[1].radius,
+                        type(objs[0]).__name__
+                    )
+                if len(result) == 0:
+                    raise ValueError("No intersections")
+                elif len(result) == 1:
+                    self.coord1 = result[0].copy()
+                    self.coord2 = result[0].copy()
+                else:
+                    self.coord1 = result[0].copy()
+                    self.coord2 = result[1].copy()
 
             case "IntersectionCirCir":
                 result = GeoMathe.intersection_cir_cir(
