@@ -32,13 +32,12 @@ class GeoMathe:
     @staticmethod
     def point_to_line_distance(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
         """计算点到直线距离"""
-        base_point = l_start
-        unit_direction = np.linalg.norm(l_end - l_start)
-
-        v = p - base_point
-        v_proj = np.dot(v, unit_direction) * unit_direction
-        v_perp = v - v_proj
-        return np.linalg.norm(v_perp)
+        direction = l_end - l_start
+        norm_val = np.linalg.norm(direction)
+        if norm_val == 0:
+            return np.linalg.norm(p - l_start)
+        cross_product = np.cross(direction, p - l_start)
+        return np.abs(cross_product) / norm_val
     
     @staticmethod
     def vertical_point_to_line(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):

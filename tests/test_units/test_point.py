@@ -9,7 +9,7 @@ class TestPoint:
     def test_PointFree(self):
         point = PointFree(np.array([114, 514]))
         assert np.allclose(point.coord, np.array([114, 514]))
-        
+
     def test_AxisymmetricPointPL(self):
         # 对称点测试
         line = InfinityLinePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))  # x轴
@@ -47,14 +47,14 @@ class TestPoint:
         inter_points = Points2IntersectionCirCir(circle1, circle2)
         expected1 = np.array([0.5, math.sqrt(3)/2])
         expected2 = np.array([0.5, -math.sqrt(3)/2])
-        assert (np.allclose(inter_points.point1.coord, expected1) or 
-                np.allclose(inter_points.point1.coord, expected2))
+        assert (np.allclose(inter_points.coord1, expected1) or 
+                np.allclose(inter_points.coord1, expected2))
         
         # 相切情况
         circle3 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([2, 0])))  # 半径2
         circle4 = CirclePP(PointFree(np.array([4, 0])), PointFree(np.array([2, 0])))  # 圆心(4,0)，半径2
         inter_points2 = Points2IntersectionCirCir(circle3, circle4)
-        assert np.allclose(inter_points2.point1.coord, [2, 0])
+        assert np.allclose(inter_points2.coord1, [2, 0])
 
         # 无交点情况 BUG
         circle5 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))
@@ -72,16 +72,16 @@ class TestPoint:
         circle = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))  # 单位圆
         line = LineSegmentPP(PointFree(np.array([-2, 0])), PointFree(np.array([2, 0])))  # x轴线段
         intersections = Points2IntersectionLCir(line, circle)
-        assert (np.allclose(intersections.point1.coord, [1, 0]) and \
-               np.allclose(intersections.point2.coord, [-1, 0])) or \
-               (np.allclose(intersections.point1.coord, [-1, 0]) and \
-               np.allclose(intersections.point2.coord, [1, 0]))
+        assert (np.allclose(intersections.coord1, [1, 0]) and \
+               np.allclose(intersections.coord2, [-1, 0])) or \
+               (np.allclose(intersections.coord1, [-1, 0]) and \
+               np.allclose(intersections.coord2, [1, 0]))
 
         # 射线与圆相切
         circle2 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))
         ray = RayPP(PointFree(np.array([0, 1])), PointFree(np.array([1, 1])))  # 水平射线y=1
         tangent_point = Points2IntersectionLCir(ray, circle2)
-        assert np.allclose(tangent_point.point1.coord, [0, 1]) and np.allclose(tangent_point.point2.coord, [0, 1])
+        assert np.allclose(tangent_point.coord1, [0, 1]) and np.allclose(tangent_point.coord2, [0, 1])
 
         # 无限直线不相交
         inf_line = InfinityLinePP(PointFree(np.array([3, 0])), PointFree(np.array([3, 1])))  # x=3
