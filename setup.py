@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="manimgeo",
-    version="1.0.1",
+    version="1.2.0",
     author="lifechpt",
     url='',
     author_email="lifechpt@qq.com",

@@ -4,3 +4,4 @@ build
 dist
 .VSCodeCounter
 videos
+.vscode/settings.json
