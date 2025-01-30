@@ -8,6 +8,7 @@ from manimgeo.utils.mathe import GeoMathe
 
 if TYPE_CHECKING:
     from manimgeo.components.point import Point
+    from manimgeo.components.vector import Vector
 
 class LineAdapter(GeometryAdapter):
     start: np.ndarray
@@ -17,7 +18,7 @@ class LineAdapter(GeometryAdapter):
 
     def __init__(
             self,
-            construct_type: Literal["PP"],
+            construct_type: Literal["PP", "PV"],
             current_geo_obj: Union["LineSegment", "Ray", "InfinityLine"],
             *objs: Union[BaseGeometry, any]
         ):
@@ -34,6 +35,11 @@ class LineAdapter(GeometryAdapter):
                 GeoUtils.check_params(objs, Point, Point)
                 self.start = objs[0].coord
                 self.end = objs[1].coord
+
+            case "PV":
+                GeoUtils.check_params(objs, Point, Vector)
+                self.start = objs[0].coord
+                self.end = objs[0].coord + objs[1].vec
             
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -52,7 +58,7 @@ class Line(BaseGeometry):
 
     def __init__(
             self, 
-            construct_type: Literal["PP"],
+            construct_type: Literal["PP", "PV"],
             line_type: str,
             *objs,
             name: str = ""
@@ -67,7 +73,7 @@ class Line(BaseGeometry):
 class LineSegment(Line):
     def __init__(
             self, 
-            construct_type: Literal["PP"], 
+            construct_type: Literal["PP", "PV"], 
             *objs, 
             name: str = ""
         ):
@@ -77,7 +83,7 @@ class LineSegment(Line):
 class Ray(Line):
     def __init__(
             self, 
-            construct_type: Literal["PP"], 
+            construct_type: Literal["PP", "PV"], 
             *objs, 
             name: str = ""
         ):
@@ -87,7 +93,7 @@ class Ray(Line):
 class InfinityLine(Line):
     def __init__(
             self, 
-            construct_type: Literal["PP"], 
+            construct_type: Literal["PP", "PV"], 
             *objs, 
             name: str = ""
         ):
