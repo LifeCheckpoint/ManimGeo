@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from manimgeo.components.line import LineSegment
     from manimgeo.components.vector import Vector
 
-CircleConstructType = Literal["PR", "PP", "L", "PPP", "TranslationCirV"]
+CircleConstructType = Literal[
+    "PR", "PP", "L", "PPP", "TranslationCirV"
+]
 
 class CircleAdapter(GeometryAdapter):
     center: np.ndarray

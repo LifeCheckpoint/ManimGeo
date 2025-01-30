@@ -12,7 +12,9 @@ if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.vector import Vector
 
-LineConstructType = Literal["PP", "PV", "TranslationLV"]
+LineConstructType = Literal[
+    "PP", "PV", "TranslationLV"
+]
 
 class LineAdapter(GeometryAdapter):
     start: np.ndarray

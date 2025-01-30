@@ -3,7 +3,8 @@ from manimgeo.components import *
 from manimlib import Mobject
 from typing import Sequence
 
-dim_23 = lambda x: np.append(x, 0)
+def dim_23(x: np.ndarray) -> np.ndarray:
+    return np.append(x, 0)
 
 class GeoManimGLMap:
     """管理 ManimGL Mobject 和几何对象之间的自动映射"""
@@ -14,10 +15,7 @@ class GeoManimGLMap:
 
     def create_mobjects_from_geometry(
             self,
-            objs: Sequence[Union[
-                    PointLike, LineLike, CirclePPP, CirclePP, CircleP,
-                    EllipseAB, EllipseCE, HyperbolaAB, HyperbolaCE, ParabolaPP
-                ]],
+            objs: Sequence[Union[Point, Line, Circle]],
         ):
         """
         通过几何对象创建 Mobject，并自动关联
@@ -26,10 +24,7 @@ class GeoManimGLMap:
 
     def create_mobject_from_geometry(
             self,
-            obj: Union[
-                    PointLike, LineLike, CirclePPP, CirclePP, CircleP,
-                    EllipseAB, EllipseCE, HyperbolaAB, HyperbolaCE, ParabolaPP
-                ]
+            obj: Union[Point, Line, Circle]
         ):
         """
         通过几何对象创建 Mobject，并自动关联
@@ -40,44 +35,28 @@ class GeoManimGLMap:
 
         # 注意匹配父子顺序
         match obj:
-            case PointLike():
+            case Point():
                 from manimlib import Dot as MDot
                 mobject = MDot(dim_23(obj.coord))
 
-            case LineLike():
+            case Line():
                 from manimlib import Line as MLine
-                if isinstance(obj, LineSegmentPP):
-                    mobject = MLine(dim_23(obj.start.coord), dim_23(obj.end.coord))
-                elif isinstance(obj, RayPP):
+                if isinstance(obj, LineSegment):
+                    mobject = MLine(dim_23(obj.start), dim_23(obj.end))
+                elif isinstance(obj, Ray):
                     mobject = MLine(
-                        dim_23(obj.start.coord), 
-                        dim_23(obj.start.coord + INFINITY_LINE_SCALE*(obj.end.coord - obj.start.coord))
+                        dim_23(obj.start), 
+                        dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
                     )
-                elif isinstance(obj, InfinityLinePP):
+                elif isinstance(obj, InfinityLine):
                     mobject = MLine(
-                        dim_23(obj.end.coord + INFINITY_LINE_SCALE*(obj.start.coord - obj.end.coord)),
-                        dim_23(obj.start.coord + INFINITY_LINE_SCALE*(obj.end.coord - obj.start.coord))
+                        dim_23(obj.end - INFINITY_LINE_SCALE * obj.unit_direction),
+                        dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
                     )
 
-            case CircleP() | CirclePP():
-                from manimlib import Circle as MCircle
-                mobject = MCircle().scale(obj.radius).move_to(dim_23(obj.center_point.coord))
-
-            case CirclePPP():
+            case Circle():
                 from manimlib import Circle as MCircle
                 mobject = MCircle().scale(obj.radius).move_to(dim_23(obj.center))
-
-            case EllipseAB() | EllipseCE():
-                print("developing")
-                pass
-
-            case HyperbolaAB() | HyperbolaCE():
-                print("developing")
-                pass
-
-            case ParabolaPP():
-                print("developing")
-                pass
 
             case _:
                 raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
@@ -95,7 +74,7 @@ class GeoManimGLMap:
         """
         注册更新器
         """
-        if isinstance(obj, (FreePoint, )):
+        if isinstance(obj, Point) and obj.adapter.construct_type is "Free":
             # 自由点，叶子节点
             mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
         else:
@@ -109,10 +88,8 @@ class GeoManimGLMap:
         if not self.start_update:
             return
         
-        if isinstance(obj, FreePoint):
-            obj.coord = mobj.get_center()[:2]
-        else:
-            raise NotImplementedError(f"Cannot update object of type: {type(obj)}")
+        if isinstance(obj, Point):
+            obj.set_coord(mobj.get_center()[:2])
 
     def update_node(self, mobj: Mobject, obj: BaseGeometry):
         """被约束对象 Updater，读取约束更改后信息应用到 Mobject"""
@@ -123,56 +100,36 @@ class GeoManimGLMap:
 
         # 注意匹配父子顺序
         match obj:
-            case PointLike():
+            case Point():
                 mobj.move_to(dim_23(obj.coord))
 
-            case LineLike():
+            case Line():
                 from manimlib import Line as MLine
                 mobj: MLine
 
-                if not np.allclose(obj.start.coord, obj.end.coord, atol=1e-3):
-                    if isinstance(obj, LineSegmentPP):
-                        mobj.set_points_by_ends(dim_23(obj.start.coord), dim_23(obj.end.coord))
+                if not np.allclose(obj.start, obj.end):
+                    if isinstance(obj, LineSegment):
+                        mobj.set_points_by_ends(dim_23(obj.start), dim_23(obj.end))
 
-                    elif isinstance(obj, RayPP):
+                    elif isinstance(obj, Ray):
                         mobj.set_points_by_ends(
-                            dim_23(obj.start.coord), 
-                            dim_23(obj.start.coord + INFINITY_LINE_SCALE*(obj.end.coord - obj.start.coord))
+                            dim_23(obj.start), 
+                            dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
                         )
 
-                    elif isinstance(obj, InfinityLinePP):
+                    elif isinstance(obj, InfinityLine):
                         mobj.set_points_by_ends(
-                            dim_23(obj.end.coord + obj*(obj.start.coord - obj.end.coord)),
-                            dim_23(obj.start.coord + obj*(obj.end.coord - obj.start.coord))
+                            dim_23(obj.end - INFINITY_LINE_SCALE * obj.unit_direction),
+                            dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
                         )
 
-            case CircleP() | CirclePP():
+            case Circle():
                 from manimlib import Circle as MCircle
                 mobj: MCircle
 
                 # 需要通过半径计算实际相对缩放
                 r = mobj.get_radius()
-                mobj.scale(obj.radius/r).move_to(dim_23(obj.center_point.coord))
-
-            case CirclePPP():
-                from manimlib import Circle as MCircle
-                mobj: MCircle
-
-                # 需要通过半径计算实际相对缩放
-                r = mobj.get_radius()
-                mobj.scale(obj.radius/r).move_to(dim_23(obj.center))
-
-            case EllipseAB() | EllipseCE():
-                print("developing")
-                pass
-
-            case HyperbolaAB() | HyperbolaCE():
-                print("developing")
-                pass
-
-            case ParabolaPP():
-                print("developing")
-                pass
+                mobj.scale(obj.radius / r).move_to(dim_23(obj.center))
 
             case _:
                 raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
