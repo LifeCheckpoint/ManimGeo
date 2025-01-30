@@ -1,11 +1,13 @@
+from numbers import Number
+from typing import TYPE_CHECKING, Union, Literal
+import numpy as np
+
 from manimgeo.components.base import GeometryAdapter, BaseGeometry
-from manimgeo.components.line import LineLike, LineSegment
 from manimgeo.utils.utils import GeoUtils
 from manimgeo.utils.mathe import GeoMathe
 
-import numpy as np
-from typing import Union, Literal
-from numbers import Number
+if TYPE_CHECKING:
+    from manimgeo.components.line import Line, LineSegment
 
 class PointAdapter(GeometryAdapter):
     # 目前设计中，两点被看作属于 PointAdapter 适配器
@@ -21,7 +23,7 @@ class PointAdapter(GeometryAdapter):
                 "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
                 "IntersectionLL", "IntersectionLCir", "IntersectionCirCir"
                 ],
-            current_geo_obj: BaseGeometry,
+            current_geo_obj: Union["Point", "Points2"],
             *objs: Union[BaseGeometry, any]
         ):
         """
@@ -64,17 +66,17 @@ class PointAdapter(GeometryAdapter):
                 self.coord = objs[0].coord + objs[2]*(objs[1].coord - objs[0].coord)
 
             case "AxisymmetricPL":
-                GeoUtils.check_params(objs, Point, LineLike)
+                GeoUtils.check_params(objs, Point, Line)
                 self.coord = GeoMathe.axisymmetric_point(objs[0].coord, objs[1].start, objs[1].end)
 
             case "VerticalPL":
-                GeoUtils.check_params(objs, Point, LineLike)
+                GeoUtils.check_params(objs, Point, Line)
                 self.coord = GeoMathe.vertical_point_to_line(objs[0].coord, objs[1].start, objs[1].end)
 
             case "ParallelPL":
                 # point, line, absolute_distance
-                GeoUtils.check_params(objs, Point, LineLike, Number)
-                self.coord = objs[0].coord + objs[2]*GeoMathe.unit_direction_vector(objs[1].start, objs[2].end)
+                GeoUtils.check_params(objs, Point, Line, Number)
+                self.coord = objs[0].coord + objs[2]*objs[1].unit_direction
 
             case "InversionPCir":
                 from manimgeo.components.circle import Circle
@@ -83,7 +85,7 @@ class PointAdapter(GeometryAdapter):
 
             case "IntersectionLL":
                 # line1, line2, regard_as_infinite
-                GeoUtils.check_params(objs, LineLike, LineLike, bool)
+                GeoUtils.check_params(objs, Line, Line, bool)
                 self.coord = GeoMathe.intersection_line_line(
                         objs[0].start, objs[0].end, 
                         objs[1].start, objs[1].end,
@@ -94,7 +96,7 @@ class PointAdapter(GeometryAdapter):
             case "IntersectionLCir":
                 from manimgeo.components.circle import Circle
                 # line, circle, regard_as_infinite
-                GeoUtils.check_params(objs, LineLike, Circle, bool)
+                GeoUtils.check_params(objs, Line, Circle, bool)
                 # TODO
 
             case "IntersectionCirCir":
@@ -205,7 +207,7 @@ def PointExtensionPP(start: Point, through: Point, factor: Number, name: str = "
     """
     return Point("ExtensionPP", start, through, factor, name=name)
 
-def PointAxisymmetricPL(point: Point, line: LineLike, name: str = ""):
+def PointAxisymmetricPL(point: Point, line: Line, name: str = ""):
     """
     ## 构造轴对称点
     
@@ -214,7 +216,7 @@ def PointAxisymmetricPL(point: Point, line: LineLike, name: str = ""):
     """
     return Point("AxisymmetricPL", point, line, name=name)
 
-def PointVerticalPL(point: Point, line: LineLike, name: str = ""):
+def PointVerticalPL(point: Point, line: Line, name: str = ""):
     """
     ## 构造垂足点
     
@@ -223,7 +225,7 @@ def PointVerticalPL(point: Point, line: LineLike, name: str = ""):
     """
     return Point("VerticalPL", point, line, name=name)
 
-def PointParallelPL(point: Point, line: LineLike, distance: Number, name: str = ""):
+def PointParallelPL(point: Point, line: Line, distance: Number, name: str = ""):
     """
     ## 构造平行线上一点
     
@@ -242,7 +244,7 @@ def PointInversionPCir(point: Point, circle: Circle, name: str = ""):
     """
     return Point("InversionPCir", point, circle, name=name)
 
-def PointIntersectionLL(line1: LineLike, line2: LineLike, regard_infinite: bool = False, name: str = ""):
+def PointIntersectionLL(line1: Line, line2: Line, regard_infinite: bool = False, name: str = ""):
     """
     ## 构造两线交点
     
@@ -254,7 +256,7 @@ def PointIntersectionLL(line1: LineLike, line2: LineLike, regard_infinite: bool 
 
 # 双点构造
 
-def Points2IntersectionLCir(line: LineLike, circle: Circle, regard_infinite: bool = False, name: str = ""):
+def Points2IntersectionLCir(line: Line, circle: Circle, regard_infinite: bool = False, name: str = ""):
     """
     ## 构造线与圆的交点对
     

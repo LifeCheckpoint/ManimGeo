@@ -1,12 +1,14 @@
+import numpy as np
+from typing import TYPE_CHECKING, Union, Literal
+from numbers import Number
+
 from manimgeo.components.base import GeometryAdapter, BaseGeometry
-from manimgeo.components.point import Point
-from manimgeo.components.line import LineSegment
 from manimgeo.utils.utils import GeoUtils
 from manimgeo.utils.mathe import GeoMathe
 
-import numpy as np
-from typing import Union, Literal
-from numbers import Number
+if TYPE_CHECKING:
+    from manimgeo.components.point import Point
+    from manimgeo.components.line import LineSegment
 
 class CircleAdapter(GeometryAdapter):
     center: np.ndarray
@@ -14,7 +16,12 @@ class CircleAdapter(GeometryAdapter):
     area: Number
     circumference: Number
 
-    def __init__(self, construct_type: Literal["PR", "PP", "L", "PPP"], current_geo_obj: BaseGeometry, *objs: Union[BaseGeometry, any]):
+    def __init__(
+            self, 
+            construct_type: Literal["PR", "PP", "L", "PPP"], 
+            current_geo_obj: "Circle", 
+            *objs: Union[BaseGeometry, any]
+        ):
         """
         PR: 中心与半径
         PP: 中心与圆上一点
@@ -63,7 +70,12 @@ class Circle(BaseGeometry):
     area: Number
     circumference: Number
 
-    def __init__(self, construct_type: Literal["PR", "PP", "L", "PPP"], *objs, name: str = ""):
+    def __init__(
+            self, 
+            construct_type: Literal["PR", "PP", "L", "PPP"], 
+            *objs, 
+            name: str = ""
+        ):
         """通过指定构造方式与对象构造圆"""
         super().__init__(GeoUtils.get_name(name, self, construct_type))
         self.objs = objs

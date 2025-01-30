@@ -90,6 +90,22 @@ class GeoMathe:
         k = (r ** 2) / d_squared
         return center + op * k
     
+    def check_line_range(
+            t: Number,
+            line_type: Literal["LineSegment", "Ray", "InfinityLine"]
+        ) -> bool:
+        """线对象参数范围检查"""
+        EPSILON = 1e-8
+
+        if line_type is "LineSegment":
+            return -EPSILON <= t <= 1 + EPSILON
+        elif line_type is "Ray":
+            return t >= -EPSILON
+        elif line_type is "InfinityLine":
+            return True
+        
+        raise ValueError(f"{line_type} is not a valid line type")
+    
     @staticmethod
     def intersection_line_line(
             l1_start: np.ndarray, l1_end: np.ndarray, 
@@ -120,8 +136,6 @@ class GeoMathe:
         sqrlen_u = np.dot(u, u)
         sqrlen_v = np.dot(v, v)
 
-        EPSILON = 1e-8
-
         if not np.allclose(cross, 0):
             # 两线不平行，计算参数t和s
             t = np.cross(diff, v) / cross
@@ -132,21 +146,8 @@ class GeoMathe:
                 return (True, point)
             else:
                 # 检查参数有效性
-                valid_l1 = False
-                if l1_type is "LineSegment":
-                    valid_l1 = (-EPSILON <= t <= 1 + EPSILON)
-                elif l1_type is "Ray":
-                    valid_l1 = (t >= -EPSILON)
-                elif l1_type is "InfinityLine":
-                    valid_l1 = True
-
-                valid_l2 = False
-                if l2_type is "LineSegment":
-                    valid_l2 = (-EPSILON <= s <= 1 + EPSILON)
-                elif l2_type is "Ray":
-                    valid_l2 = (s >= -EPSILON)
-                elif l2_type is "InfinityLine":
-                    valid_l2 = True
+                valid_l1 = GeoMathe.check_line_range(t, l1_type)
+                valid_l2 = GeoMathe.check_line_range(s, l2_type)
 
                 if valid_l1 and valid_l2:
                     point = l1_start + t * u
@@ -203,21 +204,21 @@ class GeoMathe:
         
         return: 交点列表，可能为 []、[point] 或 [point1, point2]
         """
-        tol = 1e-8   # 浮点容差
+        EPSILON = 1e-8   # 浮点容差
 
         # 计算圆心距离
         delta = center2 - center1
         d = np.linalg.norm(delta)
         
         # 处理同心圆情况
-        if np.isclose(d, 0, atol=tol):
+        if np.isclose(d, 0):
             # 同心圆但半径不同，无交点；半径相同则重合，返回空（无穷交点无法表示）
             return []
         
         # 无交点情形
-        if d > radius1 + radius2 + tol:  # 两圆分离
+        if d > radius1 + radius2 + EPSILON:  # 两圆分离
             return []
-        if d < abs(radius1 - radius2) - tol:  # 一圆包含另一圆
+        if d < abs(radius1 - radius2) - EPSILON:  # 一圆包含另一圆
             return []
         
         # 计算方向向量
@@ -228,9 +229,9 @@ class GeoMathe:
         h_squared = radius1**2 - a**2
         
         # 处理浮点误差
-        if h_squared < -tol:
+        if h_squared < -EPSILON:
             return []
-        elif abs(h_squared) < tol:  # 相切
+        elif abs(h_squared) < EPSILON:  # 相切
             point = center1 + a * u
             return [point]
         else:  # 两个交点
