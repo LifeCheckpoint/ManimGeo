@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.line import LineSegment
 
+CircleConstructType = Literal["PR", "PP", "L", "PPP"]
+
 class CircleAdapter(GeometryAdapter):
     center: np.ndarray
     radius: Number
@@ -20,7 +22,7 @@ class CircleAdapter(GeometryAdapter):
 
     def __init__(
             self, 
-            construct_type: Literal["PR", "PP", "L", "PPP"], 
+            construct_type: CircleConstructType, 
             current_geo_obj: "Circle", 
             *objs: Union[BaseGeometry, any]
         ):
@@ -74,12 +76,7 @@ class Circle(BaseGeometry):
     area: Number
     circumference: Number
 
-    def __init__(
-            self, 
-            construct_type: Literal["PR", "PP", "L", "PPP"], 
-            *objs, 
-            name: str = ""
-        ):
+    def __init__(self, construct_type: CircleConstructType, *objs, name: str = ""):
         """通过指定构造方式与对象构造圆"""
         super().__init__(GeoUtils.get_name(name, self, construct_type))
         self.objs = objs

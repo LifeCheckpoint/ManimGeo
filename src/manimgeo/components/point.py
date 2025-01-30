@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Number
-from typing import TYPE_CHECKING, Union, Literal
+from typing import TYPE_CHECKING, Union, Literal, Any
 import numpy as np
 
 from manimgeo.components.base import GeometryAdapter, BaseGeometry
@@ -10,6 +10,12 @@ from manimgeo.utils.mathe import GeoMathe
 
 if TYPE_CHECKING:
     from manimgeo.components.line import Line, LineSegment
+
+PointConstructType = Literal[
+    "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
+    "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
+    "IntersectionLL", "IntersectionLCir", "IntersectionCirCir"
+]
 
 class PointAdapter(GeometryAdapter):
     # 目前设计中，两点被看作属于 PointAdapter 适配器
@@ -20,13 +26,9 @@ class PointAdapter(GeometryAdapter):
 
     def __init__(
             self,
-            construct_type: Literal[
-                "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
-                "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
-                "IntersectionLL", "IntersectionLCir", "IntersectionCirCir"
-                ],
+            construct_type: PointConstructType,
             current_geo_obj: Union["Point", "Points2"],
-            *objs: Union[BaseGeometry, any]
+            *objs: Union[BaseGeometry, Any]
         ):
         """
         Free: 自由点（叶子节点）
@@ -47,7 +49,7 @@ class PointAdapter(GeometryAdapter):
         # 添加依赖
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
-    def __call__(self, *objs: Union[BaseGeometry, any]):
+    def __call__(self, *objs: Union[BaseGeometry, Any]):
         from manimgeo.components.line import Line, LineSegment
 
         match self.construct_type:
@@ -133,16 +135,7 @@ class Point(BaseGeometry):
     attrs = ["coord"]
     coord: np.ndarray
 
-    def __init__(
-            self,
-            construct_type: Literal[
-                "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
-                "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
-                "IntersectionLL"
-                ], 
-            *objs, 
-            name: str = ""
-        ):
+    def __init__(self, construct_type: PointConstructType, *objs, name: str = ""):
         """通过指定构造方式与对象构造点"""
         super().__init__(GeoUtils.get_name(name, self, construct_type))
         self.objs = objs

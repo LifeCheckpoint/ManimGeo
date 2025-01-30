@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.vector import Vector
 
+LineConstructType = Literal["PP", "PV"]
+
 class LineAdapter(GeometryAdapter):
     start: np.ndarray
     end: np.ndarray
@@ -20,7 +22,7 @@ class LineAdapter(GeometryAdapter):
 
     def __init__(
             self,
-            construct_type: Literal["PP", "PV"],
+            construct_type: LineConstructType,
             current_geo_obj: Union["LineSegment", "Ray", "InfinityLine"],
             *objs: Union[BaseGeometry, any]
         ):
@@ -61,13 +63,7 @@ class Line(BaseGeometry):
 
     line_type: str
 
-    def __init__(
-            self, 
-            construct_type: Literal["PP", "PV"],
-            line_type: str,
-            *objs,
-            name: str = ""
-        ):
+    def __init__(self, construct_type: LineConstructType, line_type: str, *objs, name: str = ""):
         """通过指定构造方式与对象构造线"""
         super().__init__(GeoUtils.get_name(name, self, construct_type))
         self.line_type = line_type
@@ -76,32 +72,17 @@ class Line(BaseGeometry):
         self.update()
 
 class LineSegment(Line):
-    def __init__(
-            self, 
-            construct_type: Literal["PP", "PV"], 
-            *objs, 
-            name: str = ""
-        ):
+    def __init__(self, construct_type: LineConstructType, *objs, name: str = ""):
         """通过指定构造方式与对象构造线段"""
         super().__init__(construct_type, "LineSegment", *objs, name=name)
 
 class Ray(Line):
-    def __init__(
-            self, 
-            construct_type: Literal["PP", "PV"], 
-            *objs, 
-            name: str = ""
-        ):
+    def __init__(self, construct_type: LineConstructType, *objs, name: str = ""):
         """通过指定构造方式与对象构造射线"""
         super().__init__(construct_type, "Ray", *objs, name=name)
 
 class InfinityLine(Line):
-    def __init__(
-            self, 
-            construct_type: Literal["PP", "PV"], 
-            *objs, 
-            name: str = ""
-        ):
+    def __init__(self, construct_type: LineConstructType, *objs, name: str = ""):
         """通过指定构造方式与对象构造直线"""
         super().__init__(construct_type, "InfinityLine", *objs, name=name)
 

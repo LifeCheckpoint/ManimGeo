@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.line import LineSegment
 
+VectorConstructType = Literal["PP", "L", "N", "NPP", "NNormDirection"]
+
 class VectorAdapter(GeometryAdapter):
     vec: np.array
     norm: Number
@@ -19,7 +21,7 @@ class VectorAdapter(GeometryAdapter):
 
     def __init__(
             self,
-            construct_type: Literal["PP", "L", "N", "NPP", "NNormDirection"],
+            construct_type: VectorConstructType,
             current_geo_obj: Union["Vector"],
             *objs: Union[BaseGeometry, any]
         ):
@@ -71,12 +73,7 @@ class Vector(BaseGeometry):
     norm: Number
     unit_direction: np.array
 
-    def __init__(
-            self, 
-            construct_type: Literal["PP", "L", "N", "NPP", "NNormDirection"], 
-            *objs, 
-            name: str = ""
-        ):
+    def __init__(self, construct_type: VectorConstructType, *objs, name: str = ""):
         """通过指定构造方式与对象构造向量"""
         super().__init__(GeoUtils.get_name(name, self, construct_type))
         self.objs = objs
