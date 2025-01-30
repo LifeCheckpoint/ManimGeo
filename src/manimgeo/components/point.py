@@ -125,7 +125,7 @@ class PointAdapter(GeometryAdapter):
                     raise ValueError("Two circles has infinite intersections")
                 else:
                     raise ValueError("Two circles has no intersection")
-                    
+
             case _:
                 raise ValueError(f"Invalid construct type: {self.construct_type}")
 
@@ -148,6 +148,18 @@ class Point(BaseGeometry):
         self.objs = objs
         self.adapter = PointAdapter(construct_type, self, *objs)
         self.update()
+
+    # 叶子节点开洞更新
+    def set_coord(self, coord: np.ndarray):
+        """
+        ## 更新 `PointFree` 坐标
+
+        坐标设置仅对于 Free 构造有效，其他构造类型将抛出 ValueError
+        """
+        if self.adapter.construct_type not in {"Free"}:
+            raise ValueError("Cannot set coord of non-leaf node")
+        
+        self.update_by(coord)
 
 class Points2(BaseGeometry):
     attrs = ["coord1", "coord2"]

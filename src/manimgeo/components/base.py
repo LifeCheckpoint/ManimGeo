@@ -41,12 +41,22 @@ class BaseGeometry():
     def board_update_msg(self):
         """向所有依赖项发出更新信号"""
         for dep in self.dependents:
-            dep.board_update_msg()
+            dep.update()
 
     def update(self):
         """执行当前对象的更新"""
         # 重新向适配器注入对象
         self.adapter(*self.objs)
+        # 将参数从适配器绑定到几何对象
+        self.adapter.bind_attributes(self, self.attrs)
+        # 向下游广播更新信息
+        self.board_update_msg()
+
+    def update_by(self, *new_objs):
+        """开洞更新，用于叶子节点"""
+        # 重新向适配器注入对象
+        self.adapter(*new_objs)
+        self.objs = new_objs
         # 将参数从适配器绑定到几何对象
         self.adapter.bind_attributes(self, self.attrs)
         # 向下游广播更新信息

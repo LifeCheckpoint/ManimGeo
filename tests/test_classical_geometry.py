@@ -41,8 +41,7 @@ class TestClassicalGeometry:
         assert np.allclose(P.coord, np.array([4, -4]))
 
         # 移动B
-        B.coord = np.array([5, 0])
-        B.update()
+        B.set_coord(np.array([5, 0]))
 
         # 输出移动后坐标
         print("After moving P:")
