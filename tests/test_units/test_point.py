@@ -164,17 +164,17 @@ class TestPoint:
         # 固定角度旋转点测试
         pass
 
-    # def test_TranslationPointP(self):
-    #     # 平移点测试
-    #     point = PointFree(np.array([2, 3]))
-    #     vector = VectorPP(PointFree(np.array([0, 0])), PointFree(np.array([1, -1])))
-    #     translated_point = TranslationPointP(point, vector)
-    #     assert np.allclose(translated_point.coord, [3, 2])
+    def test_TranslationPointP(self):
+        # 平移点测试
+        point = PointFree(np.array([2, 3]))
+        vector = VectorPP(PointFree(np.array([0, 0])), PointFree(np.array([1, -1])))
+        translated_point = PointTranslationPV(point, vector)
+        assert np.allclose(translated_point.coord, [3, 2])
 
-    #     point = PointFree(np.array([2, 3]))
-    #     vector = VectorParam(np.array([1, -1]))
-    #     translated_point = TranslationPointP(point, vector)
-    #     assert np.allclose(translated_point.coord, [3, 2])
+        point = PointFree(np.array([2, 3]))
+        vector = VectorN(np.array([1, -1]))
+        translated_point = PointTranslationPV(point, vector)
+        assert np.allclose(translated_point.coord, [3, 2])
 
     def test_VerticalPointPL(self):
         # 垂足点测试
