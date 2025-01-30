@@ -89,22 +89,3 @@ def color_text(text, r, g, b):
     """
     # ANSI 转义序列：\033[38;2;r;g;b m 设置前景色
     return f"\033[38;2;{r};{g};{b}m{text}\033[0m" if ENABLE_MANIMGEO_COLORFUL_OUTPUT else text
-
-def geo_print_dependencies(root, depth=0, max_depth=20, visited=None):
-    """绘制依赖关系"""
-    if root is None:
-        print("  "*depth + "· None")
-        return
-        
-    if depth > max_depth:
-        print("  "*depth + "· ... (max depth reached)")
-        return
-    
-    name_str = f" - ({root.name})" if hasattr(root, 'name') and root.name else ""
-    print("  "*depth + f"· {color_text(type(root).__name__, *generate_color_from_id(root))}{name_str}")
-    
-    if not hasattr(root, 'dependents'):
-        return
-        
-    for dep in root.dependents:
-        geo_print_dependencies(dep, depth+1, max_depth, visited)

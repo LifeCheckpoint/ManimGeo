@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import List, Union
 
 class GeometryAdapter:
     """几何对象参数适配器基类"""

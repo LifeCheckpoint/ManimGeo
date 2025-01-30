@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from numbers import Number
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
@@ -46,7 +48,8 @@ class PointAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, any]):
-        # 计算构建
+        from manimgeo.components.line import Line, LineSegment
+
         match self.construct_type:
             case "Free" | "Constraint":
                 GeoUtils.check_params(objs, np.ndarray)
@@ -86,12 +89,18 @@ class PointAdapter(GeometryAdapter):
             case "IntersectionLL":
                 # line1, line2, regard_as_infinite
                 GeoUtils.check_params(objs, Line, Line, bool)
-                self.coord = GeoMathe.intersection_line_line(
+                result = GeoMathe.intersection_line_line(
                         objs[0].start, objs[0].end, 
                         objs[1].start, objs[1].end,
                         type(objs[0]).__name__, type(objs[1]).__name__,
                         objs[2]
                     )
+                if result[0] and result[1] is not None:
+                    self.coord = result[1]
+                elif result[0] and result[1] is None:
+                    raise ValueError("Infinites intersections")
+                else:
+                    raise ValueError("No intersections")
                 
             case "IntersectionLCir":
                 from manimgeo.components.circle import Circle
@@ -102,20 +111,21 @@ class PointAdapter(GeometryAdapter):
             case "IntersectionCirCir":
                 from manimgeo.components.circle import Circle
                 GeoUtils.check_params(objs, Circle, Circle)
-                intersections = GeoMathe.intersection_cir_cir(
+                result = GeoMathe.intersection_cir_cir(
                         objs[0].center, objs[0].radius,
                         objs[1].center, objs[1].radius
                     )
-                match len(intersections):
-                    case 0:
-                        raise ValueError("Two circles has no intersection")
-                    case 1:
-                        self.coord1 = intersections[0].copy()
-                        self.coord2 = intersections[0].copy()
-                    case 2:
-                        self.coord1 = intersections[0]
-                        self.coord2 = intersections[1]
-                
+                if result[0] and len(result[1]) == 2:
+                    self.coord1 = result[1][0]
+                    self.coord2 = result[1][1]
+                elif result[0] and len(result[1]) == 1:
+                    self.coord1 = result[1][0].copy()
+                    self.coord2 = result[1][0].copy()
+                elif result[0] and len(result[1]) == 0:
+                    raise ValueError("Two circles has infinite intersections")
+                else:
+                    raise ValueError("Two circles has no intersection")
+                    
             case _:
                 raise ValueError(f"Invalid construct type: {self.construct_type}")
 

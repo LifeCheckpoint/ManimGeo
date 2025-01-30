@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from numbers import Number
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
@@ -33,6 +35,9 @@ class VectorAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, any]):
+        from manimgeo.components.point import Point
+        from manimgeo.components.line import LineSegment
+        
         match self.construct_type:
             case "PP":
                 GeoUtils.check_params(objs, Point, Point)

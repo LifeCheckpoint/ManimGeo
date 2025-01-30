@@ -28,6 +28,29 @@ class GeoUtils:
             else:
                 yield item
 
+    @staticmethod
+    def geo_print_dependencies(root, depth=0, max_depth=20, visited=None):
+        """绘制依赖关系"""
+        from manimgeo.utils.output import color_text, generate_color_from_id
+        
+        if root is None:
+            print("  "*depth + "· None")
+            return
+            
+        if depth > max_depth:
+            print("  "*depth + "· ... (max depth reached)")
+            return
+        
+        name_str = f" - ({root.name})" if hasattr(root, 'name') and root.name else ""
+        print("  "*depth + f"· {color_text(type(root).__name__, *generate_color_from_id(root))}{name_str}")
+        
+        if not hasattr(root, 'dependents'):
+            return
+            
+        for dep in root.dependents:
+            GeoUtils.geo_print_dependencies(dep, depth+1, max_depth, visited)
+
+
     # @staticmethod
     # def line_circle_intersection(start: np.ndarray, end: np.ndarray, center: np.ndarray, radius: float) -> list[np.ndarray]:
     #     """

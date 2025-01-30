@@ -202,7 +202,11 @@ class GeoMathe:
         """
         计算两个圆的交点
         
-        return: 交点列表，可能为 []、[point] 或 [point1, point2]
+        return:
+        
+        交点列表，可能为 (True, [intersections]), (True, None) 或 (False, None)，表示交点、无穷交点、无交点
+
+        [intersections] 可能为 [point] 或 [point1, point2]
         """
         EPSILON = 1e-8   # 浮点容差
 
@@ -212,14 +216,14 @@ class GeoMathe:
         
         # 处理同心圆情况
         if np.isclose(d, 0):
-            # 同心圆但半径不同，无交点；半径相同则重合，返回空（无穷交点无法表示）
-            return []
+            # 同心圆但半径不同，无交点；半径相同则重合
+            return (True, None)
         
         # 无交点情形
         if d > radius1 + radius2 + EPSILON:  # 两圆分离
-            return []
+            return (False, None)
         if d < abs(radius1 - radius2) - EPSILON:  # 一圆包含另一圆
-            return []
+            return (False, None)
         
         # 计算方向向量
         u = delta / d
@@ -230,15 +234,15 @@ class GeoMathe:
         
         # 处理浮点误差
         if h_squared < -EPSILON:
-            return []
+            return (False, None)
         elif abs(h_squared) < EPSILON:  # 相切
             point = center1 + a * u
-            return [point]
+            return (True, [point])
         else:  # 两个交点
             h = np.sqrt(h_squared)
             v_perp = np.array([-u[1], u[0]])  # 垂直单位向量
             point1 = center1 + a*u + h*v_perp
             point2 = center1 + a*u - h*v_perp
-            return [point1, point2]
+            return (True, [point1, point2])
 
         

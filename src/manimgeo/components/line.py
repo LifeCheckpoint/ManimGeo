@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 from typing import TYPE_CHECKING, Union, Literal
 from numbers import Number
@@ -30,6 +32,9 @@ class LineAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, any]):
+        from manimgeo.components.point import Point
+        from manimgeo.components.vector import Vector
+        
         match self.construct_type:
             case "PP":
                 GeoUtils.check_params(objs, Point, Point)
@@ -102,7 +107,7 @@ class InfinityLine(Line):
 
 # Constructing Methods
 
-def LineSegmentLL(start: Point, end: Point, name: str = ""):
+def LineSegmentPP(start: Point, end: Point, name: str = ""):
     """
     ## 起始点构造线段
 
@@ -111,7 +116,7 @@ def LineSegmentLL(start: Point, end: Point, name: str = ""):
     """
     return LineSegment("PP", start, end, name=name)
 
-def RayLL(start: Point, end: Point, name: str = ""):
+def RayPP(start: Point, end: Point, name: str = ""):
     """
     ## 起始点构造射线
 
@@ -120,7 +125,7 @@ def RayLL(start: Point, end: Point, name: str = ""):
     """
     return Ray("PP", start, end, name=name)
 
-def InfinityLineLL(start: Point, end: Point, name: str = ""):
+def InfinityLinePP(start: Point, end: Point, name: str = ""):
     """
     ## 起始点构造直线
 

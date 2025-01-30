@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 from typing import TYPE_CHECKING, Union, Literal
 from numbers import Number
@@ -34,7 +36,9 @@ class CircleAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
         
     def __call__(self, *objs: Union[BaseGeometry, any]):
-        # 计算构建
+        from manimgeo.components.point import Point
+        from manimgeo.components.line import LineSegment
+        
         match self.construct_type:
             case "PR":
                 GeoUtils.check_params(objs, Point, Number)
