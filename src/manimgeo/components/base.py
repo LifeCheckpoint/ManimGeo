@@ -38,6 +38,10 @@ class BaseGeometry():
         """添加依赖对象"""
         self.dependents.append(obj)
 
+    def remove_dependent(self, obj: BaseGeometry):
+        """删除依赖对象"""
+        self.dependents.remove(obj)
+
     def board_update_msg(self):
         """向所有依赖项发出更新信号"""
         for dep in self.dependents:

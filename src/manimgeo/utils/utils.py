@@ -22,6 +22,7 @@ class GeoUtils:
         
     @staticmethod
     def flatten(iterable: Iterable):
+        """展平对象"""
         for item in iterable:
             if isinstance(item, list):
                 yield from GeoUtils.flatten(item)

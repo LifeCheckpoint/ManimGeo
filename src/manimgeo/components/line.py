@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from manimgeo.components.vector import Vector
 
 LineConstructType = Literal[
-    "PP", "PV", "TranslationLV"
+    "PP", "PV", "TranslationLV", "VerticalPL", "ParallelPL"
 ]
 
 class LineAdapter(GeometryAdapter):
@@ -32,13 +32,15 @@ class LineAdapter(GeometryAdapter):
         PP: 始终点构造线
         PV: 始点方向构造线
         TranslationLV: 平移构造线
+        VerticalPL: 点与线构造垂直线
+        ParallelPL: 点与线构造平行线
         """
         super().__init__(construct_type)
 
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, any]):
-        from manimgeo.components.point import Point
+        from manimgeo.components.point import Point, PointVerticalPL
         from manimgeo.components.vector import Vector
         
         match self.construct_type:
@@ -56,6 +58,21 @@ class LineAdapter(GeometryAdapter):
                 GeoUtils.check_params(objs, Line, Vector)
                 self.start = objs[0].start + objs[1].vec
                 self.end = objs[0].end + objs[1].vec
+
+            case "VerticalPL":
+                GeoUtils.check_params(objs, Point, Line)
+                if not GeoMathe.is_point_on_infinite_line(objs[0].coord, objs[1].start, objs[1].end):
+                    self.start = GeoMathe.vertical_point_to_line(objs[0].coord, objs[1].start, objs[1].end)
+                    self.end = objs[0].coord
+                else:
+                    direction = GeoMathe.vertical_line(objs[1].start, objs[1].end)
+                    self.start = objs[0].coord
+                    self.end = self.start + direction
+
+            case "ParallelPL":
+                GeoUtils.check_params(objs, Point, Line)
+                self.start = objs[0].coord
+                self.end = objs[0].coord + (objs[1].end - objs[1].start)
             
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -132,3 +149,21 @@ def LineTranslation(line: Line, vec: Vector, name: str = ""):
     `vec`: 平移向量
     """
     return line.__class__("TranslationLV", line, vec, name=name)
+
+def LineVerticalPL(point: Point, line: Line, name: str = ""):
+    """
+    ## 垂直构造线
+
+    `point`: 垂线经过点
+    `line`: 原线
+    """
+    return line.__class__("VerticalPL", point, line, name=name)
+
+def LineParallelPL(point: Point, line: Line, name: str = ""):
+    """
+    ## 平行构造线
+
+    `point`: 平行线经过点
+    `line`: 原线
+    """
+    return line.__class__("ParallelPL", point, line, name=name)

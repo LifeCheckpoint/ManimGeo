@@ -48,6 +48,11 @@ class GeoMathe:
             direction = GeoMathe.unit_direction_vector(l_start, l_end)
             projection_scalar = np.dot(p - l_start, direction)
             return l_start + projection_scalar * direction
+        
+    @staticmethod
+    def vertical_line(l_start: np.ndarray, l_end: np.ndarray):
+        direction = GeoMathe.unit_direction_vector(l_start, l_end)
+        return np.array([-direction[1], direction[0]])
     
     @staticmethod
     def three_points_circle_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
@@ -246,6 +251,7 @@ class GeoMathe:
 
     @staticmethod
     def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarray):
+        """计算三点逆时针角度"""
         vec1 = np.array(start) - np.array(center)
         vec2 = np.array(end) - np.array(center)
         
