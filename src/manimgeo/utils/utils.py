@@ -1,4 +1,4 @@
-from typing import Sequence, Iterable
+from typing import Sequence, Iterable, Dict
 
 class GeoUtils:
 
@@ -11,6 +11,11 @@ class GeoUtils:
         for i, (obj, expected_type) in enumerate(zip(objs, expected_types)):
             if not isinstance(obj, expected_type) and expected_type is not None:
                 raise ValueError(f"Invalid Param {i}, expected {expected_type.__name__} but got {type(obj).__name__}")
+            
+    @staticmethod
+    def check_params_batch(op_type_map: Dict[str, Sequence], op: str, objs: Sequence):
+        """批量检查参数数量与类型"""
+        GeoUtils.check_params(objs, op_type_map[op])
 
     @staticmethod
     def get_name(default_name: str, obj, construct_type: str):
@@ -19,7 +24,7 @@ class GeoUtils:
             return default_name
         else:
             return f"{type(obj).__name__}[{construct_type}]@{id(obj)%10000}"
-        
+
     @staticmethod
     def flatten(iterable: Iterable):
         """展平对象"""

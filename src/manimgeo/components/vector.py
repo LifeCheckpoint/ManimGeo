@@ -45,38 +45,42 @@ class VectorAdapter(GeometryAdapter):
     def __call__(self, *objs: Union[BaseGeometry, any]):
         from manimgeo.components.point import Point
         from manimgeo.components.line import LineSegment
+
+        op_type_map = {
+            "PP": [Point, Point],
+            "L": [LineSegment],
+            "N": [np.ndarray],
+            "NPP": [np.ndarray, np.ndarray],
+            "NNormDirection": [Number, np.ndarray],
+            "AddVV": [Vector, Vector],
+            "SubVV": [Vector, Vector],
+            "MulNV": [Number, Vector]
+        }
+        GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
         
         match self.construct_type:
             case "PP":
-                GeoUtils.check_params(objs, Point, Point)
                 self.vec = objs[1].coord - objs[0].coord
             
             case "L":
-                GeoUtils.check_params(objs, LineSegment)
                 self.vec = objs[0].end - objs[0].end
 
             case "N":
-                GeoUtils.check_params(objs, np.ndarray)
                 self.vec = objs[0].copy()
 
             case "NPP":
-                GeoUtils.check_params(objs, np.ndarray, np.ndarray)
                 self.vec = objs[1] - objs[0]
 
             case "NNormDirection":
-                GeoUtils.check_params(objs, Number, np.ndarray)
                 self.vec = objs[0] * GeoMathe.unit_direction_vector(np.zeros_like(objs[1]), objs[1])
 
             case "AddVV":
-                GeoUtils.check_params(objs, Vector, Vector)
                 self.vec = objs[0].vec + objs[1].vec
 
             case "SubVV":
-                GeoUtils.check_params(objs, Vector, Vector)
                 self.vec = objs[0].vec - objs[1].vec
 
             case "MulNV":
-                GeoUtils.check_params(objs, Number, Vector)
                 self.vec = objs[0] * objs[1].vec
 
             case _:

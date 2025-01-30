@@ -55,35 +55,43 @@ class PointAdapter(GeometryAdapter):
     def __call__(self, *objs: Union[BaseGeometry, Any]):
         from manimgeo.components.line import Line, LineSegment
 
+        op_type_map = {
+            "Free": [np.ndarray],
+            "Constraint": [np.ndarray],
+            "MidPP": [Point, Point],
+            "MidL": [LineSegment],
+            "ExtensionPP": [Point, Point, Number], # start, through, factor
+            "AxisymmetricPL": [Point, Line],
+            "VerticalPL": [Point, Line],
+            "ParallelPL": [Point, Line, Number], # point, line, absolute_distance
+            "InversionPCir": [Point, Circle],
+            "IntersectionLL": [Line, Line], # line1, line2, regard_as_infinite
+            "IntersectionLCir": [Line, Circle], # line, circle, regard_as_infinite
+            "IntersectionCirCir": [Circle, Circle],
+            "TranslationPV": [Point, Vector]
+        }
+        GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
+
         match self.construct_type:
             case "Free" | "Constraint":
-                GeoUtils.check_params(objs, np.ndarray)
                 self.coord = objs[0]
 
             case "MidPP":
-                GeoUtils.check_params(objs, Point, Point)
                 self.coord = (objs[0].coord + objs[1].coord) / 2
 
             case "MidL":
-                GeoUtils.check_params(objs, LineSegment)
                 self.coord = (objs[0].start + objs[0].end) / 2
 
             case "ExtensionPP":
-                # start, through, factor
-                GeoUtils.check_params(objs, Point, Point, Number)
                 self.coord = objs[0].coord + objs[2]*(objs[1].coord - objs[0].coord)
 
             case "AxisymmetricPL":
-                GeoUtils.check_params(objs, Point, Line)
                 self.coord = GeoMathe.axisymmetric_point(objs[0].coord, objs[1].start, objs[1].end)
 
             case "VerticalPL":
-                GeoUtils.check_params(objs, Point, Line)
                 self.coord = GeoMathe.vertical_point_to_line(objs[0].coord, objs[1].start, objs[1].end)
 
             case "ParallelPL":
-                # point, line, absolute_distance
-                GeoUtils.check_params(objs, Point, Line, Number)
                 self.coord = objs[0].coord + objs[2]*objs[1].unit_direction
 
             case "InversionPCir":
@@ -91,8 +99,6 @@ class PointAdapter(GeometryAdapter):
                 self.coord = GeoMathe.inversion_point(objs[0].coord, objs[1].center, objs[1].radius)
 
             case "IntersectionLL":
-                # line1, line2, regard_as_infinite
-                GeoUtils.check_params(objs, Line, Line, bool)
                 result = GeoMathe.intersection_line_line(
                         objs[0].start, objs[0].end, 
                         objs[1].start, objs[1].end,
@@ -107,12 +113,10 @@ class PointAdapter(GeometryAdapter):
                     raise ValueError("No intersections")
                 
             case "IntersectionLCir":
-                # line, circle, regard_as_infinite
-                GeoUtils.check_params(objs, Line, Circle, bool)
+                ...
                 # TODO
 
             case "IntersectionCirCir":
-                GeoUtils.check_params(objs, Circle, Circle)
                 result = GeoMathe.intersection_cir_cir(
                         objs[0].center, objs[0].radius,
                         objs[1].center, objs[1].radius
@@ -129,7 +133,6 @@ class PointAdapter(GeometryAdapter):
                     raise ValueError("Two circles has no intersection")
 
             case "TranslationPV":
-                GeoUtils.check_params(objs, Point, Vector)
                 self.coord = objs[0].coord + objs[1].vec
 
             case _:

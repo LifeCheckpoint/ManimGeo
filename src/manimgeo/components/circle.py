@@ -46,30 +46,34 @@ class CircleAdapter(GeometryAdapter):
         from manimgeo.components.line import LineSegment
         from manimgeo.components.vector import Vector
 
+        op_type_map = {
+            "PR": [Point, Number],
+            "PP": [Point, Point],
+            "L": [LineSegment],
+            "PPP": [Point, Point, Point],
+            "TranslationCirV": [Circle, Vector]
+        }
+        GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
+
         match self.construct_type:
             case "PR":
-                GeoUtils.check_params(objs, Point, Number)
                 self.center = objs[0].coord
                 self.radius = objs[1]
 
             case "PP":
-                GeoUtils.check_params(objs, Point, Point)
                 self.center = objs[0].coord
                 self.radius = np.linalg.norm(objs[1].coord - objs[0].coord)
 
             case "L":
-                GeoUtils.check_params(objs, LineSegment)
                 self.center = objs[0].start.coord
                 self.radius = np.linalg.norm(objs[0].end.coord - objs[0].start.coord)
 
             case "PPP":
-                GeoUtils.check_params(objs, Point, Point, Point)
                 self.radius, self.center = GeoMathe.three_points_circle_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 
             case "TranslationCirV":
-                GeoUtils.check_params(objs, Circle, Vector)
                 self.center = objs[0].center + objs[1].vec
                 self.radius = objs[0].radius
 

@@ -45,51 +45,54 @@ class AngleAdapter(GeometryAdapter):
         from manimgeo.components.point import Point
         from manimgeo.components.line import LineSegment
         
+        op_type_map = {
+            "PPP": [Point, Point, Point], # start, center, end
+            "LL": [Line, Line],
+            "LP": [Line, Point],
+            "N": [Number, str],
+            "TurnA": [Angle],
+            "AddAA": [Angle, Angle],
+            "SubAA": [Angle, Angle],
+            "MulNA": [Angle, Angle]
+        }
+        GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
+        
         match self.construct_type:
             case "PPP":
-                # start, center, end
-                GeoUtils.check_params(objs, Point, Point, Point)
                 self.angle = GeoMathe.angle_3p_countclockwise(objs[0].coord, objs[1].coord, objs[2].coord)
                 self.turn = "Counterclockwise"
 
             case "LL":
-                GeoUtils.check_params(objs, Line, Line)
                 if not np.allclose(objs[0].start, objs[1].start):
                     raise ValueError("Cannot generate angle from two lines without same start points")
                 self.angle = GeoMathe.angle_3p_countclockwise(objs[0].end, objs[0].start, objs[1].end)
                 self.turn = "Counterclockwise"
 
             case "LP":
-                GeoUtils.check_params(objs, Line, Point)
                 self.angle = GeoMathe.angle_3p_countclockwise(objs[0].end, objs[0].start, objs[1].coord)
                 self.turn = "Counterclockwise"
 
             case "N":
-                GeoUtils.check_params(objs, Number, str)
                 self.angle = objs[0]
                 self.turn = objs[1]
             
             case "TurnA":
-                GeoUtils.check_params(objs, Angle)
                 self.angle = 2*np.pi - objs[0].angle
                 self.turn = "Counterclockwise" if objs[0].turn is "Clockwise" else "Clockwise"
 
             case "AddAA":
-                GeoUtils.check_params(objs, Angle, Angle)
                 an0 = objs[0].angle if objs[0].turn is "Counterclockwise" else 2 * np.pi - objs[0].angle
                 an1 = objs[1].angle if objs[1].turn is "Counterclockwise" else 2 * np.pi - objs[1].angle
                 self.angle = (an0 + an1) % (2 * np.pi)
                 self.turn = "Counterclockwise"
 
             case "SubAA":
-                GeoUtils.check_params(objs, Angle, Angle)
                 an0 = objs[0].angle if objs[0].turn is "Counterclockwise" else 2 * np.pi - objs[0].angle
                 an1 = objs[1].angle if objs[1].turn is "Counterclockwise" else 2 * np.pi - objs[1].angle
                 self.angle = (an0 - an1) % (2 * np.pi)
                 self.turn = "Counterclockwise"
 
             case "MulNA":
-                GeoUtils.check_params(objs, Number, Angle)
                 self.angle = (objs[0] * objs[1].angle) % (2 * np.pi)
                 self.turn = objs[1].turn
 

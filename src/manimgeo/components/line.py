@@ -40,27 +40,32 @@ class LineAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, any]):
-        from manimgeo.components.point import Point, PointVerticalPL
+        from manimgeo.components.point import Point
         from manimgeo.components.vector import Vector
+
+        op_type_map = {
+            "PP": [Point, Point],
+            "PV": [Point, Vector],
+            "TranslationLV": [Line, Vector],
+            "VerticalPL": [Point, Line],
+            "ParallelPL": [Point, Line]
+        }
+        GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
         
         match self.construct_type:
             case "PP":
-                GeoUtils.check_params(objs, Point, Point)
                 self.start = objs[0].coord
                 self.end = objs[1].coord
 
             case "PV":
-                GeoUtils.check_params(objs, Point, Vector)
                 self.start = objs[0].coord
                 self.end = objs[0].coord + objs[1].vec
 
             case "TranslationLV":
-                GeoUtils.check_params(objs, Line, Vector)
                 self.start = objs[0].start + objs[1].vec
                 self.end = objs[0].end + objs[1].vec
 
             case "VerticalPL":
-                GeoUtils.check_params(objs, Point, Line)
                 if not GeoMathe.is_point_on_infinite_line(objs[0].coord, objs[1].start, objs[1].end):
                     self.start = GeoMathe.vertical_point_to_line(objs[0].coord, objs[1].start, objs[1].end)
                     self.end = objs[0].coord
@@ -70,7 +75,6 @@ class LineAdapter(GeometryAdapter):
                     self.end = self.start + direction
 
             case "ParallelPL":
-                GeoUtils.check_params(objs, Point, Line)
                 self.start = objs[0].coord
                 self.end = objs[0].coord + (objs[1].end - objs[1].start)
             
