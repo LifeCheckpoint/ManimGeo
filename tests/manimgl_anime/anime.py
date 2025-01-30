@@ -15,9 +15,9 @@ class EulerLine(Scene):
         AC = LineSegmentPP(A, C, "AC")
 
         # 重心 垂心 外心
-        CENTROID, _ = CentroidPPP(A, B, C, "Centroid")
-        ORTHOCENTER, _ = OrthocenterPPP(A, B, C, "Orthocenter")
-        CIRCUMCENTER, _ = CircumcenterPPP(A, B, C, "Circumcenter")
+        CENTROID, _ = PointCentroidPPP(A, B, C, "Centroid")
+        ORTHOCENTER, _ = PointOrthocenterPPP(A, B, C, "Orthocenter")
+        CIRCUMCENTER, _ = PointCircumcenterPPP(A, B, C, "Circumcenter")
 
         # 创建几何动画管理器
         gmm = GeoManimGLMap()
