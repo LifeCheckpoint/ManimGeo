@@ -15,7 +15,7 @@ class GeoUtils:
     @staticmethod
     def check_params_batch(op_type_map: Dict[str, Sequence], op: str, objs: Sequence):
         """批量检查参数数量与类型"""
-        GeoUtils.check_params(objs, op_type_map[op])
+        GeoUtils.check_params(objs, *op_type_map[op])
 
     @staticmethod
     def get_name(default_name: str, obj, construct_type: str):

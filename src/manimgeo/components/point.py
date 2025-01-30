@@ -54,6 +54,8 @@ class PointAdapter(GeometryAdapter):
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
         from manimgeo.components.line import Line, LineSegment
+        from manimgeo.components.circle import Circle
+        from manimgeo.components.vector import Vector
 
         op_type_map = {
             "Free": [np.ndarray],
@@ -65,8 +67,8 @@ class PointAdapter(GeometryAdapter):
             "VerticalPL": [Point, Line],
             "ParallelPL": [Point, Line, Number], # point, line, absolute_distance
             "InversionPCir": [Point, Circle],
-            "IntersectionLL": [Line, Line], # line1, line2, regard_as_infinite
-            "IntersectionLCir": [Line, Circle], # line, circle, regard_as_infinite
+            "IntersectionLL": [Line, Line, bool], # line1, line2, regard_as_infinite
+            "IntersectionLCir": [Line, Circle, bool], # line, circle, regard_as_infinite
             "IntersectionCirCir": [Circle, Circle],
             "TranslationPV": [Point, Vector]
         }
