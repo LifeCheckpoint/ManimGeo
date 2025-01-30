@@ -244,4 +244,15 @@ class GeoMathe:
             point2 = center1 + a*u - h*v_perp
             return (True, [point1, point2])
 
+    @staticmethod
+    def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarray):
+        vec1 = np.array(start) - np.array(center)
+        vec2 = np.array(end) - np.array(center)
         
+        dot = np.dot(vec1, vec2)
+        det = np.cross(vec1, vec2)
+        
+        angle_rad = np.arctan2(det, dot)
+        angle_rad = angle_rad if angle_rad >= 0 else angle_rad + 2 * np.pi
+        
+        return angle_rad
