@@ -58,15 +58,15 @@ class TestClassicalGeometry:
         AB = InfinityLinePP(A, B, "AB")
         BC = InfinityLinePP(B, C, "BC")
 
-        vl_d_ab, _ = VerticalInfinieLinePL(D, AB, "VL")
-        E = PointIntersectionLL(BC, vl_d_ab, "IE")
+        vl_d_ab = LineVerticalPL(D, AB, "VL")
+        E = PointIntersectionLL(BC, vl_d_ab, True, "IE")
 
         print(E.coord)
         assert np.allclose(E.coord, np.array([2, 2.25]))
 
         # 构造三点圆
         circle = CirclePPP(E, D, C, "ThreePointCircle")
-        centerF, _ = CircumcenterCir(circle, "CCF")
+        centerF = PointCircleCenter(circle, "CCF")
 
         GeoUtils.geo_print_dependencies(A)
         print(centerF.coord)
@@ -145,9 +145,9 @@ class TestClassicalGeometry:
         AC = InfinityLinePP(A, C, "AC")
 
         # 重心 垂心 外心
-        centroid = CentroidPPP(A, B, C, "Centroid")[0].coord
-        orthocenter = OrthocenterPPP(A, B, C, "Orthocenter")[0].coord
-        circumcenter = CircumcenterPPP(A, B, C, "Circumcenter")[0].coord
+        centroid = PointCentroidPPP(A, B, C, "Centroid").coord
+        orthocenter = PointOrthocenterPPP(A, B, C, "Orthocenter").coord
+        circumcenter = PointCircumcenterPPP(A, B, C, "Circumcenter").coord
 
         # 打印依赖关系
         print("Dependencies of A:")

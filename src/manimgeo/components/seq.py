@@ -1,39 +1,3 @@
-# from manimgeo.components.base import BaseGeometry
-# from manimgeo.utils.output import *
-# from typing import List, NoReturn
-
-
-
-# def GeometrySequence(operations: List[BaseGeometry], name: str = "") -> NoReturn:
-#     """几何操作序列容器标记"""
-#     name = name if name is not "" else f"Sequence@{id(operations)}"
-
-#     color = generate_simple_color()
-
-#     # 为每个组件加上归属管理后缀
-#     for op in flatten(operations):
-#         op: BaseGeometry
-#         op.name = f"[{op.name}]{color_text(name, *color)}"
-
-# # 组合几何方法
-# from manimgeo.components.angle import *
-# from manimgeo.components.base import *
-# from manimgeo.components.conic_section import *
-# from manimgeo.components.lines import *
-# from manimgeo.components.points import *
-# from manimgeo.components.vector import *
-
-# def VerticalInfinieLinePL(point: PointLike, line: LineLike, name: str = "") -> Tuple[InfinityLinePP]:
-#     """
-#     ## 作过一点垂直线
-#     """
-#     direction = VectorPP(line.start, line.end, f"LineDirection")
-#     trans_point = TranslationPointP(point, direction, f"TranslationPoint")
-#     vertical_point = RotationPointPPA(trans_point, point, AnglePP(np.pi/2, point, trans_point), f"VerticalPoint")
-#     inf_line = InfinityLinePP(point, vertical_point, f"InfinityLine")
-    
-#     GeometrySequence([direction, trans_point, vertical_point, inf_line], name)
-#     return inf_line
 
 # def PerpendicularBisectorInfiniteLinePP(point1: PointLike, point2: PointLike, name: str = "") -> Tuple[InfinityLinePP]:
 #     """
@@ -45,38 +9,6 @@
 
 #     GeometrySequence([mid_point, line, inf_line], name)
 #     return inf_line
-
-# def CentroidPPP(point1: PointLike, point2: PointLike, point3: PointLike, name: str = "") -> Tuple[IntersectionPointLL]:
-#     """
-#     ## 三点重心
-#     """
-#     mid_12 = MidPointPP(point1, point2, f"MD12")
-#     mid_23 = MidPointPP(point2, point3, f"MD13")
-#     line_mid_12 = InfinityLinePP(point3, mid_12, "LMD3-12")
-#     line_mid_23 = InfinityLinePP(point1, mid_23, "LMD1-23")
-#     intersection = IntersectionPointLL(line_mid_12, line_mid_23, "Centroid")
-
-#     GeometrySequence([mid_12, mid_23, line_mid_12, line_mid_23, intersection], name)
-#     return intersection
-
-# def CircumcenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, name: str = "") -> Tuple[IntersectionPointLL]:
-#     """
-#     ## 三点外心
-#     """
-#     pb_12 = PerpendicularBisectorInfiniteLinePP(point1, point2, f"PBInfiniteLine 12")
-#     pb_23 = PerpendicularBisectorInfiniteLinePP(point2, point3, f"PBInfiniteLine 23")
-#     intersection = IntersectionPointLL(pb_12, pb_23, "Circumcenter")
-
-#     GeometrySequence([pb_12, pb_23, intersection], name)
-#     return intersection
-
-# def CircumcenterCir(circle: CirclePPP, name: str = "") -> Tuple[IntersectionPointLL]:
-#     """
-#     ## 外接圆三点圆心
-
-#     see also `CircumcenterPPP`
-#     """
-#     return CircumcenterPPP(circle.point1, circle.point2, circle.point3, name)
 
 # def AngleBisectorLL(line1: LineLike, line2: LineLike, sort: bool = True, name: str = "") -> Tuple[InfinityLinePP, InfinityLinePP]:
 #     """
@@ -121,24 +53,6 @@
 
 #     GeometrySequence([intersection, cir, l1_intersections, l2_intersections, seg_line1, seg_line2, mid1, mid2, bis1, bis2], name)
 #     return bis1, bis2
-
-# # def IncenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, name: str = "") -> Tuple[IntersectionPointLL]:
-# #     """
-# #     ## 三点内心
-# #     """
-
-# def OrthocenterPPP(point1: PointLike, point2: PointLike, point3: PointLike, name: str = "") -> Tuple[IntersectionPointLL]:
-#     """
-#     ## 三点垂心
-#     """
-#     line12 = InfinityLinePP(point1, point2, f"Line12")
-#     altitude3 = VerticalInfinieLinePL(point3, line12, f"Altitude3")
-#     line23 = InfinityLinePP(point2, point3, f"Line23")
-#     altitude1 = VerticalInfinieLinePL(point1, line23, f"Altitude1")
-#     intersection = IntersectionPointLL(altitude3, altitude1, "Orthocenter")
-
-#     GeometrySequence([line12, altitude3, line23, altitude1, intersection], name)
-#     return intersection
 
 # Circles = Union[CircleP, CirclePP, CirclePPP]
 
@@ -252,33 +166,3 @@
 
 #     GeometrySequence([cir1, intersections1, cir2, intersections2, p_long, cir3, intersections3, p_final, seg], name)
 #     return seg
-
-# # Warn: 依赖失败
-# def MultiplicationLineLL(line1: LineSegmentPP, line2: LineSegmentPP, name: str = "") -> Tuple[LineSegmentPP]:
-#     """
-#     ## 尺规作一根线段，其长度为 line1 的 line2 倍
-#     """
-#     l_v = VerticalInfinieLinePL(line1.start, line1, "VeriticalLine1")
-#     l_inf = InfinityLinePP(line1.start, line1.end)
-#     p_unit = ParallelPointPL(line1.start, l_v, 1, "UnitParallelPoint")
-#     l0 = LineSegmentPP(line1.end, p_unit)
-#     d = np.linalg.norm(line2.end.coord - line2.start.coord)
-#     cir_l2 = CircleP(line1.start, d, "CircleOfLine2")
-#     intersections1 = IntersectionPointLCir(l_v, cir_l2, "Intersections")
-    
-#     # 找到与单位点距离最近的同侧点
-#     if np.linalg.norm(intersections1.point1.coord - p_unit.coord) < np.linalg.norm(intersections1.point2.coord - p_unit.coord):
-#         p_b = intersections1.point1
-#     else:
-#         p_b = intersections1.point2
-
-#     l_parallel = ParallelLineLP(l0, p_b, name="ParallelLine")
-#     intersections2 = IntersectionPointLL(l_inf, l_parallel, "MultiIntersection")
-#     l_final = LineSegmentPP(line1.start, intersections2)
-
-#     GeometrySequence([l_v, l_inf, p_unit, l0, cir_l2, intersections1, p_b, l_parallel, intersections2, l_final], name)
-#     return l_final
-
-# def DivisionLineL(line1: LineSegmentPP, line2: LineSegmentPP, name: str = "") -> Tuple[LineSegmentPP]:
-#     pass
-

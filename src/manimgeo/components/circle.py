@@ -69,7 +69,7 @@ class CircleAdapter(GeometryAdapter):
                 self.radius = np.linalg.norm(objs[0].end.coord - objs[0].start.coord)
 
             case "PPP":
-                self.radius, self.center = GeoMathe.three_points_circle_r_c(
+                self.radius, self.center = GeoMathe.circumcenter_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 

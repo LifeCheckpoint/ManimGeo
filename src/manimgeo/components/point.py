@@ -16,7 +16,8 @@ PointConstructType = Literal[
     "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
     "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
     "IntersectionLL", "IntersectionLCir", "IntersectionCirCir",
-    "TranslationPV"
+    "TranslationPV", "CentroidPPP", "CircumcenterPPP", "IncenterPPP",
+    "OrthocenterPPP", "Cir"
 ]
 
 class PointAdapter(GeometryAdapter):
@@ -46,6 +47,11 @@ class PointAdapter(GeometryAdapter):
         IntersectionLCir: 构造线圆交点
         IntersectionCirCir: 构造两圆交点
         TranslationPV: 构造平移点
+        CentroidPPP: 构造重心
+        CircumcenterPPP: 构造外心
+        IncenterPPP: 构造内心
+        OrthocenterPPP: 构造垂心
+        Cir: 构造圆心
         """
         super().__init__(construct_type)
 
@@ -70,7 +76,12 @@ class PointAdapter(GeometryAdapter):
             "IntersectionLL": [Line, Line, bool], # line1, line2, regard_as_infinite
             "IntersectionLCir": [Line, Circle, bool], # line, circle, regard_as_infinite
             "IntersectionCirCir": [Circle, Circle],
-            "TranslationPV": [Point, Vector]
+            "TranslationPV": [Point, Vector],
+            "CentroidPPP": [Point, Point, Point],
+            "CircumcenterPPP": [Point, Point, Point],
+            "IncenterPPP": [Point, Point, Point],
+            "OrthocenterPPP": [Point, Point, Point],
+            "Cir": [Circle]
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
 
@@ -136,6 +147,27 @@ class PointAdapter(GeometryAdapter):
 
             case "TranslationPV":
                 self.coord = objs[0].coord + objs[1].vec
+
+            case "CentroidPPP":
+                self.coord = (objs[0].coord + objs[1].coord + objs[2].coord) / 3
+
+            case "CircumcenterPPP":
+                self.coord = GeoMathe.circumcenter(
+                    objs[0].coord, objs[1].coord, objs[2].coord
+                )
+
+            case "IncenterPPP":
+                _, self.coord = GeoMathe.circumcenter_r_c(
+                    objs[0].coord, objs[1].coord, objs[2].coord
+                )
+
+            case "OrthocenterPPP":
+                self.coord = GeoMathe.orthocenter(
+                    objs[0].coord, objs[1].coord, objs[2].coord
+                )
+
+            case "Cir":
+                self.coord = objs[0].center
 
             case _:
                 raise ValueError(f"Invalid construct type: {self.construct_type}")
@@ -307,3 +339,51 @@ def PointTranslationPV(point: Point, vector: Vector, name: str = ""):
     `vector`: 平移向量
     """
     return Point("TranslationPV", point, vector, name=name)
+
+def PointCentroidPPP(point1: Point, point2: Point, point3: Point, name: str = ""):
+    """
+    ## 构造三角形重心
+
+    `point1`: 第一个顶点
+    `point2`: 第二个顶点
+    `point3`: 第三个顶点
+    """
+    return Point("CentroidPPP", point1, point2, point3, name=name)
+
+def PointCircumcenterPPP(point1: Point, point2: Point, point3: Point, name: str = ""):
+    """
+    ## 构造三角形外心
+
+    `point1`: 第一个顶点
+    `point2`: 第二个顶点
+    `point3`: 第三个顶点
+    """
+    return Point("CircumcenterPPP", point1, point2, point3, name=name)
+
+def PointIncenterPPP(point1: Point, point2: Point, point3: Point, name: str = ""):
+    """
+    ## 构造三角形内心
+
+    `point1`: 第一个顶点
+    `point2`: 第二个顶点
+    `point3`: 第三个顶点
+    """
+    return Point("IncenterPPP", point1, point2, point3, name=name)
+
+def PointOrthocenterPPP(point1: Point, point2: Point, point3: Point, name: str = ""):
+    """
+    ## 构造三角形垂心
+
+    `point1`: 第一个顶点
+    `point2`: 第二个顶点
+    `point3`: 第三个顶点
+    """
+    return Point("OrthocenterPPP", point1, point2, point3, name=name)
+
+def PointCircleCenter(circle: Circle, name: str = ""):
+    """
+    ## 构造圆心
+
+    `circle`: 圆
+    """
+    return Point("Cir", circle, name=name)

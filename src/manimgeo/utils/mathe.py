@@ -55,7 +55,7 @@ class GeoMathe:
         return np.array([-direction[1], direction[0]])
     
     @staticmethod
-    def three_points_circle_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
         """三点内接圆，计算半径与圆心"""
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p1 - p3)
@@ -83,6 +83,59 @@ class GeoMathe:
 
         center = np.linalg.solve(A, B)
         return r, center
+    
+    @staticmethod
+    def circumcenter(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray):
+        """计算三角形的外心坐标。"""
+        x1, y1 = p1[0], p1[1]
+        x2, y2 = p2[0], p2[1]
+        x3, y3 = p3[0], p3[1]
+        
+        # 计算方程组参数
+        A1 = 2 * (x2 - x1)
+        B1 = 2 * (y2 - y1)
+        C1 = x2**2 + y2**2 - x1**2 - y1**2
+        A2 = 2 * (x3 - x2)
+        B2 = 2 * (y3 - y2)
+        C2 = x3**2 + y3**2 - x2**2 - y2**2
+        
+        # 计算分母
+        denominator = A1 * B2 - A2 * B1
+        if np.isclose(denominator, 0):
+            raise ValueError("Three points are degenerated")
+        
+        # 克拉默法则求解
+        x = (C1 * B2 - C2 * B1) / denominator
+        y = (A1 * C2 - A2 * C1) / denominator
+        
+        return np.array([x, y])
+    
+    @staticmethod
+    def orthocenter(a, b, c):
+        """计算三点垂心坐标"""
+        x1, y1 = a[0], a[1]
+        x2, y2 = b[0], b[1]
+        x3, y3 = c[0], c[1]
+        
+        # 计算方程组系数
+        a1 = x3 - x2
+        b1 = y3 - y2
+        c1 = a1 * x1 + b1 * y1  # (x3-x2)*x1 + (y3-y2)*y1
+        
+        a2 = x2 - x1
+        b2 = y2 - y1
+        c2 = a2 * x3 + b2 * y3  # (x2-x1)*x3 + (y2-y1)*y3
+        
+        # 计算分母
+        denominator = a1 * b2 - a2 * b1
+        if np.isclose(denominator, 0.0):
+            raise ValueError("Three points are degenerated")
+        
+        # 克拉默法则求解
+        x0 = (c1 * b2 - c2 * b1) / denominator
+        y0 = (a1 * c2 - a2 * c1) / denominator
+        
+        return np.array([x0, y0])
     
     @staticmethod
     def inversion_point(p: np.ndarray, center: np.ndarray, r: Number):
