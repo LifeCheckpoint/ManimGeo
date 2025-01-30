@@ -11,8 +11,9 @@ from manimgeo.utils.mathe import GeoMathe
 if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.line import LineSegment
+    from manimgeo.components.vector import Vector
 
-CircleConstructType = Literal["PR", "PP", "L", "PPP"]
+CircleConstructType = Literal["PR", "PP", "L", "PPP", "TranslationCirV"]
 
 class CircleAdapter(GeometryAdapter):
     center: np.ndarray
@@ -27,10 +28,11 @@ class CircleAdapter(GeometryAdapter):
             *objs: Union[BaseGeometry, any]
         ):
         """
-        PR: 中心与半径
-        PP: 中心与圆上一点
-        L: 半径线段
-        PPP: 圆上三点
+        PR: 中心与半径构造圆
+        PP: 中心与圆上一点构造圆
+        L: 半径线段构造圆
+        PPP: 圆上三点构造圆
+        TranslationCirV: 构造平移圆
         """
         super().__init__(construct_type)
 
@@ -40,6 +42,7 @@ class CircleAdapter(GeometryAdapter):
     def __call__(self, *objs: Union[BaseGeometry, any]):
         from manimgeo.components.point import Point
         from manimgeo.components.line import LineSegment
+        from manimgeo.components.vector import Vector
 
         match self.construct_type:
             case "PR":
@@ -62,6 +65,11 @@ class CircleAdapter(GeometryAdapter):
                 self.radius, self.center = GeoMathe.three_points_circle_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
+
+            case "TranslationCirV":
+                GeoUtils.check_params(objs, Circle, Vector)
+                self.center = objs[0].center + objs[1].vec
+                self.radius = objs[0].radius
 
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -120,3 +128,12 @@ def CirclePPP(point1: Point, point2: Point, point3: Point, name: str = ""):
     `point3`: 圆上一点
     """
     return Circle("PPP", point1, point2, point3, name=name)
+
+def CircleTranslationCirV(circle: Circle, vec: Vector, name: str = ""):
+    """
+    ## 平移构造圆
+
+    `circle`: 原始圆
+    `vec`: 平移向量
+    """
+    return Circle("TranslationCirV", circle, vec, name=name)

@@ -12,7 +12,10 @@ if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.line import LineSegment
 
-VectorConstructType = Literal["PP", "L", "N", "NPP", "NNormDirection"]
+VectorConstructType = Literal[
+    "PP", "L", "N", "NPP", "NNormDirection",
+    "AddVV", "SubVV", "MulNV"
+]
 
 class VectorAdapter(GeometryAdapter):
     vec: np.array
@@ -31,6 +34,9 @@ class VectorAdapter(GeometryAdapter):
         N: （数值）构建向量
         NPP: 两点（数值）构建向量
         NNormDirection: 模长方向（数值）构建向量
+        AddVV: 向量加法
+        SubVV: 向量减法
+        MulNV: 数乘向量
         """
         super().__init__(construct_type)
 
@@ -61,6 +67,18 @@ class VectorAdapter(GeometryAdapter):
                 GeoUtils.check_params(objs, Number, np.ndarray)
                 self.vec = objs[0] * GeoMathe.unit_direction_vector(np.zeros_like(objs[1]), objs[1])
 
+            case "AddVV":
+                GeoUtils.check_params(objs, Vector, Vector)
+                self.vec = objs[0].vec + objs[1].vec
+
+            case "SubVV":
+                GeoUtils.check_params(objs, Vector, Vector)
+                self.vec = objs[0].vec - objs[1].vec
+
+            case "MulNV":
+                GeoUtils.check_params(objs, Number, Vector)
+                self.vec = objs[0] * objs[1].vec
+
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
             
@@ -79,6 +97,15 @@ class Vector(BaseGeometry):
         self.objs = objs
         self.adapter = VectorAdapter(construct_type, self, *objs)
         self.update()
+
+    def __add__(self, other: Vector):
+        return Vector("AddVV", self, other, name=f"{self.name} + {other.name}")
+    
+    def __sub__(self, other: Vector):
+        return Vector("SubVV", self, other, name=f"{self.name} - {other.name}")
+    
+    def __mul__(self, other: Number):
+        return Vector("MulNV", other, self, name=f"{other} * {self.name}")
 
 # Construction Methods
 

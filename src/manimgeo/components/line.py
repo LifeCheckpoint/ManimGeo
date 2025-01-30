@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from manimgeo.components.point import Point
     from manimgeo.components.vector import Vector
 
-LineConstructType = Literal["PP", "PV"]
+LineConstructType = Literal["PP", "PV", "TranslationLV"]
 
 class LineAdapter(GeometryAdapter):
     start: np.ndarray
@@ -27,7 +27,9 @@ class LineAdapter(GeometryAdapter):
             *objs: Union[BaseGeometry, any]
         ):
         """
-        PP: 线上始终点
+        PP: 始终点构造线
+        PV: 始点方向构造线
+        TranslationLV: 平移构造线
         """
         super().__init__(construct_type)
 
@@ -47,6 +49,11 @@ class LineAdapter(GeometryAdapter):
                 GeoUtils.check_params(objs, Point, Vector)
                 self.start = objs[0].coord
                 self.end = objs[0].coord + objs[1].vec
+
+            case "TranslationLV":
+                GeoUtils.check_params(objs, Line, Vector)
+                self.start = objs[0].start + objs[1].vec
+                self.end = objs[0].end + objs[1].vec
             
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -114,3 +121,12 @@ def InfinityLinePP(start: Point, end: Point, name: str = ""):
     `end`: 终点
     """
     return InfinityLine("PP", start, end, name=name)
+
+def LineTranslation(line: Line, vec: Vector, name: str = ""):
+    """
+    ## 平移构造线
+
+    `line`: 原线
+    `vec`: 平移向量
+    """
+    return line.__class__("TranslationLV", line, vec, name=name)

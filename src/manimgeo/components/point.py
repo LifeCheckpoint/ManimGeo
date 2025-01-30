@@ -10,11 +10,13 @@ from manimgeo.utils.mathe import GeoMathe
 
 if TYPE_CHECKING:
     from manimgeo.components.line import Line, LineSegment
+    from manimgeo.components.vector import Vector
 
 PointConstructType = Literal[
     "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
     "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
-    "IntersectionLL", "IntersectionLCir", "IntersectionCirCir"
+    "IntersectionLL", "IntersectionLCir", "IntersectionCirCir",
+    "TranslationPV"
 ]
 
 class PointAdapter(GeometryAdapter):
@@ -43,6 +45,7 @@ class PointAdapter(GeometryAdapter):
         IntersectionLL: 构造两线交点
         IntersectionLCir: 构造线圆交点
         IntersectionCirCir: 构造两圆交点
+        TranslationPV: 构造平移点
         """
         super().__init__(construct_type)
 
@@ -84,7 +87,6 @@ class PointAdapter(GeometryAdapter):
                 self.coord = objs[0].coord + objs[2]*objs[1].unit_direction
 
             case "InversionPCir":
-                from manimgeo.components.circle import Circle
                 GeoUtils.check_params(objs, Point, Circle)
                 self.coord = GeoMathe.inversion_point(objs[0].coord, objs[1].center, objs[1].radius)
 
@@ -105,13 +107,11 @@ class PointAdapter(GeometryAdapter):
                     raise ValueError("No intersections")
                 
             case "IntersectionLCir":
-                from manimgeo.components.circle import Circle
                 # line, circle, regard_as_infinite
                 GeoUtils.check_params(objs, Line, Circle, bool)
                 # TODO
 
             case "IntersectionCirCir":
-                from manimgeo.components.circle import Circle
                 GeoUtils.check_params(objs, Circle, Circle)
                 result = GeoMathe.intersection_cir_cir(
                         objs[0].center, objs[0].radius,
@@ -127,6 +127,10 @@ class PointAdapter(GeometryAdapter):
                     raise ValueError("Two circles has infinite intersections")
                 else:
                     raise ValueError("Two circles has no intersection")
+
+            case "TranslationPV":
+                GeoUtils.check_params(objs, Point, Vector)
+                self.coord = objs[0].coord + objs[1].vec
 
             case _:
                 raise ValueError(f"Invalid construct type: {self.construct_type}")
@@ -289,3 +293,12 @@ def Points2IntersectionCirCir(circle1: Circle, circle2: Circle, name: str = ""):
     `circle2`: 第二个圆
     """
     return Points2("IntersectionCirCir", circle1, circle2, name=name)
+
+def PointTranslationPV(point: Point, vector: Vector, name: str = ""):
+    """
+    ## 构造平移点
+
+    `point`: 原始点
+    `vector`: 平移向量
+    """
+    return Point("TranslationPV", point, vector, name=name)
