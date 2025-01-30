@@ -7,9 +7,9 @@ from manimgeo.anime.manimgl import GeoManimGLMap
 class EulerLine(Scene):
     def construct(self):
         # 构造三角形ABC
-        A = FreePoint(np.array([-5, -1]), "A")
-        B = FreePoint(np.array([3, -2]), "B")
-        C = FreePoint(np.array([2, 3]), "C")
+        A = PointFree(np.array([-5, -1]), "A")
+        B = PointFree(np.array([3, -2]), "B")
+        C = PointFree(np.array([2, 3]), "C")
         AB = LineSegmentPP(A, B, "AB")
         BC = LineSegmentPP(B, C, "BC")
         AC = LineSegmentPP(A, C, "AC")
@@ -65,14 +65,14 @@ class EulerLine(Scene):
 class NinePointCircle(Scene):
     def construct(self):
         # 构造三角形ABC
-        A = FreePoint(np.array([-4, -2]), "A")
-        B = FreePoint(np.array([3, -1]), "B")
-        C = FreePoint(np.array([0, 3]), "C")
+        A = PointFree(np.array([-4, -2]), "A")
+        B = PointFree(np.array([3, -1]), "B")
+        C = PointFree(np.array([0, 3]), "C")
         
         # 构造中点
-        AB_MID = MidPointPP(A, B, "AB_mid")
-        BC_MID = MidPointPP(B, C, "BC_mid")
-        AC_MID = MidPointPP(A, C, "AC_mid")
+        AB_MID = PointMidPP(A, B, "AB_mid")
+        BC_MID = PointMidPP(B, C, "BC_mid")
+        AC_MID = PointMidPP(A, C, "AC_mid")
         
         # 构造边
         AB = LineSegmentPP(A, B, "AB")
@@ -80,18 +80,19 @@ class NinePointCircle(Scene):
         AC = LineSegmentPP(A, C, "AC")
 
         # 构造垂足
-        AB_FOOT = VerticalPointPL(C, AB, "AB_foot")
-        BC_FOOT = VerticalPointPL(A, BC, "BC_foot")
-        AC_FOOT = VerticalPointPL(B, AC, "AC_foot")
+        AB_FOOT = PointVerticalPL(C, AB, "AB_foot")
+        BC_FOOT = PointVerticalPL(A, BC, "BC_foot")
+        AC_FOOT = PointVerticalPL(B, AC, "AC_foot")
         # 构造对应垂线
         AB_VERTICAL = LineSegmentPP(AB_FOOT, C, "AB_vertical")
         BC_VERTICAL = LineSegmentPP(BC_FOOT, A, "BC_vertical")
         AC_VERTICAL = LineSegmentPP(AC_FOOT, B, "AC_vertical")
         
         # 构造垂点
-        ORTHOCENTER = IntersectionPointLL(
+        ORTHOCENTER = PointIntersectionLL(
             InfinityLinePP(AB_FOOT, C),
             InfinityLinePP(BC_FOOT, A), 
+            True,
             "Orthocenter"
         )
 
@@ -100,9 +101,9 @@ class NinePointCircle(Scene):
         EULER_B_LINE = LineSegmentPP(B, ORTHOCENTER, "B_orthocenter_line")
         EULER_C_LINE = LineSegmentPP(C, ORTHOCENTER, "C_orthocenter_line")
         # 构造中点
-        EULER_A = MidPointL(EULER_A_LINE, "A_orthocenter_mid")
-        EULER_B = MidPointL(EULER_B_LINE, "B_orthocenter_mid")
-        EULER_C = MidPointL(EULER_C_LINE, "C_orthocenter_mid")
+        EULER_A = PointMidL(EULER_A_LINE, "A_orthocenter_mid")
+        EULER_B = PointMidL(EULER_B_LINE, "B_orthocenter_mid")
+        EULER_C = PointMidL(EULER_C_LINE, "C_orthocenter_mid")
         
         # 构造九点圆
         NINE_POINT_CIRCLE = CirclePPP(AB_MID, BC_MID, AC_MID, "NinePointCircle")
@@ -159,7 +160,7 @@ class NinePointCircle(Scene):
             self.wait(2)
 
 class PedalIteration(Scene):
-    def pedal_triangle_iteration(self, gmm: GeoManimGLMap, base_points: list[PointLike], iterations: int) -> List[Dot]:
+    def pedal_triangle_iteration(self, gmm: GeoManimGLMap, base_points: list[Point], iterations: int) -> List[Dot]:
         """垂足三角形迭代动画生成"""
         colors = ["#F9F871", "#FF9671", "#FF6F91", "#845EC2"]  # 颜色循环
         
@@ -209,9 +210,9 @@ class PedalIteration(Scene):
                 
             # 计算下一层垂足点
             new_points = [
-                VerticalPointPL(current_points[0], lines_inf[1], f"P{i}_A"),
-                VerticalPointPL(current_points[1], lines_inf[2], f"P{i}_B"),
-                VerticalPointPL(current_points[2], lines_inf[0], f"P{i}_C")
+                PointVerticalPL(current_points[0], lines_inf[1], f"P{i}_A"),
+                PointVerticalPL(current_points[1], lines_inf[2], f"P{i}_B"),
+                PointVerticalPL(current_points[2], lines_inf[0], f"P{i}_C")
             ]
 
             # 三角形垂线
@@ -231,9 +232,9 @@ class PedalIteration(Scene):
 
     def construct(self):
         # 初始化自由点
-        A = FreePoint(np.array([-4, -3]), "A")
-        B = FreePoint(np.array([3, -2]), "B")
-        C = FreePoint(np.array([0, 3.5]), "C")
+        A = PointFree(np.array([-4, -3]), "A")
+        B = PointFree(np.array([3, -2]), "B")
+        C = PointFree(np.array([0, 3.5]), "C")
         
         gmm = GeoManimGLMap()
 
@@ -274,4 +275,4 @@ class PedalIteration(Scene):
             self.wait(2)
 
             # 输出 A 的依赖关系
-            geo_print_dependencies(A)
+            GeoUtils.geo_print_dependencies(A)
