@@ -53,6 +53,8 @@ class GeoManimGLMap:
                         dim_23(obj.end - INFINITY_LINE_SCALE * obj.unit_direction),
                         dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
                     )
+                else:
+                    raise ValueError(f"Type {type(obj).__name__} is not a Line")
 
             case Circle():
                 from manimlib import Circle as MCircle

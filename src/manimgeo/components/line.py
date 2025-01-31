@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 
 LineConstructType = Literal[
     "PP", "PV", "TranslationLV", "VerticalPL", "ParallelPL",
-    "TangentsCirP", "TangentsOutCirCir", "TangentsInCirCir"
+    "TangentsCirP", "TangentsOutCirCir", "TangentsInCirCir",
+    "2"
 ]
 
 class LineAdapter(GeometryAdapter):
@@ -47,6 +48,7 @@ class LineAdapter(GeometryAdapter):
         TangentsCirP: 圆与点构造切线
         TangentsOutCirCir: 圆与圆构造外切线
         TangentsInCirCir: 圆与圆构造内切线
+        2: 从两条线 (Lines2) 获取单个线对象
         """
         super().__init__(construct_type)
 
@@ -65,7 +67,8 @@ class LineAdapter(GeometryAdapter):
             "ParallelPL": [Point, Line],
             "TangentsCirP": [Circle, Point],
             "TangentsOutCirCir": [Circle, Circle],
-            "TangentsInCirCir": [Circle, Circle]
+            "TangentsInCirCir": [Circle, Circle],
+            "2": [Lines2, int]
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
         
@@ -123,12 +126,21 @@ class LineAdapter(GeometryAdapter):
                     self.start2, self.end2 = outs[1][0], outs[1][1]
                 else:
                     raise ValueError("No tangent points found")
+                
+            case "2":
+                if objs[1] == 0:
+                    self.start, self.end = objs[0].start1, objs[0].end1
+                elif objs[1] == 1:
+                    self.start, self.end = objs[0].start2, objs[0].end2
+                else:
+                    raise ValueError("Index of lines should be 0 or 1")
             
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
             
-        self.length = np.linalg.norm(self.end - self.start)
-        self.unit_direction = (self.end - self.start) / self.length
+        if hasattr(self, "end"): # 检查是否为单线对象
+            self.length = np.linalg.norm(self.end - self.start)
+            self.unit_direction = (self.end - self.start) / self.length
 
 # 单线条
 
@@ -254,7 +266,7 @@ def LineParallelPL(point: Point, line: Line, name: str = ""):
     """
     return line.__class__("ParallelPL", point, line, name=name)
 
-def LineTangentsCirP(circle: Circle, point: Point, name: str = ""):
+def Lines2TangentsCirP(circle: Circle, point: Point, name: str = ""):
     """
     ## 过一点构造圆切线
 
@@ -263,7 +275,7 @@ def LineTangentsCirP(circle: Circle, point: Point, name: str = ""):
     """
     return InfinityLines2("TangentsCirP", circle, point, name=name)
 
-def LineTangentsOutCirCir(circle1: Circle, circle2: Circle, name: str = ""):
+def Lines2TangentsOutCirCir(circle1: Circle, circle2: Circle, name: str = ""):
     """
     ## 构造两圆外切线
 
@@ -272,7 +284,7 @@ def LineTangentsOutCirCir(circle1: Circle, circle2: Circle, name: str = ""):
     """
     return InfinityLines2("TangentsOutCirCir", circle1, circle2, name=name)
 
-def LineTangentsInCirCir(circle1: Circle, circle2: Circle, name: str = ""):
+def Lines2TangentsInCirCir(circle1: Circle, circle2: Circle, name: str = ""):
     """
     ## 构造两圆内切线
 
@@ -280,3 +292,25 @@ def LineTangentsInCirCir(circle1: Circle, circle2: Circle, name: str = ""):
     `circle2`: 圆2
     """
     return InfinityLines2("TangentsInCirCir", circle1, circle2, name=name)
+
+def LineOfLines2(lines2: Lines2, index: Literal[0, 1], name: str = ""):
+    """
+    ## 获取两条线中的单线对象
+
+    `lines2`: 两线组合对象
+    `index`: 两线中的其中一线索引
+    """
+    line_map = {
+        LineSegments2: LineSegment,
+        Rays2: Ray,
+        InfinityLines2: InfinityLine
+    }
+    return line_map[lines2.__class__]("2", lines2, index, name=name)
+
+def LineOfLines2List(lines2: Lines2, name: str = ""):
+    """
+    ## 获取两线中的单线对象列表
+
+    `lines2`: 两线组合对象
+    """
+    return [LineOfLines2(lines2, 0, name), LineOfLines2(lines2, 1, name)]

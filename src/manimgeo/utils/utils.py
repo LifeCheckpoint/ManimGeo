@@ -1,4 +1,7 @@
-from typing import Sequence, Iterable, Dict
+from typing import Sequence, Iterable, Dict, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from manimgeo.components import *
 
 class GeoUtils:
 

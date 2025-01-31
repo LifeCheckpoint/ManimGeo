@@ -276,3 +276,48 @@ class PedalIteration(Scene):
 
             # 输出 A 的依赖关系
             GeoUtils.geo_print_dependencies(A)
+
+class Demo3B1B(Scene):
+    def construct(self):
+        P1 = PointFree(np.array([-2, -0.5]), "P1")
+        P2 = PointFree(np.array([1, 1]), "P2")
+        P3 = PointFree(np.array([3, -1]), "P3")
+        CIR1 = CirclePR(P1, 0.3, "Cir1")
+        CIR2 = CirclePR(P2, 1.8, "Cir2")
+        CIR3 = CirclePR(P3, 0.8, "Cir3")
+        L12_0, L12_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR1, CIR2))
+        L23_0, L23_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR2, CIR3))
+        L31_0, L31_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR3, CIR1))
+
+        gmm = GeoManimGLMap()
+
+        p1, p2, p3 = gmm.create_mobjects_from_geometry([P1, P2, P3])
+        cir1, cir2, cir3 = gmm.create_mobjects_from_geometry([CIR1, CIR2, CIR3])
+        l12_0, l12_1, l23_0, l23_1, l31_0, l31_1 = gmm.create_mobjects_from_geometry([L12_0, L12_1, L23_0, L23_1, L31_0, L31_1])
+
+        def fit_color(*mobs: VMobject, hex_color: str = "#FFFFFF"):
+            color = rgb_to_color(hex_to_rgb(hex_color))
+            [mob.set_color(color) for mob in mobs]       
+
+        fit_color(p1, cir1, l12_0, l12_1, hex_color="#F9F871")
+        fit_color(p2, cir2, l31_0, l31_1, hex_color="#FF9671")
+        fit_color(p3, cir3, l23_0, l23_1, hex_color="#FF6F91")
+        
+        self.wait(1)
+        self.play(Write(p1), Write(p2), Write(p3))
+        self.play(Write(cir1), Write(cir2), Write(cir3))
+        self.wait(1)
+        self.play(Write(l12_0), Write(l12_1))
+        self.play(Write(l23_0), Write(l23_1))
+        self.play(Write(l31_0), Write(l31_1))
+
+        self.wait(1)
+
+        with gmm:
+            self.play(
+                p1.animate.move_to(np.array([2, 1.5, 0])),
+                p2.animate.move_to(np.array([4, -2, 0])),
+                p3.animate.move_to(np.array([-3, -1.5, 0])),
+                run_time=5,
+                rate_func=smooth
+            )
