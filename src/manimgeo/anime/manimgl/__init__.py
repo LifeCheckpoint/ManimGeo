@@ -1,1 +1,1 @@
-from manimgeo.anime.manimgl.mobjects import GeoManimGLManager
+from manimgeo.anime.manimgl.manimgl_manager import GeoManimGLManager
