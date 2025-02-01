@@ -424,7 +424,7 @@ class GeoMathe:
         angle_rad = angle_rad if angle_rad >= 0 else angle_rad + 2 * np.pi
         
         return angle_rad
-    
+
     @staticmethod
     def compute_tangent_point(A, B, C, center, r):
         """计算直线Ax + By + C = 0与圆心为center、半径为r的切点"""
@@ -438,10 +438,6 @@ class GeoMathe:
         # 计算垂足点坐标
         x = (B**2 * x0 - A*B*y0 - A*C) / denominator
         y = (-A*B*x0 + A**2*y0 - B*C) / denominator
-        
-        # 验证计算精度（误差应小于1e-9）
-        if not np.allclose(np.linalg.norm([x - x0, y - y0]), r, atol=1e-9):
-            raise ValueError("Precision error in tangent point calculation")
         
         return np.array([x, y])
 

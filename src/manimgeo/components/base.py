@@ -60,8 +60,11 @@ class BaseGeometry():
             self.adapter(*self.objs)
             # 将参数从适配器绑定到几何对象
             self.adapter.bind_attributes(self, self.attrs)
-        except:
-            # 传播更新消息并指示错误
+        except Exception as e:
+            # print(f"During calculating, an error occured at object {self.name} ({type(self).__name__}).")
+            # print(e)
+
+            # 传播更新消息并标记错误
             self.board_update_msg(True)
             self.on_error = True
             return

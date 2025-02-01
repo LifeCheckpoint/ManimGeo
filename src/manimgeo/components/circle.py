@@ -57,15 +57,15 @@ class CircleAdapter(GeometryAdapter):
 
         match self.construct_type:
             case "PR":
-                self.center = objs[0].coord
+                self.center = objs[0].coord.copy()
                 self.radius = objs[1]
 
             case "PP":
-                self.center = objs[0].coord
+                self.center = objs[0].coord.copy()
                 self.radius = np.linalg.norm(objs[1].coord - objs[0].coord)
 
             case "L":
-                self.center = objs[0].start.coord
+                self.center = objs[0].start.coord.copy()
                 self.radius = np.linalg.norm(objs[0].end.coord - objs[0].start.coord)
 
             case "PPP":

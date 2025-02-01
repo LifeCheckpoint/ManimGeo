@@ -211,7 +211,7 @@ class Point(BaseGeometry):
 
         坐标设置仅对于 Free 构造有效，其他构造类型将抛出 ValueError
         """
-        if self.adapter.construct_type not in {"Free"}:
+        if self.adapter.construct_type not in ["Free"]:
             raise ValueError("Cannot set coord of non-leaf node")
         
         self.update(coord)

@@ -62,6 +62,8 @@ class EulerLine(Scene):
             dot_c.add_updater(lambda m: m.shift(0.005 * (UP + LEFT) * math.sin((self.time - now)*1.5)))
             self.wait(20)
 
+        [dot.clear_updaters() for dot in [dot_a, dot_b, dot_c]]
+
 class NinePointCircle(Scene):
     def construct(self):
         # 构造三角形ABC
@@ -285,11 +287,15 @@ class Demo3B1B(Scene):
         CIR1 = CirclePR(P1, 0.3, "Cir1")
         CIR2 = CirclePR(P2, 1.8, "Cir2")
         CIR3 = CirclePR(P3, 0.8, "Cir3")
-        L12_0, L12_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR1, CIR2))
-        L23_0, L23_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR2, CIR3))
-        L31_0, L31_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR3, CIR1))
+        L12_0, L12_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR1, CIR2, "t12"))
+        L23_0, L23_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR2, CIR3, "t23"))
+        L31_0, L31_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR3, CIR1, "t31"))
+        GeoUtils.geo_print_dependencies(P1)
 
         gmm = GeoManimGLManager()
+
+        # 设置计算错误时处理方式为隐藏对象线条 (默认)
+        gmm.set_on_error_exec("vis")
 
         p1, p2, p3 = gmm.create_mobjects_from_geometry([P1, P2, P3])
         cir1, cir2, cir3 = gmm.create_mobjects_from_geometry([CIR1, CIR2, CIR3])
@@ -310,14 +316,28 @@ class Demo3B1B(Scene):
         self.play(Write(l12_0), Write(l12_1))
         self.play(Write(l23_0), Write(l23_1))
         self.play(Write(l31_0), Write(l31_1))
-
         self.wait(1)
 
         with gmm:
+            p1.add_updater(lambda mobj: print(p1.get_center(), p2.get_center(), p3.get_center()))
             self.play(
-                p1.animate.move_to(np.array([2, 1.5, 0])),
+                p1.animate.move_to(np.array([2, 2, 0])),
                 p2.animate.move_to(np.array([4, -2, 0])),
-                p3.animate.move_to(np.array([-3, -1.5, 0])),
+                p3.animate.move_to(np.array([-3, 1.5, 0])),
                 run_time=5,
                 rate_func=smooth
             )
+
+class Test(Scene):
+    def construct(self):
+        dota = Dot(np.array([1, 1, 0]))
+        self.wait(1)
+
+        # dota.add_updater(lambda mobj: print(mobj.get_center()))
+        dota.add_updater(lambda mobj: print(dota.get_center()))
+
+        self.play(
+            dota.animate.move_to(np.array([-2, 2, 0])), 
+            run_time = 5, 
+            rate_func = smooth)
+        self.wait(1)

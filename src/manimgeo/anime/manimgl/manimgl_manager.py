@@ -1,7 +1,9 @@
 from manimgeo.components import *
+from manimgeo.anime.manimgl.state import StateManager
+from manimgeo.anime.manimgl.error_func import ErrorFunctionManimGL as GLError
 
 from manimlib import Mobject
-from typing import Sequence
+from typing import Sequence, Callable, Dict
 
 def dim_23(x: np.ndarray) -> np.ndarray:
     return np.append(x, 0)
@@ -9,9 +11,12 @@ def dim_23(x: np.ndarray) -> np.ndarray:
 class GeoManimGLManager:
     """管理 ManimGL Mobject 和几何对象之间的自动映射"""
     start_update: bool
+    on_error_exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, Mobject], None]]
+    state_manager = StateManager("manimgl", GLError.set_visible_by_state)
 
     def __init__(self):
         self.start_update = False
+        self.on_error_exec = "vis"
 
     def create_mobjects_from_geometry(
             self,
@@ -62,13 +67,13 @@ class GeoManimGLManager:
         """
         注册更新器
         """
-        if isinstance(obj, Point) and obj.adapter.construct_type is "Free":
+        if isinstance(obj, Point) and obj.adapter.construct_type == "Free":
             # 自由点，叶子节点
+            print(f"Register leaf object: {obj.name}")
             mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
         else:
             # 非自由对象
             mobj.add_updater(lambda mobj: self.update_node(mobj, obj))
-
 
     def update_leaf(self, mobj: Mobject, obj: BaseGeometry):
         """叶子 Updater，读取部件信息并应用至 FreePoint 坐标"""
@@ -80,6 +85,7 @@ class GeoManimGLManager:
             obj.set_coord(mobj.get_center()[:2])
 
     def _adapt_mobjects(self, obj: BaseGeometry, mobj: Mobject):
+        """控制物件具体位置等更新"""
         INFINITY_LINE_SCALE = 20
 
         match obj:
@@ -123,11 +129,36 @@ class GeoManimGLManager:
         if not self.start_update:
             return
         
-        # 处理错误对象
+        # 更新状态自动机并自动处理错误对象
+        self.state_manager.update(obj, mobj)
 
         # 更新对象位置
         self._adapt_mobjects(obj, mobj)
-    
+
+    def set_on_error_exec(self, exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, Mobject], None]] = "vis"):
+        """
+        设置几何对象计算错误时的行为
+
+        几何对象通常会因为解不存在等问题出现错误，并且错误会随依赖链条向下传播，通过该函数设置发生错误时的行为
+
+        `exec`: 
+         - `None`: 不执行任何操作，异常将抛出
+         - `"vis"`: 几何对象将隐藏可见，直到错误消失
+         - `"stay"`: 几何对象将保持静止，直到错误消失
+         - `(on_error: bool, obj: BaseGeometry, mobj: Mobject) -> None`: 自定义回调函数
+        """
+        if exec == None:
+            # TODO
+            pass
+        elif exec == "vis":
+            self.state_manager.set_strategy_func(GLError.set_visible_by_state)
+        elif exec == "stay":
+            self.state_manager.set_strategy_func(lambda s, o, mo: ...)
+        elif callable(exec):
+            self.state_manager.set_strategy_func(lambda s, o, mo: GLError.func_by_state(s, o, mo, exec))
+        else:
+            raise ValueError(f"Cannot set error handler as {exec}")
+
     def start_trace(self):
         """
         追踪所有部件几何运动
@@ -155,3 +186,4 @@ class GeoManimGLManager:
         结束 Trace
         """
         self.start_update = False
+
