@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List, Union, Optional, Sequence
 
 class GeometryAdapter:
     """几何对象参数适配器基类"""
@@ -29,6 +29,7 @@ class BaseGeometry():
     adapter: GeometryAdapter
     objs: List[Union[BaseGeometry, any]]
     dependents: List[BaseGeometry]
+    on_error: bool = False
 
     def __init__(self, name: str = "") -> None:
         self.name = name # 名称
@@ -42,26 +43,28 @@ class BaseGeometry():
         """删除依赖对象"""
         self.dependents.remove(obj)
 
-    def board_update_msg(self):
+    def board_update_msg(self, on_error: bool = False):
         """向所有依赖项发出更新信号"""
         for dep in self.dependents:
             dep.update()
+            dep.on_error = on_error
 
-    def update(self):
+    def update(self, *new_objs: Optional[Sequence]):
         """执行当前对象的更新"""
-        # 重新向适配器注入对象
-        self.adapter(*self.objs)
-        # 将参数从适配器绑定到几何对象
-        self.adapter.bind_attributes(self, self.attrs)
-        # 向下游广播更新信息
-        self.board_update_msg()
 
-    def update_by(self, *new_objs):
-        """开洞更新，用于叶子节点"""
-        # 重新向适配器注入对象
-        self.adapter(*new_objs)
-        self.objs = new_objs
-        # 将参数从适配器绑定到几何对象
-        self.adapter.bind_attributes(self, self.attrs)
+        if len(new_objs) != 0:
+            self.objs = new_objs
+        
+        try:
+            # 重新向适配器注入对象
+            self.adapter(*self.objs)
+            # 将参数从适配器绑定到几何对象
+            self.adapter.bind_attributes(self, self.attrs)
+        except:
+            # 传播更新消息并指示错误
+            self.board_update_msg(True)
+            self.on_error = True
+            return
+
         # 向下游广播更新信息
         self.board_update_msg()

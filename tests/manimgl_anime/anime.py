@@ -2,7 +2,7 @@ from manimlib import *
 
 sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
 from manimgeo.components import *
-from manimgeo.anime.manimgl import GeoManimGLMap
+from manimgeo.anime.manimgl import GeoManimGLManager
 
 class EulerLine(Scene):
     def construct(self):
@@ -20,7 +20,7 @@ class EulerLine(Scene):
         CIRCUMCENTER = PointCircumcenterPPP(A, B, C, "Circumcenter")
 
         # 创建几何动画管理器
-        gmm = GeoManimGLMap()
+        gmm = GeoManimGLManager()
         
         # 创建 ManimGL VMobject 图形
         dot_a, dot_b, dot_c = gmm.create_mobjects_from_geometry([A, B, C])
@@ -109,7 +109,7 @@ class NinePointCircle(Scene):
         NINE_POINT_CIRCLE = CirclePPP(AB_MID, BC_MID, AC_MID, "NinePointCircle")
 
         # 创建几何动画管理器
-        gmm = GeoManimGLMap()
+        gmm = GeoManimGLManager()
 
         # 手动创建 ManimGL VMobject 图形
         def create_mobj(geos: List[BaseGeometry]) -> List[VMobject]:
@@ -160,7 +160,7 @@ class NinePointCircle(Scene):
             self.wait(2)
 
 class PedalIteration(Scene):
-    def pedal_triangle_iteration(self, gmm: GeoManimGLMap, base_points: list[Point], iterations: int) -> List[Dot]:
+    def pedal_triangle_iteration(self, gmm: GeoManimGLManager, base_points: list[Point], iterations: int) -> List[Dot]:
         """垂足三角形迭代动画生成"""
         colors = ["#F9F871", "#FF9671", "#FF6F91", "#845EC2"]  # 颜色循环
         
@@ -236,7 +236,7 @@ class PedalIteration(Scene):
         B = PointFree(np.array([3, -2]), "B")
         C = PointFree(np.array([0, 3.5]), "C")
         
-        gmm = GeoManimGLMap()
+        gmm = GeoManimGLManager()
 
         # 迭代构建
         dot_a, dot_b, dot_c = self.pedal_triangle_iteration(gmm, [A, B, C], iterations=4)
@@ -289,7 +289,7 @@ class Demo3B1B(Scene):
         L23_0, L23_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR2, CIR3))
         L31_0, L31_1 = LineOfLines2List(Lines2TangentsOutCirCir(CIR3, CIR1))
 
-        gmm = GeoManimGLMap()
+        gmm = GeoManimGLManager()
 
         p1, p2, p3 = gmm.create_mobjects_from_geometry([P1, P2, P3])
         cir1, cir2, cir3 = gmm.create_mobjects_from_geometry([CIR1, CIR2, CIR3])

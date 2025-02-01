@@ -6,7 +6,7 @@ from typing import Sequence
 def dim_23(x: np.ndarray) -> np.ndarray:
     return np.append(x, 0)
 
-class GeoManimGLMap:
+class GeoManimGLManager:
     """管理 ManimGL Mobject 和几何对象之间的自动映射"""
     start_update: bool
 
@@ -29,49 +29,35 @@ class GeoManimGLMap:
         """
         通过几何对象创建 Mobject，并自动关联
         """
-        INFINITY_LINE_SCALE: float = 20
-
         mobject: Mobject
 
-        # 注意匹配父子顺序
         match obj:
             case Point():
                 from manimlib import Dot as MDot
-                mobject = MDot(dim_23(obj.coord))
+                mobject = MDot()
 
             case Line():
                 from manimlib import Line as MLine
                 if isinstance(obj, LineSegment):
-                    mobject = MLine(dim_23(obj.start), dim_23(obj.end))
+                    mobject = MLine()
                 elif isinstance(obj, Ray):
-                    mobject = MLine(
-                        dim_23(obj.start), 
-                        dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
-                    )
+                    mobject = MLine()
                 elif isinstance(obj, InfinityLine):
-                    mobject = MLine(
-                        dim_23(obj.end - INFINITY_LINE_SCALE * obj.unit_direction),
-                        dim_23(obj.start + INFINITY_LINE_SCALE * obj.unit_direction)
-                    )
+                    mobject = MLine()
                 else:
                     raise ValueError(f"Type {type(obj).__name__} is not a Line")
 
             case Circle():
                 from manimlib import Circle as MCircle
-                mobject = MCircle().scale(obj.radius).move_to(dim_23(obj.center))
+                mobject = MCircle()
 
             case _:
                 raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
             
+        self._adapt_mobjects(obj, mobject)
         self.register_updater(obj, mobject)
         return mobject
     
-    def bond(self, obj: BaseGeometry, mobj: Mobject):
-        """
-        关联
-        """
-        self.register_updater(obj, mobj)
-
     def register_updater(self, obj: BaseGeometry, mobj: Mobject):
         """
         注册更新器
@@ -93,14 +79,9 @@ class GeoManimGLMap:
         if isinstance(obj, Point):
             obj.set_coord(mobj.get_center()[:2])
 
-    def update_node(self, mobj: Mobject, obj: BaseGeometry):
-        """被约束对象 Updater，读取约束更改后信息应用到 Mobject"""
+    def _adapt_mobjects(self, obj: BaseGeometry, mobj: Mobject):
         INFINITY_LINE_SCALE = 20
 
-        if not self.start_update:
-            return
-
-        # 注意匹配父子顺序
         match obj:
             case Point():
                 mobj.move_to(dim_23(obj.coord))
@@ -135,7 +116,34 @@ class GeoManimGLMap:
 
             case _:
                 raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
+
+    def update_node(self, mobj: Mobject, obj: BaseGeometry):
+        """被约束对象 Updater，读取约束更改后信息应用到 Mobject"""
+
+        if not self.start_update:
+            return
+        
+        # 处理错误对象
+
+        # 更新对象位置
+        self._adapt_mobjects(obj, mobj)
     
+    def start_trace(self):
+        """
+        追踪所有部件几何运动
+
+        等同于 __enter__()
+        """
+        self.__enter__()
+
+    def stop_trace(self):
+        """
+        结束 Trace
+
+        等同于 __exit__()
+        """
+        self.__exit__()
+
     def __enter__(self):
         """
         追踪所有部件几何运动

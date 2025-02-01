@@ -214,7 +214,7 @@ class Point(BaseGeometry):
         if self.adapter.construct_type not in {"Free"}:
             raise ValueError("Cannot set coord of non-leaf node")
         
-        self.update_by(coord)
+        self.update(coord)
 
 class Points2(BaseGeometry):
     attrs = ["coord1", "coord2"]

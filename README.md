@@ -99,7 +99,7 @@ geo_print_dependencies(A)
 ```python
 from manimlib import *
 from manimgeo.components import *
-from manimgeo.anime.manimgl import GeoManimGLMap
+from manimgeo.anime.manimgl import GeoManimGLManager
 
 class EulerLine(Scene):
     def construct(self):
@@ -117,7 +117,7 @@ class EulerLine(Scene):
         CIRCUMCENTER = PointCircumcenterPPP(A, B, C, "Circumcenter")
 
         # 创建几何动画管理器
-        gmm = GeoManimGLMap()
+        gmm = GeoManimGLManager()
         
         # 创建 ManimGL VMobject 图形
         dot_a, dot_b, dot_c = gmm.create_mobjects_from_geometry([A, B, C])
