@@ -145,7 +145,7 @@ class GeoManimGLManager:
         几何对象通常会因为解不存在等问题出现错误，并且错误会随依赖链条向下传播，通过该函数设置发生错误时的行为
 
         `exec`: 
-         - `None`: 不执行任何操作，异常将抛出
+         - `None`: 不执行任何操作，异常将抛出 (develop)
          - `"vis"`: 几何对象将隐藏可见，直到错误消失
          - `"stay"`: 几何对象将保持静止，直到错误消失
          - `(on_error: bool, obj: BaseGeometry, mobj: Mobject) -> None`: 自定义回调函数

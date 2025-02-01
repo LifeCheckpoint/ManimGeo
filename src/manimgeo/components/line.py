@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from typing import TYPE_CHECKING, Union, Literal
+from typing import TYPE_CHECKING, Union, Literal, List
 from numbers import Number
 
 from manimgeo.components.base import GeometryAdapter, BaseGeometry
@@ -293,7 +293,7 @@ def Lines2TangentsInCirCir(circle1: Circle, circle2: Circle, name: str = ""):
     """
     return InfinityLines2("TangentsInCirCir", circle1, circle2, name=name)
 
-def LineOfLines2(lines2: Lines2, index: Literal[0, 1], name: str = ""):
+def LineOfLines2(lines2: Lines2, index: Literal[0, 1], name: str = "") -> Line:
     """
     ## 获取两条线中的单线对象
 
@@ -307,7 +307,7 @@ def LineOfLines2(lines2: Lines2, index: Literal[0, 1], name: str = ""):
     }
     return line_map[lines2.__class__]("2", lines2, index, name=name)
 
-def LineOfLines2List(lines2: Lines2, name: str = ""):
+def LineOfLines2List(lines2: Lines2, name: str = "") -> List[Line, Line]:
     """
     ## 获取两线中的单线对象列表
 
