@@ -13,10 +13,12 @@ class GeoManimGLManager:
     start_update: bool
     on_error_exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, Mobject], None]]
     state_manager = StateManager("manimgl", GLError.set_visible_by_state)
+    ids: List[int]
 
     def __init__(self):
         self.start_update = False
         self.on_error_exec = "vis"
+        self.ids = []
 
     def create_mobjects_from_geometry(
             self,
@@ -70,6 +72,7 @@ class GeoManimGLManager:
         if isinstance(obj, Point) and obj.adapter.construct_type == "Free":
             # 自由点，叶子节点
             print(f"Register leaf object: {obj.name}")
+            self.ids.append(id(mobj))
             mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
         else:
             # 非自由对象
@@ -81,7 +84,7 @@ class GeoManimGLManager:
         if not self.start_update:
             return
         
-        if isinstance(obj, Point):
+        if isinstance(obj, Point) and id(mobj) in self.ids:
             obj.set_coord(mobj.get_center()[:2])
 
     def _adapt_mobjects(self, obj: BaseGeometry, mobj: Mobject):

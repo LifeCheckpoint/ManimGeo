@@ -317,9 +317,7 @@ class Demo3B1B(Scene):
         self.play(Write(l23_0), Write(l23_1))
         self.play(Write(l31_0), Write(l31_1))
         self.wait(1)
-
         with gmm:
-            p1.add_updater(lambda mobj: print(p1.get_center(), p2.get_center(), p3.get_center()))
             self.play(
                 p1.animate.move_to(np.array([2, 2, 0])),
                 p2.animate.move_to(np.array([4, -2, 0])),
