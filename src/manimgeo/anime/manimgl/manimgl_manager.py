@@ -1,4 +1,5 @@
 from manimgeo.components import *
+from manimgeo.anime.manager import GeoManager
 from manimgeo.anime.manimgl.state import StateManager
 from manimgeo.anime.manimgl.error_func import ErrorFunctionManimGL as GLError
 
@@ -8,15 +9,14 @@ from typing import Sequence, Callable, Dict
 def dim_23(x: np.ndarray) -> np.ndarray:
     return np.append(x, 0)
 
-class GeoManimGLManager:
+class GeoManimGLManager(GeoManager):
     """管理 ManimGL Mobject 和几何对象之间的自动映射"""
-    start_update: bool
     on_error_exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, Mobject], None]]
     state_manager = StateManager("manimgl", GLError.set_visible_by_state)
     ids: List[int]
 
     def __init__(self):
-        self.start_update = False
+        super().__init__()
         self.on_error_exec = "vis"
         self.ids = []
 
@@ -161,32 +161,3 @@ class GeoManimGLManager:
             self.state_manager.set_strategy_func(lambda s, o, mo: GLError.func_by_state(s, o, mo, exec))
         else:
             raise ValueError(f"Cannot set error handler as {exec}")
-
-    def start_trace(self):
-        """
-        追踪所有部件几何运动
-
-        等同于 __enter__()
-        """
-        self.__enter__()
-
-    def stop_trace(self):
-        """
-        结束 Trace
-
-        等同于 __exit__()
-        """
-        self.__exit__()
-
-    def __enter__(self):
-        """
-        追踪所有部件几何运动
-        """
-        self.start_update = True
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        """
-        结束 Trace
-        """
-        self.start_update = False
-
