@@ -1,10 +1,10 @@
 from manimgeo.components import *
 from manimgeo.anime.manager import GeoManager
-from manimgeo.anime.manimgl.state import StateManager
-from manimgeo.anime.manimgl.error_func import ErrorFunctionManimGL as GLError
+from manimgeo.anime.state import StateManager
+from manimgeo.anime.error_func import ErrorFunctionManimGL as GLError
 
 from manimlib import Mobject
-from typing import Sequence, Callable, Dict
+from typing import Sequence, Callable
 
 def dim_23(x: np.ndarray) -> np.ndarray:
     return np.append(x, 0)

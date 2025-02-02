@@ -1,11 +1,9 @@
 from manimgeo.components.base import BaseGeometry
-from manimlib import Mobject
-
 from typing import Dict, Callable
 
-
 class ErrorFunctionManimGL:
-    # on_error_func
+    """ManimGL 几何对象错误处理"""
+    from manimlib import Mobject
 
     @staticmethod
     def set_visible_by_state(state_info: Dict, obj: BaseGeometry, mobj: Mobject):

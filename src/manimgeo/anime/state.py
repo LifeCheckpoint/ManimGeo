@@ -1,5 +1,4 @@
 from manimgeo.components.base import BaseGeometry
-from manimlib import Mobject
 from typing import Dict, Callable, Any, Literal
 
 class StateManager:
