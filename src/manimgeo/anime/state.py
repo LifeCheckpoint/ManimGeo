@@ -41,7 +41,7 @@ class StateManager:
 
         # 传递策略
         match self.manage_type:
-            case "manimgl":
+            case "manimgl" | "janim":
                 self.strategy_func(self.states[obj], obj, target_obj)
 
             case _:

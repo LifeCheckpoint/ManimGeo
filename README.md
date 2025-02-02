@@ -161,7 +161,7 @@ class EulerLine(Scene):
 ```
 
 ```bash
-manimgl tests\manimgl_anime\anime.py EulerLine
+manimgl tests\manimgl_anime\euler_line.py EulerLine
 ```
 
 https://github.com/user-attachments/assets/36fec8c6-ad72-4b34-b9fc-f636a6808cfb
