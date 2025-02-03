@@ -30,10 +30,10 @@ class StateManager:
         if obj not in self.states.keys():
             self.states[obj] = {"state": "Init", "count": 0}
         
-        if not obj.on_error and self.states[obj] is not "Error":
+        if not obj.on_error and self.states[obj] != "Error":
             self.states[obj] = {"state": "Normal", "count": self.states[obj]["count"] + 1}
 
-        if not obj.on_error and self.states[obj] is "Error":
+        if not obj.on_error and self.states[obj] == "Error":
             self.states[obj] = {"state": "Restore", "count": self.states[obj]["count"] + 1}
 
         if obj.on_error:

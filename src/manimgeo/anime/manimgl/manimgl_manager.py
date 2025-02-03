@@ -105,7 +105,6 @@ class GeoManimGLManager(GeoManager):
         """
         if isinstance(obj, Point) and obj.adapter.construct_type == "Free":
             # 自由点，叶子节点
-            print(f"Register leaf object: {obj.name}")
             self.ids.append(id(mobj))
             mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
         else:
