@@ -50,7 +50,8 @@ class GeoMathe:
             return l_start + projection_scalar * direction
         
     @staticmethod
-    def vertical_line(l_start: np.ndarray, l_end: np.ndarray):
+    def vertical_line_unit_direction(l_start: np.ndarray, l_end: np.ndarray):
+        """计算给定直线的垂线方向向量"""
         direction = GeoMathe.unit_direction_vector(l_start, l_end)
         return np.array([-direction[1], direction[0]])
     
@@ -373,6 +374,42 @@ class GeoMathe:
             point1 = center1 + a*u + h*v_perp
             point2 = center1 + a*u - h*v_perp
             return (True, [point1, point2])
+        
+    @staticmethod
+    def find_tangent_points(coord: np.ndarray, center: np.ndarray, radius: float) -> List[np.ndarray]:
+        dx = coord[0] - center[0]
+        dy = coord[1] - center[1]
+        d_squared = dx**2 + dy**2
+        
+        if np.allclose(d_squared, 0):  # 点与圆心重合，无切点
+            return []
+        if d_squared < radius**2:  # 点在圆内，无切点
+            return []
+        
+        d = np.sqrt(d_squared)
+        r = radius
+        if np.isclose(d, r):  # 点在圆上，切点即自身
+            return [coord.copy()]
+        
+        # 计算切点坐标
+        sqrt_term = np.sqrt(d_squared - r**2)
+        factor = r / d_squared
+        term1_x = dx * r
+        term1_y = dy * r
+        term2_x = -dy * sqrt_term
+        term2_y = dx * sqrt_term
+        
+        t1 = np.array([
+            center[0] + factor * (term1_x + term2_x),
+            center[1] + factor * (term1_y + term2_y)
+        ])
+        
+        t2 = np.array([
+            center[0] + factor * (term1_x - term2_x),
+            center[1] + factor * (term1_y - term2_y)
+        ])
+        
+        return [t1, t2]
 
     @staticmethod
     def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarray):
@@ -387,3 +424,99 @@ class GeoMathe:
         angle_rad = angle_rad if angle_rad >= 0 else angle_rad + 2 * np.pi
         
         return angle_rad
+
+    @staticmethod
+    def compute_tangent_point(A, B, C, center, r):
+        """计算直线Ax + By + C = 0与圆心为center、半径为r的切点"""
+        x0, y0 = center
+        denominator = A**2 + B**2
+        
+        # 处理分母为零
+        if np.isclose(denominator, 0):
+            raise ValueError("Invalid line equation: A and B cannot both be zero.")
+        
+        # 计算垂足点坐标
+        x = (B**2 * x0 - A*B*y0 - A*C) / denominator
+        y = (-A*B*x0 + A**2*y0 - B*C) / denominator
+        
+        return np.array([x, y])
+
+    @staticmethod
+    def external_tangents(
+            center1: np.ndarray, 
+            r1: Number, 
+            center2: np.ndarray, 
+            r2: Number
+        ) -> List[Tuple[np.ndarray, np.ndarray]]:
+        """返回两圆的外公切线切点对列表"""
+        x1, y1 = center1
+        x2, y2 = center2
+        dx, dy = x2 - x1, y2 - y1
+        d_sq = dx**2 + dy**2
+        
+        # 计算外切线判别式
+        deta = d_sq - (r1 - r2)**2
+        if deta < 0 or np.isclose(deta, 0):
+            return []
+        
+        sqrt_d = np.sqrt(deta)
+        p1 = r1 * (x2**2 + y2**2 - x1*x2 - y1*y2)
+        p2 = r2 * (x1**2 + y1**2 - x1*x2 - y1*y2)
+        q = x1*y2 - x2*y1
+        
+        # 生成两条外切线的参数
+        tangents = []
+        for sign in [1, -1]:
+            A = dx*(r1 - r2) - dy*sqrt_d*sign
+            B = dy*(r1 - r2) + dx*sqrt_d*sign
+            C = -p1 - p2 + q*sqrt_d*sign
+            
+            # 计算切点并验证
+            try:
+                pt1 = GeoMathe.compute_tangent_point(A, B, C, center1, r1)
+                pt2 = GeoMathe.compute_tangent_point(A, B, C, center2, r2)
+                tangents.append((pt1, pt2))
+            except ValueError:
+                continue
+        
+        return tangents
+
+    @staticmethod
+    def internal_tangents(
+            center1: np.ndarray, 
+            r1: Number, 
+            center2: np.ndarray, 
+            r2: Number
+        ) -> List[Tuple[np.ndarray, np.ndarray]]:
+        """返回两圆的内公切线切点对列表"""
+        x1, y1 = center1
+        x2, y2 = center2
+        dx, dy = x2 - x1, y2 - y1
+        d_sq = dx**2 + dy**2
+        
+        # 计算内切线判别式
+        deta = d_sq - (r1 + r2)**2
+        if deta < 0 or np.isclose(deta, 0):
+            return []
+        
+        sqrt_d = np.sqrt(deta)
+        p1 = r1 * (x2**2 + y2**2 - x1*x2 - y1*y2)
+        p2 = r2 * (x1**2 + y1**2 - x1*x2 - y1*y2)
+        q = x1*y2 - x2*y1
+        
+        # 生成两条内切线的参数
+        tangents = []
+        for sign in [1, -1]:
+            A = dx*(r1 + r2) - dy*sqrt_d*sign
+            B = dy*(r1 + r2) + dx*sqrt_d*sign
+            C = -p1 + p2 + q*sqrt_d*sign
+            
+            # 计算切点并验证
+            try:
+                pt1 = GeoMathe.compute_tangent_point(A, B, C, center1, r1)
+                pt2 = GeoMathe.compute_tangent_point(A, B, C, center2, r2)
+                tangents.append((pt1, pt2))
+            except ValueError:
+                continue
+        
+        return tangents

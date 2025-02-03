@@ -52,6 +52,7 @@ class PointAdapter(GeometryAdapter):
         IncenterPPP: 构造内心
         OrthocenterPPP: 构造垂心
         Cir: 构造圆心
+        2: 从两点 (Points2) 获取一点
         """
         super().__init__(construct_type)
 
@@ -81,7 +82,8 @@ class PointAdapter(GeometryAdapter):
             "CircumcenterPPP": [Point, Point, Point],
             "IncenterPPP": [Point, Point, Point],
             "OrthocenterPPP": [Point, Point, Point],
-            "Cir": [Circle]
+            "Cir": [Circle],
+            "2": [Points2, int] # points2, point_index
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
 
@@ -180,6 +182,14 @@ class PointAdapter(GeometryAdapter):
             case "Cir":
                 self.coord = objs[0].center
 
+            case "2":
+                if objs[1] == 0:
+                    self.coord = objs[0].coord1
+                elif objs[1] == 1:
+                    self.coord = objs[0].coord2
+                else:
+                    raise ValueError("Index of points should be 0 or 1")
+
             case _:
                 raise ValueError(f"Invalid construct type: {self.construct_type}")
 
@@ -201,10 +211,10 @@ class Point(BaseGeometry):
 
         坐标设置仅对于 Free 构造有效，其他构造类型将抛出 ValueError
         """
-        if self.adapter.construct_type not in {"Free"}:
+        if self.adapter.construct_type not in ["Free"]:
             raise ValueError("Cannot set coord of non-leaf node")
         
-        self.update_by(coord)
+        self.update(coord)
 
 class Points2(BaseGeometry):
     attrs = ["coord1", "coord2"]
@@ -398,3 +408,20 @@ def PointCircleCenter(circle: Circle, name: str = ""):
     `circle`: 圆
     """
     return Point("Cir", circle, name=name)
+
+def PointOfPoints2(points2: Points2, index: Literal[0, 1], name: str = ""):
+    """
+    ## 获取两点中的单点对象
+
+    `points2`: 两点组合对象
+    `index`: 两点中的其中一点索引
+    """
+    return Point("2", points2, index, name=name)
+
+def PointOfPoints2List(points2: Points2, name: str = ""):
+    """
+    ## 获取两点中的单点对象列表
+
+    `points2`: 两点组合对象
+    """
+    return [PointOfPoints2(points2, 0, name), PointOfPoints2(points2, 1, name)]
