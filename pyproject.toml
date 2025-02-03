@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ManimGeo"
-version = "1.2.0"
+version = "1.2.1"
 description = "A library for Geometry constructing and animation generating."
 authors = [
     { name = "lifecheckpoint", email = "lifechpt@qq.com" }
@@ -13,8 +13,9 @@ license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "numpy>=1.21.0",
-    "manimgl>=1.6.0"
+    "numpy>=1.21.0"
+    # "manimgl>=1.6.0"
+    # "janim<=2.3.0"
 ]
 
 [tool.setuptools.packages.find]
