@@ -1,36 +1,68 @@
+import sys
 from janim.imports import *
 
-class UpdaterExample(Timeline):
+sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
+from manimgeo.components import *
+from manimgeo.anime.janim import GeoJAnimManager
+
+class EulerLine(Timeline):
     def construct(self):
-        square = Square(fill_color=BLUE_E, fill_alpha=1).show()
-        brace = Brace(square, UP).show()
+        # 构造三角形ABC
+        A = PointFree(np.array([-5, -1]), "A")
+        B = PointFree(np.array([3, -2]), "B")
+        C = PointFree(np.array([2, 3]), "C")
+        AB = LineSegmentPP(A, B, "AB")
+        BC = LineSegmentPP(B, C, "BC")
+        AC = LineSegmentPP(A, C, "AC")
 
-        def text_updater(p: UpdaterParams):
-            cmpt = brace.current().points
-            return cmpt.create_text(f'Width = {cmpt.brace_length:.2f}')
+        # 重心 垂心 外心
+        CENTROID = PointCentroidPPP(A, B, C, "Centroid")
+        ORTHOCENTER = PointOrthocenterPPP(A, B, C, "Orthocenter")
+        CIRCUMCENTER = PointCircumcenterPPP(A, B, C, "Circumcenter")
 
+        # 创建几何动画管理器
+        gmm = GeoJAnimManager()
+        gmm.start_trace()
+        
+        # 创建 ManimGL VMobject 图形
+        dot_a, dot_b, dot_c = gmm.create_vitems_with_add_updater([A, B, C], self, 20)
+        l_ab, l_bc, l_ac = gmm.create_vitems_with_add_updater([AB, BC, AC], self, 20)
+        dot_ct, dot_orth, dot_cir = gmm.create_vitems_with_add_updater([CENTROID, ORTHOCENTER, CIRCUMCENTER], self, 20)
+
+        def text_updater(dot: Dot, text: str):
+            coord = dot.current().points.box.center + 0.2 * (UP + RIGHT)
+            text_vitem = Text(text, font="Arial")
+            text_vitem.fill.set("#845EC2")
+            text_vitem.points.move_to(coord).scale(0.5)
+            return text_vitem
+
+        # 设置颜色
+        def fit_color(*mobs: VItem, hex_color: str = "#FFFFFF"):
+            for mob in mobs:
+                mob.stroke.set(hex_color)
+                mob.fill.set(hex_color)
+
+        fit_color(dot_a, dot_b, dot_c, l_ab, l_bc, l_ac, hex_color="#F9F871")
+        fit_color(dot_cir, dot_orth, dot_ct, hex_color="#845EC2")
+
+        # 添加到场景演示
+        self.forward()
+        self.play(Write(dot_a), Write(dot_b), Write(dot_c))
+        self.play(Write(l_ab), Write(l_bc), Write(l_ac))
+        self.play(Write(dot_ct))
+        self.play(Write(dot_orth))
+        self.play(Write(dot_cir))
         self.prepare(
-            DataUpdater(
-                brace,
-                lambda data, p: data.points.match(square.current())
-            ),
-            ItemUpdater(None, text_updater),
-            duration=10
+            ItemUpdater(None, lambda _: text_updater(dot_ct, "Centroid")),
+            ItemUpdater(None, lambda _: text_updater(dot_orth, "Orthocenter")),
+            ItemUpdater(None, lambda _: text_updater(dot_cir, "Circumcenter")),
+            duration=15
         )
         self.forward()
-        self.play(square.anim.points.scale(2))
-        self.play(square.anim.points.scale(0.5))
-        self.play(square.anim.points.set_width(5, stretch=True))
-
-        w0 = square.points.box.width
 
         self.play(
-            DataUpdater(
-                square,
-                lambda data, p: data.points.set_width(
-                    w0 + 0.5 * w0 * math.sin(p.alpha * p.range.duration)
-                )
-            ),
-            duration=5
+            DataUpdater(dot_a, lambda data, p: data.points.shift(UP * math.sin(p.alpha*2.5))),
+            DataUpdater(dot_b, lambda data, p: data.points.shift(RIGHT * math.sin(p.alpha*2))),
+            DataUpdater(dot_c, lambda data, p: data.points.shift((UP + LEFT) * math.sin(p.alpha*1.5))),
+            duration=10
         )
-        self.forward()

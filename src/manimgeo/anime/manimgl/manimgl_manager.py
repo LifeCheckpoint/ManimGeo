@@ -1,7 +1,7 @@
 from manimgeo.components import *
 from manimgeo.anime.manager import GeoManager
 from manimgeo.anime.state import StateManager
-from manimgeo.anime.error_func import ErrorFunctionManimGL as GLError
+from manimgeo.anime.manimgl.error_func import ErrorFunctionManimGL as GLError
 
 from manimlib import Mobject
 from typing import Sequence, Callable
@@ -45,14 +45,7 @@ class GeoManimGLManager(GeoManager):
 
             case Line():
                 from manimlib import Line as MLine
-                if isinstance(obj, LineSegment):
-                    mobject = MLine()
-                elif isinstance(obj, Ray):
-                    mobject = MLine()
-                elif isinstance(obj, InfinityLine):
-                    mobject = MLine()
-                else:
-                    raise ValueError(f"Type {type(obj).__name__} is not a Line")
+                mobject = MLine()
 
             case Circle():
                 from manimlib import Circle as MCircle
@@ -64,28 +57,6 @@ class GeoManimGLManager(GeoManager):
         self._adapt_mobjects(obj, mobject)
         self.register_updater(obj, mobject)
         return mobject
-    
-    def register_updater(self, obj: BaseGeometry, mobj: Mobject):
-        """
-        注册更新器
-        """
-        if isinstance(obj, Point) and obj.adapter.construct_type == "Free":
-            # 自由点，叶子节点
-            print(f"Register leaf object: {obj.name}")
-            self.ids.append(id(mobj))
-            mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
-        else:
-            # 非自由对象
-            mobj.add_updater(lambda mobj: self.update_node(mobj, obj))
-
-    def update_leaf(self, mobj: Mobject, obj: BaseGeometry):
-        """叶子 Updater，读取部件信息并应用至 FreePoint 坐标"""
-        
-        if not self.start_update:
-            return
-        
-        if isinstance(obj, Point) and id(mobj) in self.ids:
-            obj.set_coord(mobj.get_center()[:2])
 
     def _adapt_mobjects(self, obj: BaseGeometry, mobj: Mobject):
         """控制物件具体位置等更新"""
@@ -93,6 +64,8 @@ class GeoManimGLManager(GeoManager):
 
         match obj:
             case Point():
+                from manimlib import Dot as MDot
+                mobj: MDot
                 mobj.move_to(dim_23(obj.coord))
 
             case Line():
@@ -125,6 +98,28 @@ class GeoManimGLManager(GeoManager):
 
             case _:
                 raise NotImplementedError(f"Cannot create mobject from object of type: {type(obj)}")
+
+    def register_updater(self, obj: BaseGeometry, mobj: Mobject):
+        """
+        注册更新器
+        """
+        if isinstance(obj, Point) and obj.adapter.construct_type == "Free":
+            # 自由点，叶子节点
+            print(f"Register leaf object: {obj.name}")
+            self.ids.append(id(mobj))
+            mobj.add_updater(lambda mobj: self.update_leaf(mobj, obj))
+        else:
+            # 非自由对象
+            mobj.add_updater(lambda mobj: self.update_node(mobj, obj))
+
+    def update_leaf(self, mobj: Mobject, obj: BaseGeometry):
+        """叶子 Updater，读取部件信息并应用至 FreePoint 坐标"""
+        
+        if not self.start_update:
+            return
+        
+        if isinstance(obj, Point) and id(mobj) in self.ids:
+            obj.set_coord(mobj.get_center()[:2])
 
     def update_node(self, mobj: Mobject, obj: BaseGeometry):
         """被约束对象 Updater，读取约束更改后信息应用到 Mobject"""
