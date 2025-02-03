@@ -18,6 +18,7 @@ class GeoJAnimManager(GeoManager):
 
     def __init__(self):
         super().__init__()
+        self.start_trace()
         self.on_error_exec = "vis"
 
     def create_vitems_with_add_updater(

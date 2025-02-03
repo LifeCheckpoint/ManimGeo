@@ -24,7 +24,6 @@ class EulerLine(Timeline):
         gmm = GeoJAnimManager()
         gmm.start_trace()
         
-        # 创建 ManimGL VMobject 图形
         dot_a, dot_b, dot_c = gmm.create_vitems_with_add_updater([A, B, C], self, 20)
         l_ab, l_bc, l_ac = gmm.create_vitems_with_add_updater([AB, BC, AC], self, 20)
         dot_ct, dot_orth, dot_cir = gmm.create_vitems_with_add_updater([CENTROID, ORTHOCENTER, CIRCUMCENTER], self, 20)
