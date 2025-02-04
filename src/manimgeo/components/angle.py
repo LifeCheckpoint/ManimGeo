@@ -78,17 +78,17 @@ class AngleAdapter(GeometryAdapter):
             
             case "TurnA":
                 self.angle = 2*np.pi - objs[0].angle
-                self.turn = "Counterclockwise" if objs[0].turn is "Clockwise" else "Clockwise"
+                self.turn = "Counterclockwise" if objs[0].turn == "Clockwise" else "Clockwise"
 
             case "AddAA":
-                an0 = objs[0].angle if objs[0].turn is "Counterclockwise" else 2 * np.pi - objs[0].angle
-                an1 = objs[1].angle if objs[1].turn is "Counterclockwise" else 2 * np.pi - objs[1].angle
+                an0 = objs[0].angle if objs[0].turn == "Counterclockwise" else 2 * np.pi - objs[0].angle
+                an1 = objs[1].angle if objs[1].turn == "Counterclockwise" else 2 * np.pi - objs[1].angle
                 self.angle = (an0 + an1) % (2 * np.pi)
                 self.turn = "Counterclockwise"
 
             case "SubAA":
-                an0 = objs[0].angle if objs[0].turn is "Counterclockwise" else 2 * np.pi - objs[0].angle
-                an1 = objs[1].angle if objs[1].turn is "Counterclockwise" else 2 * np.pi - objs[1].angle
+                an0 = objs[0].angle if objs[0].turn == "Counterclockwise" else 2 * np.pi - objs[0].angle
+                an1 = objs[1].angle if objs[1].turn == "Counterclockwise" else 2 * np.pi - objs[1].angle
                 self.angle = (an0 - an1) % (2 * np.pi)
                 self.turn = "Counterclockwise"
 

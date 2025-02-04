@@ -56,8 +56,19 @@ class GeoMathe:
         return np.array([-direction[1], direction[0]])
     
     @staticmethod
-    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+    def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
         """三点内接圆，计算半径与圆心"""
+        a = np.linalg.norm(p2 - p3)
+        b = np.linalg.norm(p3 - p1)
+        c = np.linalg.norm(p1 - p2)
+        coord = (a * p1 + b * p2 + c * p3) / (a + b + c)
+        p = (a + b + c) / 2
+        r = np.sqrt((p - a) * (p - b) * (p - c) / p)
+        return r, coord
+    
+    @staticmethod
+    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+        """三点外接圆，计算半径与圆心"""
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p1 - p3)
         c = np.linalg.norm(p1 - p2)
@@ -84,32 +95,6 @@ class GeoMathe:
 
         center = np.linalg.solve(A, B)
         return r, center
-    
-    @staticmethod
-    def circumcenter(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray):
-        """计算三角形的外心坐标。"""
-        x1, y1 = p1[0], p1[1]
-        x2, y2 = p2[0], p2[1]
-        x3, y3 = p3[0], p3[1]
-        
-        # 计算方程组参数
-        A1 = 2 * (x2 - x1)
-        B1 = 2 * (y2 - y1)
-        C1 = x2**2 + y2**2 - x1**2 - y1**2
-        A2 = 2 * (x3 - x2)
-        B2 = 2 * (y3 - y2)
-        C2 = x3**2 + y3**2 - x2**2 - y2**2
-        
-        # 计算分母
-        denominator = A1 * B2 - A2 * B1
-        if np.isclose(denominator, 0):
-            raise ValueError("Three points are degenerated")
-        
-        # 克拉默法则求解
-        x = (C1 * B2 - C2 * B1) / denominator
-        y = (A1 * C2 - A2 * C1) / denominator
-        
-        return np.array([x, y])
     
     @staticmethod
     def orthocenter(a, b, c):
@@ -155,11 +140,11 @@ class GeoMathe:
         """线对象参数范围检查"""
         EPSILON = 1e-8
 
-        if line_type is "LineSegment":
+        if line_type == "LineSegment":
             return -EPSILON <= t <= 1 + EPSILON
-        elif line_type is "Ray":
+        elif line_type == "Ray":
             return t >= -EPSILON
-        elif line_type is "InfinityLine":
+        elif line_type == "InfinityLine":
             return True
         
         raise ValueError(f"{line_type} is not a valid line type")
@@ -229,24 +214,24 @@ class GeoMathe:
                     k = np.dot(v, u) / sqrlen_u
 
                     # 确定线l1的参数范围
-                    if l1_type is "LineSegment":
+                    if l1_type == "LineSegment":
                         l1_min, l1_max = 0.0, 1.0
-                    elif l1_type is "Ray":
+                    elif l1_type == "Ray":
                         l1_min, l1_max = 0.0, np.inf
-                    elif l1_type is "InfinityLine":
+                    elif l1_type == "InfinityLine":
                         l1_min, l1_max = -np.inf, np.inf
                     else:
                         raise ValueError(f"Invalid l1_type: {l1_type}")
 
                     # 确定线l2的参数范围
-                    if l2_type is "LineSegment":
+                    if l2_type == "LineSegment":
                         l2_min, l2_max = min(t2_start, t2_end), max(t2_start, t2_end)
-                    elif l2_type is "Ray":
+                    elif l2_type == "Ray":
                         if k > 0:
                             l2_min, l2_max = t2_start, np.inf
                         else:
                             l2_min, l2_max = -np.inf, t2_start
-                    elif l2_type is "InfinityLine":
+                    elif l2_type == "InfinityLine":
                         l2_min, l2_max = -np.inf, np.inf
                     else:
                         raise ValueError(f"Invalid l2_type: {l2_type}")

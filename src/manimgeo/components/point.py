@@ -165,12 +165,12 @@ class PointAdapter(GeometryAdapter):
                 self.coord = (objs[0].coord + objs[1].coord + objs[2].coord) / 3
 
             case "CircumcenterPPP":
-                self.coord = GeoMathe.circumcenter(
+                _, self.coord = GeoMathe.circumcenter_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 
             case "IncenterPPP":
-                _, self.coord = GeoMathe.circumcenter_r_c(
+                _, self.coord = GeoMathe.inscribed_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 

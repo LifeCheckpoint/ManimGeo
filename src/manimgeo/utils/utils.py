@@ -3,8 +3,9 @@ from typing import Sequence, Iterable, Dict, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from manimgeo.components import *
 
-class GeoUtils:
+GEO_PRINT_EXC: bool = False
 
+class GeoUtils:
     @staticmethod
     def check_params(objs: Sequence, *expected_types):
         """检查参数数量与类型"""
@@ -58,3 +59,8 @@ class GeoUtils:
             
         for dep in root.dependents:
             GeoUtils.print_dependencies(dep, depth+1, max_depth, visited)
+
+    @staticmethod
+    def set_debug(debug: bool):
+        global GEO_PRINT_EXC
+        GEO_PRINT_EXC = debug
