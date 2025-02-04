@@ -5,7 +5,7 @@ from manimgeo.anime.janim.error_func import ErrorFunctionJAnim as JAnimError
 from janim.logger import log
 
 from janim.imports import Timeline, VItem, DataUpdater
-from typing import Sequence, Callable
+from typing import Sequence, Callable, Optional
 
 def dim_23(x: np.ndarray) -> np.ndarray:
     return np.append(x, 0)
@@ -15,22 +15,32 @@ class GeoJAnimManager(GeoManager):
     on_error_exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, VItem], None]]
     state_manager = StateManager("janim", JAnimError.set_visible_by_state)
     current_helper_vitem: List[VItem] =  []
+    current_timeline: Timeline = None
 
-    def __init__(self):
+    def __init__(self, timeline: Optional[Timeline] = None):
+        """初始化 JAnim 几何动画管理器，可传入 timeline"""
         super().__init__()
         self.start_trace()
         self.on_error_exec = "vis"
+        if timeline != None:
+            self.current_timeline = timeline
 
     def create_vitems_with_add_updater(
             self,
             objs: Sequence[Union[Point, Line, Circle]],
-            timeline: Timeline,
             duration: Number,
+            timeline: Optional[Timeline] = None,
             **kwargs
         ) -> List[VItem]:
         """
         通过几何对象创建 VItem，创建对应 Updater 后立刻添加到时间轴
         """
+        if timeline == None:
+            if self.current_timeline == None:
+                raise Exception("需要传入 Timeline 以自动创建 Updater")
+            else:
+                timeline = self.current_timeline
+
         vitems, updaters = [], []
         for obj in objs:
             vitem, updater = self.create_vitem_from_geometry(obj)

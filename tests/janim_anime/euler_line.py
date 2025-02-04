@@ -23,9 +23,9 @@ class EulerLine(Timeline):
         # 创建几何动画管理器
         gjm = GeoJAnimManager()
         
-        dot_a, dot_b, dot_c = gjm.create_vitems_with_add_updater([A, B, C], self, 20)
-        l_ab, l_bc, l_ac = gjm.create_vitems_with_add_updater([AB, BC, AC], self, 20)
-        dot_ct, dot_orth, dot_cir = gjm.create_vitems_with_add_updater([CENTROID, ORTHOCENTER, CIRCUMCENTER], self, 20)
+        dot_a, dot_b, dot_c = gjm.create_vitems_with_add_updater([A, B, C], 20, self)
+        l_ab, l_bc, l_ac = gjm.create_vitems_with_add_updater([AB, BC, AC], 20, self)
+        dot_ct, dot_orth, dot_cir = gjm.create_vitems_with_add_updater([CENTROID, ORTHOCENTER, CIRCUMCENTER], 20, self)
 
         def text_updater(dot: Dot, text: str):
             coord = dot.current().points.box.center + 0.2 * (UP + RIGHT)

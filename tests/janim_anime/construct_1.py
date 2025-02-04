@@ -2,6 +2,7 @@
 
 import sys
 from janim.imports import *
+from typing import Tuple, List
 
 sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
 from manimgeo.components import *
@@ -9,27 +10,29 @@ from manimgeo.anime.janim import GeoJAnimManager
 
 class ABTC(Timeline):
     def construct(self):
-        def fit_color(*mobs_or_color):
-            mobs = []
-            for item in mobs_or_color:
-                if isinstance(item, VItem):
-                    mobs.append(item)
-                else:
-                    for mob in mobs:
-                        mob.stroke.set(item)
-                        mob.fill.set(item)
-                    mobs = []
+        def fit_color(*item_color: Tuple[List[VItem], any]):
+            for items, color in item_color:
+                for item in items:
+                    item.stroke.set(color)
+                    item.fill.set(color)
         def get_text(text: str, shift: np.ndarray = ORIGIN):
             t = Text(text, format=Text.Format.RichText, font=["Arial", "Microsoft YaHei"])
             t.points.scale(0.9).align_to(LEFT * 6.5, LEFT).align_to(UP * 3.5, UP)
             t.points.shift(shift)
             return t
+        def label(*objs: Point, position: np.ndarray = (UP + RIGHT) * 0.2):
+            texts = []
+            for obj in objs:
+                t = Text(obj.name, format=Text.Format.RichText, font=["Arial", "Microsoft YaHei"])
+                t.points.scale(0.6).move_to(np.append(obj.coord, 0) + position)
+                texts.append(t)
+            return texts
 
-        gjm = GeoJAnimManager()
+        gjm = GeoJAnimManager(self)
 
-        A = PointFree(np.array([-4, -2]), "A")
-        B = PointFree(np.array([0.6, 2]), "B")
-        C = PointFree(np.array([4, -2]), "C")
+        A = PointFree(np.array([-3.5, -1]), "A")
+        B = PointFree(np.array([0.6, 3.5]), "B")
+        C = PointFree(np.array([3.5, -1]), "C")
         AB = LineSegmentPP(A, B, "AB")
         BC = LineSegmentPP(B, C, "BC")
         CA = LineSegmentPP(C, A, "CA")
@@ -57,32 +60,40 @@ class ABTC(Timeline):
         EF = InfinityLinePP(E, F, "EF")
         RES = PointIntersectionLL(PQ, EF, name="Result")
 
-        # 创建所有几何对象的可视项并绑定颜色
-        dot_a, dot_b, dot_c = gjm.create_vitems_with_add_updater([A, B, C], self, 50)
-        line_ab, line_bc, line_ca = gjm.create_vitems_with_add_updater([AB, BC, CA], self, 50)
-        dot_i, line_ai, line_ci = gjm.create_vitems_with_add_updater([I, AI, CI], self, 50)
-        dot_l, dot_m, dot_n = gjm.create_vitems_with_add_updater([L, M, N], self, 50)
-        dot_d, line_bd = gjm.create_vitems_with_add_updater([D, BD], self, 50)
-        circle_abd, dot_e, dot_f = gjm.create_vitems_with_add_updater([CIRCLE_IN_ABD, E, F], self, 50)
-        dot_j, circle_omega = gjm.create_vitems_with_add_updater([J, CIRCLE_OMEGA], self, 50)
-        line_nm, line_jl = gjm.create_vitems_with_add_updater([NM, JL], self, 50)
-        dot_p, dot_q = gjm.create_vitems_with_add_updater([P, Q], self, 50)
-        line_pq, line_ef = gjm.create_vitems_with_add_updater([PQ, EF], self, 50)
-        res_dot = gjm.create_vitems_with_add_updater([RES], self, 50)[0]
+        D.name = "D"
+        E.name = "E"
+        F.name = "F"
+        P.name = "P"
+        Q.name = "Q"
 
-        # 配置颜色方案
+        def create(*objs):
+            return gjm.create_vitems_with_add_updater(objs, 50)
+
+        dot_a, dot_b, dot_c = create(A, B, C)
+        line_ab, line_bc, line_ca = create(AB, BC, CA)
+        dot_i, line_ai, line_ci = create(I, AI, CI)
+        dot_l, dot_m, dot_n = create(L, M, N)
+        dot_d, line_bd = create(D, BD)
+        circle_abd, dot_e, dot_f = create(CIRCLE_IN_ABD, E, F)
+        dot_j, circle_omega = create(J, CIRCLE_OMEGA)
+        line_nm, line_jl = create(NM, JL)
+        dot_p, dot_q = create(P, Q)
+        line_pq, line_ef = create(PQ, EF)
+        res_dot = create(RES)[0]
+
+        for dot in [dot_a, dot_b, dot_c, dot_i, dot_l, dot_m, dot_n, dot_d, dot_e, dot_f, dot_j, dot_p, dot_q]:
+            dot.points.scale(0.5)
+
+        La, Lb, Lc, Li, Ll, Lm, Ln, Ld, Le, Lf, Lj, Lp, Lq = label(A, B, C, I, L, M, N, D, E, F, J, P, Q)
+
         fit_color(
-            dot_a, RED, dot_b, GREEN, dot_c, BLUE,  # 基础三角形顶点
-            line_ab, line_bc, line_ca, GREY_A,      # 边线
-            dot_i, line_ai, line_ci, PURPLE_D,      # 内心及相关线段
-            dot_l, dot_m, dot_n, ORANGE,            # 中点集合
-            dot_d, line_bd, TEAL_D,                 # 交点D及线段BD
-            circle_abd, dot_e, dot_f, PINK,         # 内切圆及相关点
-            dot_j, circle_omega, GOLD_D,            # 外心及圆Omega
-            line_nm, line_jl, MAROON_D,             # 构造射线
-            dot_p, dot_q, YELLOW_D,                 # 圆交点
-            line_pq, line_ef, "#00FFFF",            # 无限直线
-            res_dot, "#FF00FF"                      # 最终结果点
+            ([dot_a, dot_b, dot_c, line_ab, line_bc, line_ca, La, Lb, Lc], "#C6FFDD"),
+            ([dot_i, line_ai, line_ci, Li], "#EAE4A3"),
+            ([dot_l, dot_m, dot_n, dot_d, line_bd, Ll, Lm, Ln, Ld], "#FBD786"),
+            ([circle_abd, dot_e, dot_f, Le, Lf], "#FAC884"),
+            ([dot_j, circle_omega, line_nm, line_jl, Lj], "#F89B80"),
+            ([dot_p, dot_q, Lp, Lq], "#F8857F"),
+            ([line_pq, line_ef, res_dot], "#F7797D")
         )
 
         def playEx(comps: List):
@@ -96,28 +107,28 @@ class ABTC(Timeline):
                 elif isinstance(comp, tuple):
                     self.play(*[FadeOut(c) for c in comp])
 
-        # 分阶段动画演示
+        t1 = get_text("如图，在三角形 <c #C6FFDD>ABC</c>中")
+        t2 = get_text("<c #EAE4A3>I</c> 为三角形<c #C6FFDD>ABC</c>的内心")
+        t3 = get_text("连接 <c #EAE4A3>IA</c> 与 <c #EAE4A3>IC</c>")
+        t4 = get_text("作出 <c #EAE4A3>IA</c> <c #EAE4A3>IC</c> 与 <c #C6FFDD>AC</c> 的中点")
+        t5 = get_text("在线段 <c #C6FFDD>AC</c> 上找一点 <c #FBD786>D</c>，满足 <c #C6FFDD>BC</c>=<c #FBD786>BD</c>")
+        t6 = get_text("作三角形 <c #C6FFDD>AB</c><c #FBD786>D</c> 的内接圆")
+        t7 = get_text("内接圆与 <c #C6FFDD>A</c><c #FBD786>D</c> 切于 <c #FAC884>E</c>，与 <c #C6FFDD>B</c><c #FBD786>D</c> 切于 <c #FAC884>F</c>")
+        t8 = get_text("作出三角形 <c #EAE4A3>AIC</c> 的外心 <c #F89B80>J</c>")
+        t9 = get_text("作出三角形 <c #F89B80>J</c><c #FBD786>MD</c> 的外接圆 <c #F89B80>ω</c>")
+        t10 = get_text("连接 <c #F89B80>MN</c> 与  <c #F89B80>JL</c>，与 <c #F89B80>ω</c> 交于点 <c #F8857F>P Q</c>")
+        t11 = get_text("<fs 1.2>求证：</fs><c #F8857F>PQ</c>，<c #F89B80>L</c><c #FBD786>N</c>，<c #F7797D>EF</c>三点共线")
+
         playEx([
-            1, [dot_a, dot_b, dot_c], 2,           # 显示ABC三点
-            [line_ab, line_bc, line_ca], 3,        # 绘制三角形边
-            [dot_i, line_ai, line_ci], 2,          # 显示内心及相关线段
-            [dot_l, dot_m, dot_n], 1.5,            # 显示中点L/M/N
-            [dot_d, line_bd], 2,                   # 显示交点D及BD线段
-            [circle_abd, dot_e, dot_f], 3,         # 内切圆及交点E/F
-            [dot_j, circle_omega], 2,              # 外心J及圆Omega
-            [line_nm, line_jl], 1.5,               # 显示构造射线NM/JL
-            [dot_p, dot_q], 2,                     # 显示圆交点P/Q
-            [line_pq, line_ef], 3,                 # 绘制无限直线PQ/EF
-            [res_dot], 4,                          # 高亮显示结果点
-            (circle_abd, line_nm, line_jl), 2      # 淡化辅助元素
+            1, t1, 1, [dot_a, dot_b, dot_c], [La, Lb, Lc], 1, [line_ab, line_bc, line_ca], 2,
+            (t1,), t2, 1, dot_i, Li, 3,
+            (t2,), t3, 1, line_ai, line_ci, 2,
+            (t3,), t4, 1, [dot_l, dot_m, dot_n], [Ll, Lm, Ln], 2,
+            (t4,), t5, 1, dot_d, Ld, 1, line_bd, 2,
+            (t5,), t6, 1, circle_abd, 2, 
+            (t6,), t7, 1, [dot_e, dot_f], [Le, Lf], 3,
+            (t7,), t8, 1, dot_j, Lj, 2,
+            (t8,), t9, 1, circle_omega, 2,
+            (t9,), t10, 1, [line_nm, line_jl], 2, [dot_p, dot_q], [Lp, Lq], 2,
+            (t10,), t11, 1, [line_pq, line_ef], 3, res_dot, 10
         ])
-
-        playEx([[dot_a, dot_b, dot_c, line_ab, line_bc, line_ca], 2])
-
-        # # 最终聚焦结果
-        # self.play(
-        #     res_dot.anim.points.scale(3).set_color("#FF0000"),
-        #     rate_func=there_and_back,
-        #     duration=3
-        # )
-        self.forward(20)

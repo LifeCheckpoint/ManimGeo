@@ -25,7 +25,7 @@ class ABTC(Timeline):
             t.points.shift(shift)
             return t
 
-        gjm = GeoJAnimManager()
+        gjm = GeoJAnimManager(self)
 
         t_title = get_text("ASK: 作一个圆，使其过两已知点 <c RED>A</c> <c BLUE>B</c>，并且与一已知圆 <c YELLOW>O</c> 相切")
         t_step_1 = get_text("以 <c RED>A</c> 为反演中心，任意长为半径，建立圆 <c RED>A</c>")
@@ -49,9 +49,9 @@ class ABTC(Timeline):
 
         GeoUtils.print_dependencies(A)
 
-        dot_a, dot_b, dot_c, circle_c = gjm.create_vitems_with_add_updater([A, B, C, CIRCLE_C], self, 50)
-        inv_a, inv_b, inv_c = gjm.create_vitems_with_add_updater([INV_A_CIRCLE, INV_B, INV_C_CIRCLE], self, 50)
-        t_inv_b0, t_inv_b1, inv_tan0, inv_tan1 = gjm.create_vitems_with_add_updater([TANGENTS_INV_B[0], TANGENTS_INV_B[1], INVERSE_TAN_0, INVERSE_TAN_1], self, 50)
+        dot_a, dot_b, dot_c, circle_c = gjm.create_vitems_with_add_updater([A, B, C, CIRCLE_C], 50)
+        inv_a, inv_b, inv_c = gjm.create_vitems_with_add_updater([INV_A_CIRCLE, INV_B, INV_C_CIRCLE], 50)
+        t_inv_b0, t_inv_b1, inv_tan0, inv_tan1 = gjm.create_vitems_with_add_updater([TANGENTS_INV_B[0], TANGENTS_INV_B[1], INVERSE_TAN_0, INVERSE_TAN_1], 50)
 
         fit_color(dot_a, inv_a, RED, dot_b, inv_b, BLUE, dot_c, circle_c, inv_c, YELLOW, t_inv_b0, t_inv_b1, PURPLE_B, inv_tan0, inv_tan1, PURPLE_E)
 
