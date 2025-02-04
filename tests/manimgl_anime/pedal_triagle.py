@@ -121,4 +121,4 @@ class PedalIteration(Scene):
             self.wait(2)
 
             # 输出 A 的依赖关系
-            GeoUtils.geo_print_dependencies(A)
+            GeoUtils.print_dependencies(A)

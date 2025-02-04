@@ -14,7 +14,8 @@ if TYPE_CHECKING:
     from manimgeo.components.vector import Vector
 
 CircleConstructType = Literal[
-    "PR", "PP", "L", "PPP", "TranslationCirV"
+    "PR", "PP", "L", "PPP", "TranslationCirV",
+    "InverseCirCir"
 ]
 
 class CircleAdapter(GeometryAdapter):
@@ -35,6 +36,7 @@ class CircleAdapter(GeometryAdapter):
         L: 半径线段构造圆
         PPP: 圆上三点构造圆
         TranslationCirV: 构造平移圆
+        InverseCirCir: 构造反形圆
         """
         super().__init__(construct_type)
 
@@ -51,7 +53,8 @@ class CircleAdapter(GeometryAdapter):
             "PP": [Point, Point],
             "L": [LineSegment],
             "PPP": [Point, Point, Point],
-            "TranslationCirV": [Circle, Vector]
+            "TranslationCirV": [Circle, Vector],
+            "InverseCirCir": [Circle, Circle]
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
 
@@ -76,6 +79,9 @@ class CircleAdapter(GeometryAdapter):
             case "TranslationCirV":
                 self.center = objs[0].center + objs[1].vec
                 self.radius = objs[0].radius
+
+            case "InverseCirCir":
+                self.center, self.radius = GeoMathe.inverse_circle(objs[0].center, objs[0].radius, objs[1].center, objs[1].radius)
 
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -143,3 +149,12 @@ def CircleTranslationCirV(circle: Circle, vec: Vector, name: str = ""):
     `vec`: 平移向量
     """
     return Circle("TranslationCirV", circle, vec, name=name)
+
+def CircleInverseCirCir(circle: Circle, base_circle: Circle, name: str = ""):
+    """
+    ## 构造反形圆
+
+    `circle`: 将要进行反演的圆
+    `base_circle`: 基圆
+    """
+    return Circle("InverseCirCir", circle, base_circle, name=name)

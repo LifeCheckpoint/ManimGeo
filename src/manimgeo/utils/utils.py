@@ -38,7 +38,7 @@ class GeoUtils:
                 yield item
 
     @staticmethod
-    def geo_print_dependencies(root, depth=0, max_depth=20, visited=None):
+    def print_dependencies(root, depth=0, max_depth=20, visited=None):
         """绘制依赖关系"""
         from manimgeo.utils.output import color_text, generate_color_from_id
         
@@ -57,4 +57,4 @@ class GeoUtils:
             return
             
         for dep in root.dependents:
-            GeoUtils.geo_print_dependencies(dep, depth+1, max_depth, visited)
+            GeoUtils.print_dependencies(dep, depth+1, max_depth, visited)

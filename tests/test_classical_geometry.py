@@ -32,7 +32,7 @@ class TestClassicalGeometry:
 
         # 打印 A 依赖关系
         print("Dependencies of A:")
-        GeoUtils.geo_print_dependencies(A)
+        GeoUtils.print_dependencies(A)
         print("")
 
         # 输出移动前坐标
@@ -68,7 +68,7 @@ class TestClassicalGeometry:
         circle = CirclePPP(E, D, C, "ThreePointCircle")
         centerF = PointCircleCenter(circle, "CCF")
 
-        GeoUtils.geo_print_dependencies(A)
+        GeoUtils.print_dependencies(A)
         print(centerF.coord)
         assert np.allclose(centerF.coord, np.array([0, 0.625]))
 
@@ -124,7 +124,7 @@ class TestClassicalGeometry:
 
         # 打印依赖关系
         print("Dependencies of A:")
-        GeoUtils.geo_print_dependencies(A)
+        GeoUtils.print_dependencies(A)
         print("")
         
         # 验证所有点都在九点圆上
@@ -151,7 +151,7 @@ class TestClassicalGeometry:
 
         # 打印依赖关系
         print("Dependencies of A:")
-        GeoUtils.geo_print_dependencies(A)
+        GeoUtils.print_dependencies(A)
         print("")
         
         # 验证三点共线
@@ -186,7 +186,7 @@ class TestClassicalGeometry:
 
         # 打印依赖关系
         print("Dependencies of A:")
-        GeoUtils.geo_print_dependencies(A)
+        GeoUtils.print_dependencies(A)
         print("")
         
         # 验证三点共线
@@ -208,7 +208,7 @@ class TestClassicalGeometry:
         
         # 打印依赖关系
         print("Dependencies of O:")
-        GeoUtils.geo_print_dependencies(O)
+        GeoUtils.print_dependencies(O)
         print("")
 
         # 验证反演
