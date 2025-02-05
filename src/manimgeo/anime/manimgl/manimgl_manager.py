@@ -22,7 +22,7 @@ class GeoManimGLManager(GeoManager):
 
     def create_mobjects_from_geometry(
             self,
-            objs: Sequence[Union[Point, Line, Circle]],
+            objs: Sequence[Union[Point, Line, Circle]]
         ):
         """
         通过几何对象创建 Mobject，并自动关联

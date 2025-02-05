@@ -51,7 +51,7 @@ class BaseGeometry():
             dep.update()
             dep.on_error = on_error
 
-    def update(self, *new_objs: Optional[Sequence]):
+    def update(self, *new_objs: Optional[Union[BaseGeometry, any]]):
         """执行当前对象的更新"""
 
         if len(new_objs) != 0:

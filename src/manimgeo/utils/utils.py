@@ -27,7 +27,7 @@ class GeoUtils:
         if default_name != "":
             return default_name
         else:
-            return f"{type(obj).__name__}[{construct_type}]@{id(obj)%10000}"
+            return f"{type(obj).__name__}[{construct_type}]@{id(obj) % 10000}"
 
     @staticmethod
     def flatten(iterable: Iterable):
@@ -39,7 +39,7 @@ class GeoUtils:
                 yield item
 
     @staticmethod
-    def print_dependencies(root, depth=0, max_depth=20, visited=None):
+    def print_dependencies(root, depth: int = 0, max_depth: int = 20):
         """绘制依赖关系"""
         from manimgeo.utils.output import color_text, generate_color_from_id
         
@@ -58,7 +58,7 @@ class GeoUtils:
             return
             
         for dep in root.dependents:
-            GeoUtils.print_dependencies(dep, depth+1, max_depth, visited)
+            GeoUtils.print_dependencies(dep, depth+1, max_depth)
 
     @staticmethod
     def set_debug(debug: bool = True):

@@ -289,7 +289,7 @@ def Lines2TangentsOutCirCir(
         circle1: Circle, circle2: Circle, 
         filter: Optional[Callable[[np.ndarray, np.ndarray], bool]] = None, 
         name: str = ""
-    ):
+    ) -> Union[List[InfinityLine], InfinityLine]:
     """
     ## 构造两圆外切线
 
@@ -307,7 +307,7 @@ def Lines2TangentsInCirCir(
         circle1: Circle, circle2: Circle, 
         filter: Optional[Callable[[np.ndarray, np.ndarray], bool]] = None, 
         name: str = ""
-    ):
+    ) -> Union[List[InfinityLine], InfinityLine]:
     """
     ## 构造两圆内切线
 
@@ -343,7 +343,7 @@ def LineOfLines2List(lines2: Lines2, name: str = "") -> List[Line, Line]:
     """
     return [LineOfLines2(lines2, 0, name), LineOfLines2(lines2, 1, name)]
 
-def LineOfLines2Fit(lines2: Lines2, filter: Callable[[np.ndarray], bool], name: str = ""):
+def LineOfLines2Fit(lines2: Lines2, filter: Callable[[np.ndarray, np.ndarray], bool], name: str = ""):
     """
     ## 获得两点中符合条件的第一个单点对象
 
