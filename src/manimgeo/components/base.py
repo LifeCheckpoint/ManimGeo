@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import List, Union, Optional, Sequence
-from manimgeo.utils.utils import GEO_PRINT_EXC
+from manimgeo.utils import GeoUtils
 import traceback
 
 class GeometryAdapter:
@@ -64,10 +64,10 @@ class BaseGeometry():
             self.adapter.bind_attributes(self, self.attrs)
             
         except AttributeError as e:
-            if GEO_PRINT_EXC:
+            if GeoUtils.GEO_PRINT_EXC:
                 print(f"An error was occured at parent node. {self.name} ({type(self).__name__}) cannot be calculate")
         except Exception as e:
-            if GEO_PRINT_EXC:
+            if GeoUtils.GEO_PRINT_EXC:
                 print(f"During calculating, an error occured at object {self.name} ({type(self).__name__})")
                 traceback.print_exception(e)
 

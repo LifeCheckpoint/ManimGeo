@@ -270,45 +270,47 @@ class GeoMathe:
         delta = B**2 - 4 * A * C
         intersections = []
 
-        if delta < 0:
+        if delta < -1e-3:
             return []
+        if -1e-3 < delta < 0:
+            delta = 0
+
+        sqrt_delta = np.sqrt(delta)
+        t_values = []
+        if np.isclose(delta, 0):
+            t = -B / (2 * A)
+            t_values.append(t)
         else:
-            sqrt_delta = np.sqrt(delta)
-            t_values = []
-            if np.isclose(delta, 0):
-                t = -B / (2 * A)
-                t_values.append(t)
-            else:
-                t1 = (-B - sqrt_delta) / (2 * A)
-                t2 = (-B + sqrt_delta) / (2 * A)
-                t_values.extend([t1, t2])
+            t1 = (-B - sqrt_delta) / (2 * A)
+            t2 = (-B + sqrt_delta) / (2 * A)
+            t_values.extend([t1, t2])
 
-            # 根据线类型筛选有效t值
-            valid_ts = []
-            for t in t_values:
-                if line_type == "LineSegment":
-                    if 0 <= t <= 1:
-                        valid_ts.append(t)
-                elif line_type == "Ray":
-                    if t >= 0:
-                        valid_ts.append(t)
-                elif line_type == "InfinityLine":
+        # 根据线类型筛选有效t值
+        valid_ts = []
+        for t in t_values:
+            if line_type == "LineSegment":
+                if 0 <= t <= 1:
                     valid_ts.append(t)
+            elif line_type == "Ray":
+                if t >= 0:
+                    valid_ts.append(t)
+            elif line_type == "InfinityLine":
+                valid_ts.append(t)
 
-            # 计算交点并去重
-            for t in valid_ts:
-                x = x1 + t * dx
-                y = y1 + t * dy
-                point = np.array([x, y])
+        # 计算交点并去重
+        for t in valid_ts:
+            x = x1 + t * dx
+            y = y1 + t * dy
+            point = np.array([x, y])
 
-                # 使用np.allclose检查是否重复
-                is_duplicate = False
-                for existing_point in intersections:
-                    if np.allclose(point, existing_point):
-                        is_duplicate = True
-                        break
-                if not is_duplicate:
-                    intersections.append(point)
+            # 使用np.allclose检查是否重复
+            is_duplicate = False
+            for existing_point in intersections:
+                if np.allclose(point, existing_point):
+                    is_duplicate = True
+                    break
+            if not is_duplicate:
+                intersections.append(point)
 
         return intersections
                 

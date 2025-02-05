@@ -29,6 +29,7 @@ class CON1(Timeline):
             return texts
 
         gjm = GeoJAnimManager(self)
+        GeoUtils.set_debug()
 
         A = PointFree(np.array([-3.5, -1.2]), "A")
         B = PointFree(np.array([0.6, 3.3]), "B")
@@ -42,30 +43,21 @@ class CON1(Timeline):
         L = PointMidL(AI, "L")
         M = PointMidL(CA, "M")
         N = PointMidL(CI, "N")
-        D_AND_C = PointOfPoints2List(Points2IntersectionLCir(CA, CircleL(BC), True, "D And C"))
-        D = D_AND_C[0] if np.allclose(D_AND_C[1].coord, C.coord) else D_AND_C[1]
+        D = PointIntersectionLCir(CA, CircleL(BC), lambda p: not np.allclose(p, C.coord, atol=1e-3), True, "D")
         BD = LineSegmentPP(B, D, "BD")
         CIRCLE_IN_ABD = CircleInscribePPP(A, B, D)
-        E = PointOfPoints2List(Points2IntersectionLCir(CA, CIRCLE_IN_ABD, True, "Int E"))[0]
-        F = PointOfPoints2List(Points2IntersectionLCir(BD, CIRCLE_IN_ABD, True, "Int F"))[0]
+        E = PointIntersectionLCir(CA, CIRCLE_IN_ABD, None, True, "E")[0]
+        F = PointIntersectionLCir(BD, CIRCLE_IN_ABD, None, True, "F")[0]
         J = PointCircumcenterPPP(A, I, C, "J")
         CIRCLE_J = CirclePPP(A, I, C, "Circle J")
         CIRCLE_OMEGA = CirclePPP(J, M, D, "Circle Omega")
         NM = RayPP(N, M, "NM")
         JL = LineSegmentPP(J, L, "JL")
-        M_AND_P = PointOfPoints2List(Points2IntersectionLCir(NM, CIRCLE_OMEGA, True))
-        Q_AND_J = PointOfPoints2List(Points2IntersectionLCir(JL, CIRCLE_OMEGA, True))
-        P = M_AND_P[0] if np.allclose(M_AND_P[1].coord, M.coord) else M_AND_P[1]
-        Q = Q_AND_J[0] if np.allclose(Q_AND_J[1].coord, J.coord) else Q_AND_J[1]
+        P = PointIntersectionLCir(NM, CIRCLE_OMEGA, lambda p: not np.allclose(p, M.coord, atol=1e-3), True, "P")
+        Q = PointIntersectionLCir(JL, CIRCLE_OMEGA, lambda p: not np.allclose(p, J.coord, atol=1e-3), True, "Q")
         PQ = InfinityLinePP(P, Q, "PQ")
         EF = InfinityLinePP(E, F, "EF")
         RES = PointIntersectionLL(PQ, EF, name="Result")
-
-        D.name = "D"
-        E.name = "E"
-        F.name = "F"
-        P.name = "P"
-        Q.name = "Q"
 
         def create(*objs):
             return gjm.create_vitems_with_add_updater(objs, 100)
@@ -82,7 +74,7 @@ class CON1(Timeline):
         line_pq, line_ef = create(PQ, EF)
         res_dot = create(RES)[0]
 
-        for dot in [dot_a, dot_b, dot_c, dot_i, dot_l, dot_m, dot_n, dot_d, dot_e, dot_f, dot_j, dot_p, dot_q]:
+        for dot in [dot_a, dot_b, dot_c, dot_i, dot_l, dot_m, dot_n, dot_d, dot_e, dot_f, dot_j, dot_p, dot_q, res_dot]:
             dot.points.scale(0.5)
 
         La, Lb, Lc, Li, Ll, Lm, Ln, Ld, Le, Lf, Lj, Lp, Lq = label(A, B, C, I, L, M, N, D, E, F, J, P, Q)

@@ -44,7 +44,7 @@ class TestPoint:
         # 相交情况
         circle1 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))  # 圆心(0,0)，半径1
         circle2 = CirclePP(PointFree(np.array([1, 0])), PointFree(np.array([2, 0])))  # 圆心(1,0)，半径1
-        inter_points = Points2IntersectionCirCir(circle1, circle2)
+        inter_points = PointIntersectionCirCir(circle1, circle2)
         expected1 = np.array([0.5, math.sqrt(3)/2])
         expected2 = np.array([0.5, -math.sqrt(3)/2])
         assert (np.allclose(inter_points.coord1, expected1) or 
@@ -53,14 +53,14 @@ class TestPoint:
         # 相切情况
         circle3 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([2, 0])))  # 半径2
         circle4 = CirclePP(PointFree(np.array([4, 0])), PointFree(np.array([2, 0])))  # 圆心(4,0)，半径2
-        inter_points2 = Points2IntersectionCirCir(circle3, circle4)
+        inter_points2 = PointIntersectionCirCir(circle3, circle4)
         assert np.allclose(inter_points2.coord1, [2, 0])
 
         # 无交点情况 BUG
         circle5 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))
         circle6 = CirclePP(PointFree(np.array([3, 0])), PointFree(np.array([2, 0])))
         try:
-            Points2IntersectionCirCir(circle5, circle6)
+            PointIntersectionCirCir(circle5, circle6)
             assert False, "Expected ValueError for no intersection"
         except ValueError:
             pass
@@ -71,7 +71,7 @@ class TestPoint:
         # 线段与圆相交
         circle = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))  # 单位圆
         line = LineSegmentPP(PointFree(np.array([-2, 0])), PointFree(np.array([2, 0])))  # x轴线段
-        intersections = Points2IntersectionLCir(line, circle)
+        intersections = PointIntersectionLCir(line, circle)
         assert (np.allclose(intersections.coord1, [1, 0]) and \
                np.allclose(intersections.coord2, [-1, 0])) or \
                (np.allclose(intersections.coord1, [-1, 0]) and \
@@ -80,13 +80,13 @@ class TestPoint:
         # 射线与圆相切
         circle2 = CirclePP(PointFree(np.array([0, 0])), PointFree(np.array([1, 0])))
         ray = RayPP(PointFree(np.array([0, 1])), PointFree(np.array([1, 1])))  # 水平射线y=1
-        tangent_point = Points2IntersectionLCir(ray, circle2)
+        tangent_point = PointIntersectionLCir(ray, circle2)
         assert np.allclose(tangent_point.coord1, [0, 1]) and np.allclose(tangent_point.coord2, [0, 1])
 
         # 无限直线不相交
         inf_line = InfinityLinePP(PointFree(np.array([3, 0])), PointFree(np.array([3, 1])))  # x=3
         try:
-            Points2IntersectionLCir(inf_line, circle)
+            PointIntersectionLCir(inf_line, circle)
             assert False, "Expected no intersection"
         except ValueError:
             pass
