@@ -14,7 +14,8 @@ if TYPE_CHECKING:
     from manimgeo.components.vector import Vector
 
 CircleConstructType = Literal[
-    "PR", "PP", "L", "PPP", "TranslationCirV"
+    "PR", "PP", "L", "PPP", "TranslationCirV",
+    "InverseCirCir"
 ]
 
 class CircleAdapter(GeometryAdapter):
@@ -35,6 +36,8 @@ class CircleAdapter(GeometryAdapter):
         L: 半径线段构造圆
         PPP: 圆上三点构造圆
         TranslationCirV: 构造平移圆
+        InverseCirCir: 构造反形圆
+        InscribePPP: 构造三点内切圆
         """
         super().__init__(construct_type)
 
@@ -51,7 +54,9 @@ class CircleAdapter(GeometryAdapter):
             "PP": [Point, Point],
             "L": [LineSegment],
             "PPP": [Point, Point, Point],
-            "TranslationCirV": [Circle, Vector]
+            "TranslationCirV": [Circle, Vector],
+            "InverseCirCir": [Circle, Circle],
+            "InscribePPP": [Point, Point, Point]
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
 
@@ -65,8 +70,8 @@ class CircleAdapter(GeometryAdapter):
                 self.radius = np.linalg.norm(objs[1].coord - objs[0].coord)
 
             case "L":
-                self.center = objs[0].start.coord.copy()
-                self.radius = np.linalg.norm(objs[0].end.coord - objs[0].start.coord)
+                self.center = objs[0].start.copy()
+                self.radius = np.linalg.norm(objs[0].end - objs[0].start)
 
             case "PPP":
                 self.radius, self.center = GeoMathe.circumcenter_r_c(
@@ -76,6 +81,12 @@ class CircleAdapter(GeometryAdapter):
             case "TranslationCirV":
                 self.center = objs[0].center + objs[1].vec
                 self.radius = objs[0].radius
+
+            case "InverseCirCir":
+                self.center, self.radius = GeoMathe.inverse_circle(objs[0].center, objs[0].radius, objs[1].center, objs[1].radius)
+
+            case "InscribePPP":
+                self.radius, self.center = GeoMathe.inscribed_r_c(objs[0].coord, objs[1].coord, objs[2].coord)
 
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -143,3 +154,22 @@ def CircleTranslationCirV(circle: Circle, vec: Vector, name: str = ""):
     `vec`: 平移向量
     """
     return Circle("TranslationCirV", circle, vec, name=name)
+
+def CircleInverseCirCir(circle: Circle, base_circle: Circle, name: str = ""):
+    """
+    ## 构造反形圆
+
+    `circle`: 将要进行反演的圆
+    `base_circle`: 基圆
+    """
+    return Circle("InverseCirCir", circle, base_circle, name=name)
+
+def CircleInscribePPP(point1: Point, point2: Point, point3: Point, name: str = ""):
+    """
+    构造三点内切圆
+
+    `point1`: 第一个点
+    `point2`: 第二个点
+    `point3`: 第三个点
+    """
+    return Circle("InscribePPP", point1, point2, point3, name=name)

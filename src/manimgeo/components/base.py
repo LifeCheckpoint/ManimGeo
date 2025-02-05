@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import List, Union, Optional, Sequence
+from manimgeo.utils import GeoUtils
+import traceback
 
 class GeometryAdapter:
     """几何对象参数适配器基类"""
@@ -49,7 +51,7 @@ class BaseGeometry():
             dep.update()
             dep.on_error = on_error
 
-    def update(self, *new_objs: Optional[Sequence]):
+    def update(self, *new_objs: Optional[Union[BaseGeometry, any]]):
         """执行当前对象的更新"""
 
         if len(new_objs) != 0:
@@ -60,9 +62,14 @@ class BaseGeometry():
             self.adapter(*self.objs)
             # 将参数从适配器绑定到几何对象
             self.adapter.bind_attributes(self, self.attrs)
+            
+        except AttributeError as e:
+            if GeoUtils.GEO_PRINT_EXC:
+                print(f"An error was occured at parent node. {self.name} ({type(self).__name__}) cannot be calculate")
         except Exception as e:
-            # print(f"During calculating, an error occured at object {self.name} ({type(self).__name__}).")
-            # print(e)
+            if GeoUtils.GEO_PRINT_EXC:
+                print(f"During calculating, an error occured at object {self.name} ({type(self).__name__})")
+                traceback.print_exception(e)
 
             # 传播更新消息并标记错误
             self.board_update_msg(True)

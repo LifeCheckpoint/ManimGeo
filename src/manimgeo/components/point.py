@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Number
-from typing import TYPE_CHECKING, Union, Literal, Any
+from typing import TYPE_CHECKING, Union, Literal, Any, Callable, Optional, List
 import numpy as np
 
 from manimgeo.components.base import GeometryAdapter, BaseGeometry
@@ -11,13 +11,14 @@ from manimgeo.utils.mathe import GeoMathe
 if TYPE_CHECKING:
     from manimgeo.components.line import Line, LineSegment
     from manimgeo.components.vector import Vector
+    from manimgeo.components.angle import Angle
 
 PointConstructType = Literal[
     "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
     "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
     "IntersectionLL", "IntersectionLCir", "IntersectionCirCir",
     "TranslationPV", "CentroidPPP", "CircumcenterPPP", "IncenterPPP",
-    "OrthocenterPPP", "Cir"
+    "OrthocenterPPP", "Cir", "2", "2Filter", "RotatePPA"
 ]
 
 class PointAdapter(GeometryAdapter):
@@ -53,6 +54,8 @@ class PointAdapter(GeometryAdapter):
         OrthocenterPPP: 构造垂心
         Cir: 构造圆心
         2: 从两点 (Points2) 获取一点
+        2Filter: 从两点 (Points2) 获取符合条件的首个单点
+        RotatePPA: 两点旋转角构建旋转点
         """
         super().__init__(construct_type)
 
@@ -63,6 +66,7 @@ class PointAdapter(GeometryAdapter):
         from manimgeo.components.line import Line, LineSegment
         from manimgeo.components.circle import Circle
         from manimgeo.components.vector import Vector
+        from manimgeo.components.angle import Angle
 
         op_type_map = {
             "Free": [np.ndarray],
@@ -83,7 +87,9 @@ class PointAdapter(GeometryAdapter):
             "IncenterPPP": [Point, Point, Point],
             "OrthocenterPPP": [Point, Point, Point],
             "Cir": [Circle],
-            "2": [Points2, int] # points2, point_index
+            "2": [Points2, int], # points2, point_index
+            "2Filter": [Points2, None], # points2, filter
+            "RotatePPA": [Point, Point, Angle] # point, center, angle
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
 
@@ -131,7 +137,7 @@ class PointAdapter(GeometryAdapter):
                 result = GeoMathe.intersection_line_cir(
                         objs[0].start, objs[0].end,
                         objs[1].center, objs[1].radius,
-                        type(objs[0]).__name__
+                        type(objs[0]).__name__ if not objs[2] else "InfinityLine"
                     )
                 if len(result) == 0:
                     raise ValueError("No intersections")
@@ -165,12 +171,12 @@ class PointAdapter(GeometryAdapter):
                 self.coord = (objs[0].coord + objs[1].coord + objs[2].coord) / 3
 
             case "CircumcenterPPP":
-                self.coord = GeoMathe.circumcenter(
+                _, self.coord = GeoMathe.circumcenter_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 
             case "IncenterPPP":
-                _, self.coord = GeoMathe.circumcenter_r_c(
+                _, self.coord = GeoMathe.inscribed_r_c(
                     objs[0].coord, objs[1].coord, objs[2].coord
                 )
 
@@ -189,6 +195,18 @@ class PointAdapter(GeometryAdapter):
                     self.coord = objs[0].coord2
                 else:
                     raise ValueError("Index of points should be 0 or 1")
+                
+            case "2Filter":
+                if objs[1](objs[0].coord1):
+                    self.coord = objs[0].coord1
+                elif objs[1](objs[0].coord2):
+                    self.coord = objs[0].coord2
+                else:
+                    raise ValueError("No point fits condition")
+                
+            case "RotatePPA":
+                angle = objs[2].angle if objs[2].turn == 'Counterclockwise' else (2 * np.pi-objs[2].angle)
+                self.coord = GeoMathe.angle_3p_countclockwise(objs[0], objs[1], angle)
 
             case _:
                 raise ValueError(f"Invalid construct type: {self.construct_type}")
@@ -333,24 +351,40 @@ def PointIntersectionLL(line1: Line, line2: Line, regard_infinite: bool = False,
 
 # 双点构造
 
-def Points2IntersectionLCir(line: Line, circle: Circle, regard_infinite: bool = False, name: str = ""):
+def PointIntersectionLCir(
+        line: Line, 
+        circle: Circle, 
+        filter: Optional[Callable[[np.ndarray], bool]] = None, 
+        regard_infinite: bool = False, 
+        name: str = ""
+    ) -> Union[List[Point], Point]:
     """
     ## 构造线与圆的交点对
     
     `line`: 直线/线段  
     `circle`: 圆  
+    `filter`: 返回交点坐标须满足的条件，如果提供则返回第一个满足条件的单点对象
     `regard_infinite`: 是否视为无限长直线
     """
-    return Points2("IntersectionLCir", line, circle, regard_infinite, name=name)
+    points2 = Points2("IntersectionLCir", line, circle, regard_infinite, name=name)
+    if filter == None:
+        return PointOfPoints2List(points2, name=name)
+    else:
+        return PointOfPoints2Fit(points2, filter, name=name)
 
-def Points2IntersectionCirCir(circle1: Circle, circle2: Circle, name: str = ""):
+def PointIntersectionCirCir(circle1: Circle, circle2: Circle, filter: Optional[Callable[[np.ndarray], bool]] = None, name: str = ""):
     """
     ## 构造两圆交点对
     
     `circle1`: 第一个圆  
     `circle2`: 第二个圆
+    `filter`: 返回交点坐标须满足的条件，如果提供则返回第一个满足条件的单点对象
     """
-    return Points2("IntersectionCirCir", circle1, circle2, name=name)
+    points2 = Points2("IntersectionCirCir", circle1, circle2, name=name)
+    if filter == None:
+        return PointOfPoints2List(points2, name=name)
+    else:
+        return PointOfPoints2Fit(points2, filter, name=name)
 
 def PointTranslationPV(point: Point, vector: Vector, name: str = ""):
     """
@@ -425,3 +459,22 @@ def PointOfPoints2List(points2: Points2, name: str = ""):
     `points2`: 两点组合对象
     """
     return [PointOfPoints2(points2, 0, name), PointOfPoints2(points2, 1, name)]
+
+def PointOfPoints2Fit(points2: Points2, filter: Callable[[np.ndarray], bool], name: str = ""):
+    """
+    ## 获得两点中符合条件的第一个单点对象
+
+    `points2`: 两点组合对象
+    `filter`: 给定点坐标，返回是否符合条件
+    """
+    return Point("2Filter", points2, filter, name=name)
+
+def PointRotatePPA(point: Point, center: Point, angle: Angle, name: str = ""):
+    """
+    ## 构造旋转点
+
+    `point`: 原始点
+    `center`: 旋转中心
+    `angle`: 旋转角度
+    """
+    return Point("RotatePPA", point, center, angle, name=name)

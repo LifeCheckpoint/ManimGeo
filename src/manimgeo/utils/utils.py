@@ -4,7 +4,8 @@ if TYPE_CHECKING:
     from manimgeo.components import *
 
 class GeoUtils:
-
+    GEO_PRINT_EXC: bool = False
+    
     @staticmethod
     def check_params(objs: Sequence, *expected_types):
         """检查参数数量与类型"""
@@ -12,7 +13,7 @@ class GeoUtils:
             raise ValueError(f"Invalid Param number, expected {len(expected_types)} but got {len(objs)}")
         
         for i, (obj, expected_type) in enumerate(zip(objs, expected_types)):
-            if not isinstance(obj, expected_type) and expected_type is not None:
+            if expected_type is not None and not isinstance(obj, expected_type):
                 raise ValueError(f"Invalid Param {i}, expected {expected_type.__name__} but got {type(obj).__name__}")
             
     @staticmethod
@@ -23,10 +24,10 @@ class GeoUtils:
     @staticmethod
     def get_name(default_name: str, obj, construct_type: str):
         """以统一方式设置几何对象名称"""
-        if default_name is not "":
+        if default_name != "":
             return default_name
         else:
-            return f"{type(obj).__name__}[{construct_type}]@{id(obj)%10000}"
+            return f"{type(obj).__name__}[{construct_type}]@{id(obj) % 10000}"
 
     @staticmethod
     def flatten(iterable: Iterable):
@@ -38,7 +39,7 @@ class GeoUtils:
                 yield item
 
     @staticmethod
-    def geo_print_dependencies(root, depth=0, max_depth=20, visited=None):
+    def print_dependencies(root, depth: int = 0, max_depth: int = 20):
         """绘制依赖关系"""
         from manimgeo.utils.output import color_text, generate_color_from_id
         
@@ -57,4 +58,9 @@ class GeoUtils:
             return
             
         for dep in root.dependents:
-            GeoUtils.geo_print_dependencies(dep, depth+1, max_depth, visited)
+            GeoUtils.print_dependencies(dep, depth+1, max_depth)
+
+    @staticmethod
+    def set_debug(debug: bool = True):
+        """输出错误信息"""
+        GeoUtils.GEO_PRINT_EXC = debug

@@ -5,7 +5,7 @@ from manimgeo.anime.janim.error_func import ErrorFunctionJAnim as JAnimError
 from janim.logger import log
 
 from janim.imports import Timeline, VItem, DataUpdater
-from typing import Sequence, Callable
+from typing import Sequence, Callable, Optional
 
 def dim_23(x: np.ndarray) -> np.ndarray:
     return np.append(x, 0)
@@ -15,21 +15,32 @@ class GeoJAnimManager(GeoManager):
     on_error_exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, VItem], None]]
     state_manager = StateManager("janim", JAnimError.set_visible_by_state)
     current_helper_vitem: List[VItem] =  []
+    current_timeline: Timeline = None
 
-    def __init__(self):
+    def __init__(self, timeline: Optional[Timeline] = None):
+        """初始化 JAnim 几何动画管理器，可传入 timeline"""
         super().__init__()
+        self.start_trace()
         self.on_error_exec = "vis"
+        if timeline != None:
+            self.current_timeline = timeline
 
     def create_vitems_with_add_updater(
             self,
             objs: Sequence[Union[Point, Line, Circle]],
-            timeline: Timeline,
             duration: Number,
+            timeline: Optional[Timeline] = None,
             **kwargs
         ) -> List[VItem]:
         """
         通过几何对象创建 VItem，创建对应 Updater 后立刻添加到时间轴
         """
+        if timeline == None:
+            if self.current_timeline == None:
+                raise Exception("需要传入 Timeline 以自动创建 Updater")
+            else:
+                timeline = self.current_timeline
+
         vitems, updaters = [], []
         for obj in objs:
             vitem, updater = self.create_vitem_from_geometry(obj)
@@ -135,7 +146,6 @@ class GeoJAnimManager(GeoManager):
     def update_leaf(self, vitem: VItem, obj: BaseGeometry):
         """叶子 Updater，读取部件信息并应用至 FreePoint 坐标"""
 
-
         if not self.start_update:
             return
 
@@ -158,3 +168,27 @@ class GeoJAnimManager(GeoManager):
         # 更新对象位置
         # log.debug(f"adapt: {obj.name} -> {obj.coord if isinstance(obj, Point) else ""}")
         self._adapt_vitems(obj, vitem)
+
+    def set_on_error_exec(self, exec: Union[None, Literal["vis", "stay"], Callable[[bool, BaseGeometry, VItem], None]] = "vis"):
+        """
+        设置几何对象计算错误时的行为
+
+        几何对象通常会因为解不存在等问题出现错误，并且错误会随依赖链条向下传播，通过该函数设置发生错误时的行为
+
+        `exec`: 
+         - `None`: 不执行任何操作，异常将抛出 (develop)
+         - `"vis"`: 几何对象将隐藏可见，直到错误消失
+         - `"stay"`: 几何对象将保持静止，直到错误消失
+         - `(on_error: bool, obj: BaseGeometry, vitem: VItem) -> None`: 自定义回调函数
+        """
+        if exec == None:
+            # TODO
+            pass
+        elif exec == "vis":
+            self.state_manager.set_strategy_func(JAnimError.set_visible_by_state)
+        elif exec == "stay":
+            self.state_manager.set_strategy_func(lambda s, o, vi: ...)
+        elif callable(exec):
+            self.state_manager.set_strategy_func(lambda s, o, vi: JAnimError.func_by_state(s, o, vi, exec))
+        else:
+            raise ValueError(f"Cannot set error handler as {exec}")

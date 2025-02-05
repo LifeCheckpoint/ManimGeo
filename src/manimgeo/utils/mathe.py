@@ -56,8 +56,19 @@ class GeoMathe:
         return np.array([-direction[1], direction[0]])
     
     @staticmethod
-    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+    def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
         """三点内接圆，计算半径与圆心"""
+        a = np.linalg.norm(p2 - p3)
+        b = np.linalg.norm(p3 - p1)
+        c = np.linalg.norm(p1 - p2)
+        coord = (a * p1 + b * p2 + c * p3) / (a + b + c)
+        p = (a + b + c) / 2
+        r = np.sqrt((p - a) * (p - b) * (p - c) / p)
+        return r, coord
+    
+    @staticmethod
+    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+        """三点外接圆，计算半径与圆心"""
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p1 - p3)
         c = np.linalg.norm(p1 - p2)
@@ -84,32 +95,6 @@ class GeoMathe:
 
         center = np.linalg.solve(A, B)
         return r, center
-    
-    @staticmethod
-    def circumcenter(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray):
-        """计算三角形的外心坐标。"""
-        x1, y1 = p1[0], p1[1]
-        x2, y2 = p2[0], p2[1]
-        x3, y3 = p3[0], p3[1]
-        
-        # 计算方程组参数
-        A1 = 2 * (x2 - x1)
-        B1 = 2 * (y2 - y1)
-        C1 = x2**2 + y2**2 - x1**2 - y1**2
-        A2 = 2 * (x3 - x2)
-        B2 = 2 * (y3 - y2)
-        C2 = x3**2 + y3**2 - x2**2 - y2**2
-        
-        # 计算分母
-        denominator = A1 * B2 - A2 * B1
-        if np.isclose(denominator, 0):
-            raise ValueError("Three points are degenerated")
-        
-        # 克拉默法则求解
-        x = (C1 * B2 - C2 * B1) / denominator
-        y = (A1 * C2 - A2 * C1) / denominator
-        
-        return np.array([x, y])
     
     @staticmethod
     def orthocenter(a, b, c):
@@ -155,11 +140,11 @@ class GeoMathe:
         """线对象参数范围检查"""
         EPSILON = 1e-8
 
-        if line_type is "LineSegment":
+        if line_type == "LineSegment":
             return -EPSILON <= t <= 1 + EPSILON
-        elif line_type is "Ray":
+        elif line_type == "Ray":
             return t >= -EPSILON
-        elif line_type is "InfinityLine":
+        elif line_type == "InfinityLine":
             return True
         
         raise ValueError(f"{line_type} is not a valid line type")
@@ -229,24 +214,24 @@ class GeoMathe:
                     k = np.dot(v, u) / sqrlen_u
 
                     # 确定线l1的参数范围
-                    if l1_type is "LineSegment":
+                    if l1_type == "LineSegment":
                         l1_min, l1_max = 0.0, 1.0
-                    elif l1_type is "Ray":
+                    elif l1_type == "Ray":
                         l1_min, l1_max = 0.0, np.inf
-                    elif l1_type is "InfinityLine":
+                    elif l1_type == "InfinityLine":
                         l1_min, l1_max = -np.inf, np.inf
                     else:
                         raise ValueError(f"Invalid l1_type: {l1_type}")
 
                     # 确定线l2的参数范围
-                    if l2_type is "LineSegment":
+                    if l2_type == "LineSegment":
                         l2_min, l2_max = min(t2_start, t2_end), max(t2_start, t2_end)
-                    elif l2_type is "Ray":
+                    elif l2_type == "Ray":
                         if k > 0:
                             l2_min, l2_max = t2_start, np.inf
                         else:
                             l2_min, l2_max = -np.inf, t2_start
-                    elif l2_type is "InfinityLine":
+                    elif l2_type == "InfinityLine":
                         l2_min, l2_max = -np.inf, np.inf
                     else:
                         raise ValueError(f"Invalid l2_type: {l2_type}")
@@ -285,45 +270,47 @@ class GeoMathe:
         delta = B**2 - 4 * A * C
         intersections = []
 
-        if delta < 0:
+        if delta < -1e-3:
             return []
+        if -1e-3 < delta < 0:
+            delta = 0
+
+        sqrt_delta = np.sqrt(delta)
+        t_values = []
+        if np.isclose(delta, 0):
+            t = -B / (2 * A)
+            t_values.append(t)
         else:
-            sqrt_delta = np.sqrt(delta)
-            t_values = []
-            if np.isclose(delta, 0):
-                t = -B / (2 * A)
-                t_values.append(t)
-            else:
-                t1 = (-B - sqrt_delta) / (2 * A)
-                t2 = (-B + sqrt_delta) / (2 * A)
-                t_values.extend([t1, t2])
+            t1 = (-B - sqrt_delta) / (2 * A)
+            t2 = (-B + sqrt_delta) / (2 * A)
+            t_values.extend([t1, t2])
 
-            # 根据线类型筛选有效t值
-            valid_ts = []
-            for t in t_values:
-                if line_type == "LineSegment":
-                    if 0 <= t <= 1:
-                        valid_ts.append(t)
-                elif line_type == "Ray":
-                    if t >= 0:
-                        valid_ts.append(t)
-                elif line_type == "InfinityLine":
+        # 根据线类型筛选有效t值
+        valid_ts = []
+        for t in t_values:
+            if line_type == "LineSegment":
+                if 0 <= t <= 1:
                     valid_ts.append(t)
+            elif line_type == "Ray":
+                if t >= 0:
+                    valid_ts.append(t)
+            elif line_type == "InfinityLine":
+                valid_ts.append(t)
 
-            # 计算交点并去重
-            for t in valid_ts:
-                x = x1 + t * dx
-                y = y1 + t * dy
-                point = np.array([x, y])
+        # 计算交点并去重
+        for t in valid_ts:
+            x = x1 + t * dx
+            y = y1 + t * dy
+            point = np.array([x, y])
 
-                # 使用np.allclose检查是否重复
-                is_duplicate = False
-                for existing_point in intersections:
-                    if np.allclose(point, existing_point):
-                        is_duplicate = True
-                        break
-                if not is_duplicate:
-                    intersections.append(point)
+            # 使用np.allclose检查是否重复
+            is_duplicate = False
+            for existing_point in intersections:
+                if np.allclose(point, existing_point):
+                    is_duplicate = True
+                    break
+            if not is_duplicate:
+                intersections.append(point)
 
         return intersections
                 
@@ -520,3 +507,34 @@ class GeoMathe:
                 continue
         
         return tangents
+    
+    @staticmethod
+    def inverse_circle(
+            circle_center: np.ndarray, r_circle: Number, 
+            base_circle_center: np.ndarray, r_base_circle: Number
+        ) -> Tuple[np.ndarray, Number]:
+        """计算 circle 关于 base_circle 的反形圆圆心坐标和半径"""
+        x_A = circle_center[0]
+        y_A = circle_center[1]
+        x_B = base_circle_center[0]
+        y_B = base_circle_center[1]
+        
+        # 平移坐标系，使圆B的圆心位于原点
+        a = x_A - x_B
+        b = y_A - y_B
+        
+        # 计算分母D
+        D = a**2 + b**2 - r_circle**2
+        
+        # 计算反形圆心（平移后坐标系）
+        inv_center_x_translated = a * r_base_circle**2 / D
+        inv_center_y_translated = b * r_base_circle**2 / D
+        
+        # 转换回原坐标系
+        inv_center_x = inv_center_x_translated + x_B
+        inv_center_y = inv_center_y_translated + y_B
+        
+        # 计算反形半径
+        inv_radius = (r_circle * r_base_circle**2) / np.abs(D)
+        
+        return np.array((inv_center_x, inv_center_y)), inv_radius
