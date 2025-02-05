@@ -8,7 +8,7 @@ sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路�
 from manimgeo.components import *
 from manimgeo.anime.janim import GeoJAnimManager
 
-class ABTC(Timeline):
+class CON1(Timeline):
     def construct(self):
         def fit_color(*item_color: Tuple[List[VItem], any]):
             for items, color in item_color:
@@ -30,9 +30,9 @@ class ABTC(Timeline):
 
         gjm = GeoJAnimManager(self)
 
-        A = PointFree(np.array([-3.5, -1]), "A")
-        B = PointFree(np.array([0.6, 3.5]), "B")
-        C = PointFree(np.array([3.5, -1]), "C")
+        A = PointFree(np.array([-3.5, -1.2]), "A")
+        B = PointFree(np.array([0.6, 3.3]), "B")
+        C = PointFree(np.array([3.5, -1.2]), "C")
         AB = LineSegmentPP(A, B, "AB")
         BC = LineSegmentPP(B, C, "BC")
         CA = LineSegmentPP(C, A, "CA")
@@ -49,6 +49,7 @@ class ABTC(Timeline):
         E = PointOfPoints2List(Points2IntersectionLCir(CA, CIRCLE_IN_ABD, True, "Int E"))[0]
         F = PointOfPoints2List(Points2IntersectionLCir(BD, CIRCLE_IN_ABD, True, "Int F"))[0]
         J = PointCircumcenterPPP(A, I, C, "J")
+        CIRCLE_J = CirclePPP(A, I, C, "Circle J")
         CIRCLE_OMEGA = CirclePPP(J, M, D, "Circle Omega")
         NM = RayPP(N, M, "NM")
         JL = LineSegmentPP(J, L, "JL")
@@ -67,7 +68,7 @@ class ABTC(Timeline):
         Q.name = "Q"
 
         def create(*objs):
-            return gjm.create_vitems_with_add_updater(objs, 50)
+            return gjm.create_vitems_with_add_updater(objs, 100)
 
         dot_a, dot_b, dot_c = create(A, B, C)
         line_ab, line_bc, line_ca = create(AB, BC, CA)
@@ -75,7 +76,7 @@ class ABTC(Timeline):
         dot_l, dot_m, dot_n = create(L, M, N)
         dot_d, line_bd = create(D, BD)
         circle_abd, dot_e, dot_f = create(CIRCLE_IN_ABD, E, F)
-        dot_j, circle_omega = create(J, CIRCLE_OMEGA)
+        dot_j, circle_j, circle_omega = create(J, CIRCLE_J, CIRCLE_OMEGA)
         line_nm, line_jl = create(NM, JL)
         dot_p, dot_q = create(P, Q)
         line_pq, line_ef = create(PQ, EF)
@@ -91,7 +92,7 @@ class ABTC(Timeline):
             ([dot_i, line_ai, line_ci, Li], "#EAE4A3"),
             ([dot_l, dot_m, dot_n, dot_d, line_bd, Ll, Lm, Ln, Ld], "#FBD786"),
             ([circle_abd, dot_e, dot_f, Le, Lf], "#FAC884"),
-            ([dot_j, circle_omega, line_nm, line_jl, Lj], "#F89B80"),
+            ([dot_j, circle_j, circle_omega, line_nm, line_jl, Lj], "#F89B80"),
             ([dot_p, dot_q, Lp, Lq], "#F8857F"),
             ([line_pq, line_ef, res_dot], "#F7797D")
         )
@@ -106,9 +107,11 @@ class ABTC(Timeline):
                     self.play(*[Write(c) for c in comp])
                 elif isinstance(comp, tuple):
                     self.play(*[FadeOut(c) for c in comp])
+                elif isinstance(comp, set):
+                    self.play(*comp)
 
-        t1 = get_text("如图，在三角形 <c #C6FFDD>ABC</c>中")
-        t2 = get_text("<c #EAE4A3>I</c> 为三角形<c #C6FFDD>ABC</c>的内心")
+        t1 = get_text("如图，在三角形 <c #C6FFDD>ABC</c> 中")
+        t2 = get_text("<c #EAE4A3>I</c> 为三角形 <c #C6FFDD>ABC</c> 的内心")
         t3 = get_text("连接 <c #EAE4A3>IA</c> 与 <c #EAE4A3>IC</c>")
         t4 = get_text("作出 <c #EAE4A3>IA</c> <c #EAE4A3>IC</c> 与 <c #C6FFDD>AC</c> 的中点")
         t5 = get_text("在线段 <c #C6FFDD>AC</c> 上找一点 <c #FBD786>D</c>，满足 <c #C6FFDD>BC</c>=<c #FBD786>BD</c>")
@@ -117,18 +120,18 @@ class ABTC(Timeline):
         t8 = get_text("作出三角形 <c #EAE4A3>AIC</c> 的外心 <c #F89B80>J</c>")
         t9 = get_text("作出三角形 <c #F89B80>J</c><c #FBD786>MD</c> 的外接圆 <c #F89B80>ω</c>")
         t10 = get_text("连接 <c #F89B80>MN</c> 与  <c #F89B80>JL</c>，与 <c #F89B80>ω</c> 交于点 <c #F8857F>P Q</c>")
-        t11 = get_text("<fs 1.2>求证：</fs><c #F8857F>PQ</c>，<c #F89B80>L</c><c #FBD786>N</c>，<c #F7797D>EF</c>三点共线")
+        t11 = get_text("<fs 1.2>求证：</fs><c #F8857F>PQ</c>，<c #F89B80>L</c><c #FBD786>N</c>，<c #F7797D>EF</c> 三线共点")
 
         playEx([
             1, t1, 1, [dot_a, dot_b, dot_c], [La, Lb, Lc], 1, [line_ab, line_bc, line_ca], 2,
             (t1,), t2, 1, dot_i, Li, 3,
             (t2,), t3, 1, line_ai, line_ci, 2,
             (t3,), t4, 1, [dot_l, dot_m, dot_n], [Ll, Lm, Ln], 2,
-            (t4,), t5, 1, dot_d, Ld, 1, line_bd, 2,
+            (t4,), t5, 1, dot_d, Ld, 1, {Transform(line_bc, line_bd, hide_src=False)}, 2,
             (t5,), t6, 1, circle_abd, 2, 
             (t6,), t7, 1, [dot_e, dot_f], [Le, Lf], 3,
-            (t7,), t8, 1, dot_j, Lj, 2,
+            (t7,), t8, 1, circle_j, 1, dot_j, (circle_j,), Lj, 2,
             (t8,), t9, 1, circle_omega, 2,
             (t9,), t10, 1, [line_nm, line_jl], 2, [dot_p, dot_q], [Lp, Lq], 2,
-            (t10,), t11, 1, [line_pq, line_ef], 3, res_dot, 10
+            (t10,), t11, 1, [line_pq, line_ef], 1, res_dot, 1, (line_pq, line_ef), 10
         ])
