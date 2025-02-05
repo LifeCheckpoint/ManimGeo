@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from typing import TYPE_CHECKING, Union, Literal, List
+from typing import TYPE_CHECKING, Union, Literal, List, Callable, Optional
 from numbers import Number
 
 from manimgeo.components.base import GeometryAdapter, BaseGeometry
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 LineConstructType = Literal[
     "PP", "PV", "TranslationLV", "VerticalPL", "ParallelPL",
     "TangentsCirP", "TangentsOutCirCir", "TangentsInCirCir",
-    "2"
+    "2", "2Filter"
 ]
 
 class LineAdapter(GeometryAdapter):
@@ -49,6 +49,7 @@ class LineAdapter(GeometryAdapter):
         TangentsOutCirCir: 圆与圆构造外切线
         TangentsInCirCir: 圆与圆构造内切线
         2: 从两条线 (Lines2) 获取单个线对象
+        2Filter: 从两线 (Lines2) 获取符合条件的首个单线
         """
         super().__init__(construct_type)
 
@@ -68,7 +69,8 @@ class LineAdapter(GeometryAdapter):
             "TangentsCirP": [Circle, Point],
             "TangentsOutCirCir": [Circle, Circle],
             "TangentsInCirCir": [Circle, Circle],
-            "2": [Lines2, int]
+            "2": [Lines2, int],
+            "2Filter": [Lines2, None]
         }
         GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
         
@@ -134,6 +136,14 @@ class LineAdapter(GeometryAdapter):
                     self.start, self.end = objs[0].start2, objs[0].end2
                 else:
                     raise ValueError("Index of lines should be 0 or 1")
+                
+            case "2Filter":
+                if objs[1](objs[0].start1, objs[0].end1):
+                    self.start, self.end = objs[0].start1, objs[0].end1
+                elif objs[1](objs[0].start2, objs[0].end2):
+                    self.start, self.end = objs[0].start2, objs[0].end2
+                else:
+                    raise ValueError("No line fits condition")
             
             case _:
                 raise ValueError(f"Invalid constructing method: {self.construct_type}")
@@ -275,23 +285,41 @@ def Lines2TangentsCirP(circle: Circle, point: Point, name: str = ""):
     """
     return InfinityLines2("TangentsCirP", circle, point, name=name)
 
-def Lines2TangentsOutCirCir(circle1: Circle, circle2: Circle, name: str = ""):
+def Lines2TangentsOutCirCir(
+        circle1: Circle, circle2: Circle, 
+        filter: Optional[Callable[[np.ndarray, np.ndarray], bool]] = None, 
+        name: str = ""
+    ):
     """
     ## 构造两圆外切线
 
     `circle1`: 圆1
     `circle2`: 圆2
+    `filter`: 返回线始终点须满足的条件，如果提供则返回第一个满足条件的单线对象
     """
-    return InfinityLines2("TangentsOutCirCir", circle1, circle2, name=name)
+    lines2 = InfinityLines2("TangentsOutCirCir", circle1, circle2, name=name)
+    if filter == None:
+        return LineOfLines2List(lines2, name=name)
+    else:
+        return LineOfLines2Fit(lines2, filter, name=name)
 
-def Lines2TangentsInCirCir(circle1: Circle, circle2: Circle, name: str = ""):
+def Lines2TangentsInCirCir(
+        circle1: Circle, circle2: Circle, 
+        filter: Optional[Callable[[np.ndarray, np.ndarray], bool]] = None, 
+        name: str = ""
+    ):
     """
     ## 构造两圆内切线
 
     `circle1`: 圆1
     `circle2`: 圆2
+    `filter`: 返回线始终点须满足的条件，如果提供则返回第一个满足条件的单线对象
     """
-    return InfinityLines2("TangentsInCirCir", circle1, circle2, name=name)
+    lines2 = InfinityLines2("TangentsInCirCir", circle1, circle2, name=name)
+    if filter == None:
+        return LineOfLines2List(lines2, name=name)
+    else:
+        return LineOfLines2Fit(lines2, filter, name=name)
 
 def LineOfLines2(lines2: Lines2, index: Literal[0, 1], name: str = "") -> Line:
     """
@@ -314,3 +342,17 @@ def LineOfLines2List(lines2: Lines2, name: str = "") -> List[Line, Line]:
     `lines2`: 两线组合对象
     """
     return [LineOfLines2(lines2, 0, name), LineOfLines2(lines2, 1, name)]
+
+def LineOfLines2Fit(lines2: Lines2, filter: Callable[[np.ndarray], bool], name: str = ""):
+    """
+    ## 获得两点中符合条件的第一个单点对象
+
+    `points2`: 两点组合对象
+    `filter`: 给定点坐标，返回是否符合条件
+    """
+    line_map = {
+        LineSegments2: LineSegment,
+        Rays2: Ray,
+        InfinityLines2: InfinityLine
+    }
+    return line_map[lines2.__class__]("2Filter", lines2, filter, name=name)

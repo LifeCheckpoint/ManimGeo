@@ -42,8 +42,8 @@ class ABTC(Timeline):
         INV_B = PointInversionPCir(B, INV_A_CIRCLE, "B'")
         INV_C_CIRCLE = CircleInverseCirCir(CIRCLE_C, INV_A_CIRCLE, "Inverse Circle C'")
         TANGENTS_INV_B = LineOfLines2List(Lines2TangentsCirP(INV_C_CIRCLE, INV_B, "Tangents Through B' Of C'"))
-        INTERSECTIONS_INVA_TANB_0 = PointOfPoints2List(PointIntersectionLCir(TANGENTS_INV_B[0], INV_A_CIRCLE))
-        INTERSECTIONS_INVA_TANB_1 = PointOfPoints2List(PointIntersectionLCir(TANGENTS_INV_B[1], INV_A_CIRCLE))
+        INTERSECTIONS_INVA_TANB_0 = PointIntersectionLCir(TANGENTS_INV_B[0], INV_A_CIRCLE)
+        INTERSECTIONS_INVA_TANB_1 = PointIntersectionLCir(TANGENTS_INV_B[1], INV_A_CIRCLE)
         INVERSE_TAN_0 = CirclePPP(INTERSECTIONS_INVA_TANB_0[0], INTERSECTIONS_INVA_TANB_0[1], A, "Inverse Circle Of Tangent 0")
         INVERSE_TAN_1 = CirclePPP(INTERSECTIONS_INVA_TANB_1[0], INTERSECTIONS_INVA_TANB_1[1], A, "Inverse Circle Of Tangent 1")
 

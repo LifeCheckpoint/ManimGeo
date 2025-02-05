@@ -53,6 +53,7 @@ class PointAdapter(GeometryAdapter):
         OrthocenterPPP: 构造垂心
         Cir: 构造圆心
         2: 从两点 (Points2) 获取一点
+        2Filter: 从两点 (Points2) 获取符合条件的首个单点
         """
         super().__init__(construct_type)
 
