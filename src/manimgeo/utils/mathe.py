@@ -1,12 +1,56 @@
-from typing import Tuple, Literal, List
+from typing import Tuple, Literal, List, overload
 from numbers import Number
 import numpy as np
 
+__all__ = ["GeoMathe"]
+
 class GeoMathe:
+    _atol = 1e-9       # 绝对容差
+    _rtol = 1e-9       # 相对容差
+    _epsilon = 1e-3    # 自定义操作容差
+
+    @overload
+    def close(a: np.ndarray, b: np.ndarray) -> bool:
+        ...
+
+    @overload
+    def close(a: Number, b: Number) -> bool:
+        ...
+
+    @classmethod
+    def close(a: np.ndarray | Number, b: np.ndarray | Number) -> bool:
+        """判断两个数值是否相等"""
+        if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
+            return np.allclose(a, b, atol=GeoMathe._atol, rtol=GeoMathe._rtol)
+        elif isinstance(a, Number) and isinstance(b, Number):
+            return np.isclose(a, b, atol=GeoMathe._atol, rtol=GeoMathe._rtol)
+        else:
+            raise ValueError("Arguments must be either np.ndarray or Number")
+
+    @classmethod
+    def set_precision(
+        cls,
+        atol: float = None,
+        rtol: float = None,
+        epsilon: float = None
+    ):
+        """
+        设置精度参数
+        `atol`: 绝对容差
+        `rtol`: 相对容差
+        `epsilon`: 自定义操作容差（如范围检查）
+        """
+        if atol is not None:
+            cls._atol = atol
+        if rtol is not None:
+            cls._rtol = rtol
+        if epsilon is not None:
+            cls._epsilon = epsilon
+            
     @staticmethod
     def unit_direction_vector(start: np.ndarray, end: np.ndarray):
         """计算单位方向向量"""
-        if np.allclose(start, end):
+        if GeoMathe.close(start, end):
             raise ValueError("Start point and end point cannot be the same.")
         return (end - start) / np.linalg.norm(end - start)
 
@@ -27,14 +71,14 @@ class GeoMathe:
     @staticmethod
     def is_point_on_infinite_line(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
         """判断点是否在直线上"""
-        return np.allclose(GeoMathe.point_to_line_distance(p, l_start, l_end), 0)
+        return GeoMathe.close(GeoMathe.point_to_line_distance(p, l_start, l_end), 0)
     
     @staticmethod
     def point_to_line_distance(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
         """计算点到直线距离"""
         direction = l_end - l_start
         norm_val = np.linalg.norm(direction)
-        if norm_val == 0:
+        if GeoMathe.close(norm_val, 0):
             return np.linalg.norm(p - l_start)
         cross_product = np.cross(direction, p - l_start)
         return np.abs(cross_product) / norm_val
@@ -114,7 +158,7 @@ class GeoMathe:
         
         # 计算分母
         denominator = a1 * b2 - a2 * b1
-        if np.isclose(denominator, 0.0):
+        if GeoMathe.close(denominator, 0):
             raise ValueError("Three points are degenerated")
         
         # 克拉默法则求解
@@ -128,7 +172,7 @@ class GeoMathe:
         """计算反演点"""
         op = p - center
         d_squared = np.dot(op, op)
-        if np.allclose(d_squared, 0):
+        if GeoMathe.close(d_squared, 0):
             raise ValueError("Point p coincides with the center, inversion undefined.")
         k = (r ** 2) / d_squared
         return center + op * k
@@ -170,16 +214,16 @@ class GeoMathe:
         v = l2_end - l2_start
         diff = l2_start - l1_start
 
-        if np.allclose(u, 0):
+        if GeoMathe.close(u, 0):
             raise ValueError("Line 1 is degenerate")
-        if np.allclose(v, 0):
+        if GeoMathe.close(v, 0):
             raise ValueError("Line 2 is degenerate")
 
         cross = np.cross(u, v)
         sqrlen_u = np.dot(u, u)
         sqrlen_v = np.dot(v, v)
 
-        if not np.allclose(cross, 0):
+        if not GeoMathe.close(cross, 0):
             # 两线不平行，计算参数t和s
             t = np.cross(diff, v) / cross
             s = np.cross(diff, u) / cross
@@ -200,7 +244,7 @@ class GeoMathe:
         else:
             # 处理平行或共线情况
             cross_diff_u = np.cross(diff, u)
-            if not np.allclose(cross_diff_u, 0):
+            if not GeoMathe.close(cross_diff_u, 0):
                 # 平行但不共线
                 return (False, None)
             else:
@@ -254,9 +298,9 @@ class GeoMathe:
         dy = y2 - y1
 
         # 处理线段退化为点的情况
-        if np.isclose(dx, 0) and np.isclose(dy, 0):
+        if GeoMathe.close(dx, 0) and GeoMathe.close(dy, 0):
             distance_sq = (x1 - a)**2 + (y1 - b)**2
-            if np.isclose(distance_sq, radius**2):
+            if GeoMathe.close(distance_sq, radius**2):
                 return [np.array([x1, y1])]
             else:
                 return []
@@ -270,14 +314,14 @@ class GeoMathe:
         delta = B**2 - 4 * A * C
         intersections = []
 
-        if delta < -1e-3:
+        if delta < -GeoMathe._epsilon:
             return []
-        if -1e-3 < delta < 0:
+        if -GeoMathe._epsilon < delta < 0:
             delta = 0
 
         sqrt_delta = np.sqrt(delta)
         t_values = []
-        if np.isclose(delta, 0):
+        if GeoMathe.close(delta, 0):
             t = -B / (2 * A)
             t_values.append(t)
         else:
@@ -303,10 +347,9 @@ class GeoMathe:
             y = y1 + t * dy
             point = np.array([x, y])
 
-            # 使用np.allclose检查是否重复
             is_duplicate = False
             for existing_point in intersections:
-                if np.allclose(point, existing_point):
+                if GeoMathe.close(point, existing_point):
                     is_duplicate = True
                     break
             if not is_duplicate:
@@ -332,7 +375,7 @@ class GeoMathe:
         d = np.linalg.norm(delta)
         
         # 处理同心圆情况
-        if np.isclose(d, 0):
+        if GeoMathe.close(d, 0):
             # 同心圆但半径不同，无交点；半径相同则重合
             return (True, None)
         
@@ -368,14 +411,14 @@ class GeoMathe:
         dy = coord[1] - center[1]
         d_squared = dx**2 + dy**2
         
-        if np.allclose(d_squared, 0):  # 点与圆心重合，无切点
+        if GeoMathe.close(d_squared, 0):  # 点与圆心重合，无切点
             return []
         if d_squared < radius**2:  # 点在圆内，无切点
             return []
         
         d = np.sqrt(d_squared)
         r = radius
-        if np.isclose(d, r):  # 点在圆上，切点即自身
+        if GeoMathe.close(d, r):  # 点在圆上，切点即自身
             return [coord.copy()]
         
         # 计算切点坐标
@@ -419,7 +462,7 @@ class GeoMathe:
         denominator = A**2 + B**2
         
         # 处理分母为零
-        if np.isclose(denominator, 0):
+        if GeoMathe.close(denominator, 0):
             raise ValueError("Invalid line equation: A and B cannot both be zero.")
         
         # 计算垂足点坐标
@@ -443,7 +486,7 @@ class GeoMathe:
         
         # 计算外切线判别式
         deta = d_sq - (r1 - r2)**2
-        if deta < 0 or np.isclose(deta, 0):
+        if deta < 0 or GeoMathe.close(deta, 0):
             return []
         
         sqrt_d = np.sqrt(deta)
@@ -483,7 +526,7 @@ class GeoMathe:
         
         # 计算内切线判别式
         deta = d_sq - (r1 + r2)**2
-        if deta < 0 or np.isclose(deta, 0):
+        if deta < 0 or GeoMathe.close(deta, 0):
             return []
         
         sqrt_d = np.sqrt(deta)

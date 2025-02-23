@@ -1,10 +1,7 @@
 # Ref from https://www.zhihu.com/question/9088356148
 
-import sys
 from janim.imports import *
 from typing import Tuple, List
-
-sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
 from manimgeo.components import *
 from manimgeo.anime.janim import GeoJAnimManager
 
@@ -29,7 +26,7 @@ class CON1(Timeline):
             return texts
 
         gjm = GeoJAnimManager(self)
-        GeoUtils.set_debug()
+        GeoUtils.set_debug(False)
 
         A = PointFree(np.array([-3.5, -1.2]), "A")
         B = PointFree(np.array([0.6, 3.3]), "B")

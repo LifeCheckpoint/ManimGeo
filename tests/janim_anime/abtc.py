@@ -1,9 +1,6 @@
 # Ref from https://zhuanlan.zhihu.com/p/670419123
 
-import sys
 from janim.imports import *
-
-sys.path.append("D://wroot//ManimGeo//src") # 使用绝对路径避免测试路径问题
 from manimgeo.components import *
 from manimgeo.anime.janim import GeoJAnimManager
 
