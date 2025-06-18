@@ -1,7 +1,7 @@
-from manimgeo.components import *
-from manimgeo.anime.manager import GeoManager
-from manimgeo.anime.state import StateManager
-from manimgeo.anime.janim.error_func import ErrorFunctionJAnim as JAnimError
+from ...components import *
+from ...anime.manager import GeoManager
+from ...anime.state import StateManager
+from ...anime.janim.error_func import ErrorFunctionJAnim as JAnimError
 from janim.logger import log
 
 from janim.imports import Timeline, VItem, DataUpdater

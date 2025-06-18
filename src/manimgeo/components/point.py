@@ -4,14 +4,14 @@ from numbers import Number
 from typing import TYPE_CHECKING, Union, Literal, Any, Callable, Optional, List
 import numpy as np
 
-from manimgeo.components.base import GeometryAdapter, BaseGeometry
-from manimgeo.utils.utils import GeoUtils
-from manimgeo.utils.mathe import GeoMathe
+from ..components.base import GeometryAdapter, BaseGeometry
+from ..utils.utils import GeoUtils
+from ..utils.mathe import GeoMathe
 
 if TYPE_CHECKING:
-    from manimgeo.components.line import Line, LineSegment
-    from manimgeo.components.vector import Vector
-    from manimgeo.components.angle import Angle
+    from ..components.line import Line, LineSegment
+    from ..components.vector import Vector
+    from ..components.angle import Angle
 
 PointConstructType = Literal[
     "Free", "Constraint", "MidPP", "MidL", "ExtensionPP", 
@@ -63,10 +63,10 @@ class PointAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from manimgeo.components.line import Line, LineSegment
-        from manimgeo.components.circle import Circle
-        from manimgeo.components.vector import Vector
-        from manimgeo.components.angle import Angle
+        from ..components.line import Line, LineSegment
+        from ..components.circle import Circle
+        from ..components.vector import Vector
+        from ..components.angle import Angle
 
         op_type_map = {
             "Free": [np.ndarray],
@@ -255,7 +255,7 @@ class Points2(BaseGeometry):
 
 # Constructing Methods
 
-from manimgeo.components.circle import Circle
+from ..components.circle import Circle
 
 # 单点构造
 

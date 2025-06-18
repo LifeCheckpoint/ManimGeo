@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import List, Union, Optional, Sequence
-from manimgeo.utils import GeoUtils
+from ..utils import GeoUtils
 import traceback
 
 class GeometryAdapter:

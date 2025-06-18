@@ -4,14 +4,14 @@ import numpy as np
 from typing import TYPE_CHECKING, Union, Literal
 from numbers import Number
 
-from manimgeo.components.base import GeometryAdapter, BaseGeometry
-from manimgeo.utils.utils import GeoUtils
-from manimgeo.utils.mathe import GeoMathe
+from ..components.base import GeometryAdapter, BaseGeometry
+from ..utils.utils import GeoUtils
+from ..utils.mathe import GeoMathe
 
 if TYPE_CHECKING:
-    from manimgeo.components.point import Point
-    from manimgeo.components.line import LineSegment
-    from manimgeo.components.vector import Vector
+    from ..components.point import Point
+    from ..components.line import LineSegment
+    from ..components.vector import Vector
 
 CircleConstructType = Literal[
     "PR", "PP", "L", "PPP", "TranslationCirV",
@@ -45,9 +45,9 @@ class CircleAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
         
     def __call__(self, *objs: Union[BaseGeometry, any]):
-        from manimgeo.components.point import Point
-        from manimgeo.components.line import LineSegment
-        from manimgeo.components.vector import Vector
+        from ..components.point import Point
+        from ..components.line import LineSegment
+        from ..components.vector import Vector
 
         op_type_map = {
             "PR": [Point, Number],

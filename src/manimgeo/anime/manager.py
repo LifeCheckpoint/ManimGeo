@@ -1,4 +1,4 @@
-from manimgeo.components import *
+from ..components import *
 
 class GeoManager:
     """管理几何对象向动画对象的转换"""

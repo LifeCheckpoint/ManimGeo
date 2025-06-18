@@ -1,7 +1,7 @@
-from manimgeo.components import *
-from manimgeo.anime.manager import GeoManager
-from manimgeo.anime.state import StateManager
-from manimgeo.anime.manimgl.error_func import ErrorFunctionManimGL as GLError
+from ...components import *
+from ...anime.manager import GeoManager
+from ...anime.state import StateManager
+from ...anime.manimgl.error_func import ErrorFunctionManimGL as GLError
 
 from manimlib import Mobject
 from typing import Sequence, Callable

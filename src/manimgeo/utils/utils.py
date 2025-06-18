@@ -1,7 +1,7 @@
 from typing import Sequence, Iterable, Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from manimgeo.components import *
+    from ..components import *
 
 class GeoUtils:
     GEO_PRINT_EXC: bool = False
@@ -41,7 +41,7 @@ class GeoUtils:
     @staticmethod
     def print_dependencies(root, depth: int = 0, max_depth: int = 20):
         """绘制依赖关系"""
-        from manimgeo.utils.output import color_text, generate_color_from_id
+        from ..utils.output import color_text, generate_color_from_id
         
         if root is None:
             print("  "*depth + "· None")

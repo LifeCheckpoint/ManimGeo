@@ -1,4 +1,4 @@
-from manimgeo.components.base import BaseGeometry
+from ...components.base import BaseGeometry
 from typing import Dict, Callable
 
 class ErrorFunctionManimGL:
