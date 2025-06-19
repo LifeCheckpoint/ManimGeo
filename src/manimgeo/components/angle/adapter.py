@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from .construct import AngleConstructType, Number
 from ...utils.mathe import GeoMathe
 from ...utils.utils import GeoUtils
 from ..base import GeometryAdapter, BaseGeometry
+from .construct import AngleConstructType, Number
 from pydantic import Field
 from typing import TYPE_CHECKING, Union, Literal, Any, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..point.point import Point
-    from ..point.point import Point
-    from ..line.line import Line, LineSegment
+    from ..point import Point
+    from ..line import Line, LineSegment
     from .angle import Angle
 
 class AngleAdapter(GeometryAdapter):

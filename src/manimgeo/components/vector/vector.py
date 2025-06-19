@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, List, Any
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..point.point import Point
-    from ..line.line import LineSegment
+    from ..line import LineSegment
+    from ..point import Point
 
 class Vector(BaseGeometry):
     """

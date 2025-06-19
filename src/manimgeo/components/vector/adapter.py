@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Union, Any, List, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..point.point import Point
-    from ..line.line import LineSegment
+    from ..line import LineSegment
+    from ..point import Point
 
 class VectorAdapter(GeometryAdapter):
     vec: np.ndarray = Field(default=np.zeros(2), description="计算向量坐标", init=False)

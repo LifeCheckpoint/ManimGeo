@@ -1,17 +1,17 @@
 from __future__ import annotations
 
+from ...utils.utils import GeoUtils
+from ..base import BaseGeometry
 from .adapter import CircleAdapter
 from .construct import CircleConstructType, Number
-from ..base import BaseGeometry
-from ...utils.utils import GeoUtils
 from pydantic import Field
 from typing import TYPE_CHECKING, List, Any
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..point.point import Point
-    from ..line.line import LineSegment
-    from ..vector.vector import Vector
+    from ..line import LineSegment
+    from ..point import Point
+    from ..vector import Vector
 
 class Circle(BaseGeometry):
     """

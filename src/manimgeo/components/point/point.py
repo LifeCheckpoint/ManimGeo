@@ -1,19 +1,18 @@
 from __future__ import annotations
 
+from ...utils.utils import GeoUtils
+from ..base import BaseGeometry
 from .adapter import PointAdapter
 from .construct import PointConstructType, Number
-from ..base import BaseGeometry
-from ...utils.utils import GeoUtils
 from pydantic import Field
-from typing import TYPE_CHECKING, Union, Any, List
+from typing import TYPE_CHECKING, Any, List
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..angle.angle import Angle
-    from ..line.line import Line, LineSegment
-    from ..vector.vector import Vector
-
-from ..circle.circle import Circle
+    from ..angle import Angle
+    from ..line import Line, LineSegment
+    from ..vector import Vector
+    from ..circle import Circle
 
 class Point(BaseGeometry):
     """

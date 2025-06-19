@@ -1,6 +1,6 @@
 from ..components.base import GeometryAdapter, BaseGeometry
-from .point import Point
-from .line import Line, LineSegment, Ray, InfinityLine
-from .vector import Vector
-from .circle import Circle
 from .angle import Angle
+from .circle import Circle
+from .line import Line, LineSegment, Ray, InfinityLine
+from .point import Point
+from .vector import Vector

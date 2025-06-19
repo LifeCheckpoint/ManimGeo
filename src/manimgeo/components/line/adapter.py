@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from .construct import LineConstructType, Number
-from .line import Line
-from ..base import GeometryAdapter, BaseGeometry
 from ...utils.mathe import GeoMathe
 from ...utils.utils import GeoUtils
+from ..base import GeometryAdapter, BaseGeometry
+from .construct import LineConstructType, Number
 from pydantic import Field
 from typing import TYPE_CHECKING, Union, List, Any, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..point.point import Point
-    from ..vector.vector import Vector
-    from ..circle.circle import Circle
+    from ..circle import Circle
+    from ..point import Point
+    from ..vector import Vector
+    from .line import Line
 
 class LineAdapter(GeometryAdapter):
     start: np.ndarray = Field(default=np.zeros(2), description="计算线首坐标", init=False)
@@ -25,10 +25,6 @@ class LineAdapter(GeometryAdapter):
     construct_type: LineConstructType = Field(description="线计算方式")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from ..point.point import Point
-        from ..vector.vector import Vector
-        from ..circle.circle import Circle
-
         op_type_map = {
             "PP": [Point, Point],
             "PV": [Point, Vector],

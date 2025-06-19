@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from .construct import PointConstructType, Number
-from .point import Point
-from ..base import GeometryAdapter, BaseGeometry
 from ...utils.mathe import GeoMathe
 from ...utils.utils import GeoUtils
+from ..base import GeometryAdapter, BaseGeometry
+from .construct import PointConstructType, Number
 from pydantic import Field
 from typing import TYPE_CHECKING, Union, Any, List, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..angle.angle import Angle
-    from ..line.line import Line, LineSegment
-    from ..vector.vector import Vector
-
+    from ..angle import Angle
+    from ..circle import Circle
+    from ..line import Line, LineSegment
+    from ..vector import Vector
+    from .point import Point
 
 class PointAdapter(GeometryAdapter):
     coord: np.ndarray = Field(default=np.zeros(2), description="计算点坐标", init=False)
@@ -22,11 +22,6 @@ class PointAdapter(GeometryAdapter):
     objs: List[Union[BaseGeometry, Any]] = Field(description="点适配器依赖的其他对象列表")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from ..line.line import Line, LineSegment
-        from ..circle.circle import Circle
-        from ..vector.vector import Vector
-        from ..angle.angle import Angle
-
         op_type_map = {
             "Free": [np.ndarray], "Constraint": [np.ndarray],
             "MidPP": [Point, Point],

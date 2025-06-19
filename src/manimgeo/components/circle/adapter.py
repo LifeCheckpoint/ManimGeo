@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from .circle import Circle
-from .construct import CircleConstructType, Number
-from ..base import GeometryAdapter, BaseGeometry
 from ...utils.mathe import GeoMathe
 from ...utils.utils import GeoUtils
+from ..base import GeometryAdapter, BaseGeometry
+from .construct import CircleConstructType, Number
 from pydantic import Field
 from typing import TYPE_CHECKING, List, Union, Any, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..point.point import Point
-    from ..line.line import LineSegment
-    from ..vector.vector import Vector
-
+    from ..point import Point
+    from ..vector import Vector
+    from ..line import LineSegment
+    from .circle import Circle
 
 class CircleAdapter(GeometryAdapter):
     center: np.ndarray = Field(default=np.zeros(2), description="计算圆心坐标")
@@ -24,9 +23,6 @@ class CircleAdapter(GeometryAdapter):
     objs: List[Union[BaseGeometry, Any]] = Field(description="圆适配器依赖的其他对象列表")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from ..point.point import Point
-        from ..line.line import LineSegment
-        from ..vector.vector import Vector
 
         op_type_map = {
             "PR": [Point, Number],
