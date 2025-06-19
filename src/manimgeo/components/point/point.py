@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from ..components.base import GeometryAdapter, BaseGeometry
-from ..utils.mathe import GeoMathe
-from ..utils.utils import GeoUtils
+from ..base import GeometryAdapter, BaseGeometry
+from ...utils.mathe import GeoMathe
+from ...utils.utils import GeoUtils
 from pydantic import Field
 from typing import TYPE_CHECKING, Union, Literal, Any, List, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..components.angle import Angle
-    from ..components.line import Line, LineSegment
-    from ..components.vector import Vector
+    from ..angle.angle import Angle
+    from ..line.line import Line, LineSegment
+    from ..vector.vector import Vector
 
 PointConstructType = Literal[
     "Free", # Free Type
@@ -24,14 +24,15 @@ Number = Union[float, int]
 
 class PointAdapter(GeometryAdapter):
     coord: np.ndarray = Field(default=np.zeros(2), description="计算点坐标", init=False)
+    
     construct_type: PointConstructType = Field(description="点计算方式")
     objs: List[Union[BaseGeometry, Any]] = Field(description="点适配器依赖的其他对象列表")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from ..components.line import Line, LineSegment
-        from ..components.circle import Circle
-        from ..components.vector import Vector
-        from ..components.angle import Angle
+        from ..line.line import Line, LineSegment
+        from ..circle.circle import Circle
+        from ..vector.vector import Vector
+        from ..angle.angle import Angle
 
         op_type_map = {
             "Free": [np.ndarray], "Constraint": [np.ndarray],
@@ -208,7 +209,7 @@ class PointAdapter(GeometryAdapter):
             case _:
                 raise NotImplementedError(f"Invalid construct type: {self.construct_type}")
 
-from ..components.circle import Circle
+from ..circle.circle import Circle
 
 class Point(BaseGeometry):
     """
@@ -235,7 +236,7 @@ class Point(BaseGeometry):
     """
     attrs: List[str] = Field(default=["coord"], description="点属性列表", init=False)
     coord: np.ndarray = Field(default_factory=lambda: np.zeros(2), description="点坐标", init=False)
-    
+
     construct_type: PointConstructType = Field(description="点构造方式")
     adapter: PointAdapter = Field(description="点适配器", init=False)
 

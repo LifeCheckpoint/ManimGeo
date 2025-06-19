@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from ..components.base import GeometryAdapter, BaseGeometry
-from ..utils.mathe import GeoMathe
-from ..utils.utils import GeoUtils
+from ..base import GeometryAdapter, BaseGeometry
+from ...utils.mathe import GeoMathe
+from ...utils.utils import GeoUtils
 from pydantic import Field
 from typing import TYPE_CHECKING, List, Union, Literal, Any, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from ..components.point import Point
-    from ..components.line import LineSegment
-    from ..components.vector import Vector
+    from ..point.point import Point
+    from ..line.line import LineSegment
+    from ..vector.vector import Vector
 
 CircleConstructType = Literal[
     "PR", "PP", "L", "PPP", "TranslationCirV",
@@ -27,9 +27,9 @@ class CircleAdapter(GeometryAdapter):
     objs: List[Union[BaseGeometry, Any]] = Field(description="圆适配器依赖的其他对象列表")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from ..components.point import Point
-        from ..components.line import LineSegment
-        from ..components.vector import Vector
+        from ..point.point import Point
+        from ..line.line import LineSegment
+        from ..vector.vector import Vector
 
         op_type_map = {
             "PR": [Point, Number],

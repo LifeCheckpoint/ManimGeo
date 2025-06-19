@@ -4,13 +4,13 @@ from numbers import Number
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
 
-from ..components.base import GeometryAdapter, BaseGeometry
-from ..utils.utils import GeoUtils
-from ..utils.mathe import GeoMathe
+from ..base import GeometryAdapter, BaseGeometry
+from ...utils.utils import GeoUtils
+from ...utils.mathe import GeoMathe
 
 if TYPE_CHECKING:
-    from ..components.point import Point
-    from ..components.line import LineSegment
+    from ..point.point import Point
+    from ..line.line import LineSegment
 
 VectorConstructType = Literal[
     "PP", "L", "N", "NPP", "NNormDirection",
@@ -43,8 +43,8 @@ class VectorAdapter(GeometryAdapter):
         [obj.add_dependent(current_geo_obj) for obj in objs if isinstance(obj, BaseGeometry)]
 
     def __call__(self, *objs: Union[BaseGeometry, any]):
-        from ..components.point import Point
-        from ..components.line import LineSegment
+        from ..point.point import Point
+        from ..line.line import LineSegment
 
         op_type_map = {
             "PP": [Point, Point],

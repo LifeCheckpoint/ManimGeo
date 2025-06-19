@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from ..components.base import GeometryAdapter, BaseGeometry
-from ..utils.mathe import GeoMathe
-from ..utils.utils import GeoUtils
+from ..base import GeometryAdapter, BaseGeometry
+from ...utils.mathe import GeoMathe
+from ...utils.utils import GeoUtils
 from pydantic import Field
 from typing import TYPE_CHECKING, Union, Literal, List, Callable, Optional, Any, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from .point.point import Point
-    from ..components.vector import Vector
-    from ..components.circle import Circle
+    from ..point.point import Point
+    from ..vector.vector import Vector
+    from ..circle.circle import Circle
 
 LineConstructType = Literal[
     "PP", "PV", "TranslationLV", "VerticalPL", "ParallelPL",
@@ -29,9 +29,9 @@ class LineAdapter(GeometryAdapter):
     construct_type: LineConstructType = Field(description="线计算方式")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
-        from .point.point import Point
-        from ..components.vector import Vector
-        from ..components.circle import Circle
+        from ..point.point import Point
+        from ..vector.vector import Vector
+        from ..circle.circle import Circle
 
         op_type_map = {
             "PP": [Point, Point],
