@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..utils import GeoUtils
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Union, Optional, Any
 import logging
 
@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 class GeometryAdapter(BaseModel):
     """几何对象参数适配器基类"""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     construct_type: str = Field(description="适配器计算构造方式")
 
     def bind_attributes(self, target: BaseGeometry, attrs: List[str]):
@@ -25,6 +27,8 @@ class GeometryAdapter(BaseModel):
 
 class BaseGeometry(BaseModel):
     """几何对象基类"""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     name: str = Field(description="几何对象名称")
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
     adapter: GeometryAdapter = Field(description="几何对象参数适配器", init=False)
