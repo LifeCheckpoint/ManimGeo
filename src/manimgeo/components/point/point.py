@@ -41,7 +41,7 @@ class Point(BaseGeometry):
     coord: np.ndarray = Field(default=np.zeros(2), description="点坐标", init=False)
 
     construct_type: PointConstructType = Field(description="点构造方式")
-    adapter: PointAdapter = Field(description="点适配器", init=False)
+    adapter: PointAdapter = Field(default=PointAdapter(construct_type="Free", objs=[]), description="点适配器", init=False)
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""

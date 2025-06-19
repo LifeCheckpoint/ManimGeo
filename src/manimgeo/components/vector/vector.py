@@ -30,7 +30,7 @@ class Vector(BaseGeometry):
     unit_direction: np.ndarray = Field(default=np.zeros(2), description="向量单位方向", init=False)
 
     construct_type: VectorConstructType = Field(description="向量构造方式")
-    adapter: VectorAdapter = Field(description="向量适配器", init=False)
+    adapter: VectorAdapter = Field(default=VectorAdapter(construct_type="PP", objs=[]), description="向量适配器", init=False)
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""

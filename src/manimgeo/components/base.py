@@ -31,7 +31,7 @@ class BaseGeometry(BaseModel):
     
     name: str = Field(description="几何对象名称")
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
-    adapter: GeometryAdapter = Field(description="几何对象参数适配器", init=False)
+    adapter: GeometryAdapter = Field(default=GeometryAdapter(construct_type=""), description="几何对象参数适配器", init=False)
     objs: List[Union[BaseGeometry, Any]] = Field(default_factory=list, description="几何对象依赖的其他对象列表")
     dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表", init=False)
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)

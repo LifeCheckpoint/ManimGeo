@@ -33,7 +33,7 @@ class Line(BaseGeometry):
     unit_direction: np.ndarray = Field(default=np.zeros(2), description="线单位方向向量", init=False)
 
     construct_type: LineConstructType = Field(description="线构造方式")
-    adapter: LineAdapter = Field(description="线参数适配器", init=False)
+    adapter: LineAdapter = Field(default=LineAdapter(construct_type="PP", objs=[]), description="线参数适配器", init=False)
     line_type: str = Field(description="线类型")
 
     def model_post_init(self, __context: Any):

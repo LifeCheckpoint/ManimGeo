@@ -31,7 +31,7 @@ class Circle(BaseGeometry):
     circumference: Number = Field(default=0.0, description="圆周长")
 
     construct_type: CircleConstructType = Field(description="圆构造方式")
-    adapter: CircleAdapter = Field(description="圆适配器", init=False)
+    adapter: CircleAdapter = Field(default=CircleAdapter(construct_type="PR", objs=[]), description="圆适配器", init=False)
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""

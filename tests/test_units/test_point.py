@@ -21,6 +21,7 @@ class TestPoint:
         sym_point2 = Point.AxisymmetricPL(point2, line2)
         assert np.allclose(sym_point2.coord, np.array(np.array([2, 3])))  # 关于y=x对称
 
+    @pytest.mark.skip(reason="Not implemented")
     def test_ConstraintPoint(self):
         # 约束点测试
         pass

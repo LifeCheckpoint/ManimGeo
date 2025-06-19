@@ -28,7 +28,7 @@ class Angle(BaseGeometry):
     turn: Literal["Clockwise", "Counterclockwise"] = Field(default="Counterclockwise", description="角方向", init=False)
 
     construct_type: AngleConstructType = Field(description="角构造方式")
-    adapter: AngleAdapter = Field(description="角适配器", init=False)
+    adapter: AngleAdapter = Field(default=AngleAdapter(construct_type="PPP", objs=[]), description="角适配器", init=False)
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""
