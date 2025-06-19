@@ -442,7 +442,7 @@ class GeoMathe:
         return [t1, t2]
 
     @staticmethod
-    def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarray):
+    def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarray) -> float:
         """计算三点逆时针角度"""
         vec1 = np.array(start) - np.array(center)
         vec2 = np.array(end) - np.array(center)
