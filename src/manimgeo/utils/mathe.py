@@ -1,6 +1,6 @@
-from typing import Tuple, Literal, List, overload
-from numbers import Number
+from typing import Tuple, Literal, List, Union, overload
 import numpy as np
+Number = Union[float, int]
 
 __all__ = ["GeoMathe"]
 

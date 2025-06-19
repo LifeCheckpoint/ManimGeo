@@ -3,8 +3,8 @@ from __future__ import annotations
 from ..components.base import GeometryAdapter, BaseGeometry
 from ..utils.mathe import GeoMathe
 from ..utils.utils import GeoUtils
-from pydantic import BaseModel, Field
-from typing import TYPE_CHECKING, Union, Literal, Any, Callable, Optional, List, cast
+from pydantic import Field
+from typing import TYPE_CHECKING, Union, Literal, Any, List, cast
 import numpy as np
 
 if TYPE_CHECKING:
@@ -23,8 +23,8 @@ PointConstructType = Literal[
 Number = Union[float, int]
 
 class PointAdapter(GeometryAdapter):
-    coord: np.ndarray = Field(default_factory=lambda: np.zeros(2), description="适配器计算计算所得点坐标", init=False)
-    construct_type: PointConstructType = Field(description="点适配器计算方式")
+    coord: np.ndarray = Field(default=np.zeros(2), description="计算点坐标", init=False)
+    construct_type: PointConstructType = Field(description="点计算方式")
     objs: List[Union[BaseGeometry, Any]] = Field(description="点适配器依赖的其他对象列表")
 
     def __call__(self, *objs: Union[BaseGeometry, Any]):
@@ -233,8 +233,9 @@ class Point(BaseGeometry):
     - `Cir`: 构造圆心
     - `RotatePPA`: 两点旋转角构建旋转点
     """
-    attrs: List[str] = Field(default=["coord"], description="点对象属性列表", init=False)
+    attrs: List[str] = Field(default=["coord"], description="点属性列表", init=False)
     coord: np.ndarray = Field(default_factory=lambda: np.zeros(2), description="点坐标", init=False)
+    
     construct_type: PointConstructType = Field(description="点构造方式")
     adapter: PointAdapter = Field(description="点适配器", init=False)
 
