@@ -13,8 +13,6 @@ if TYPE_CHECKING:
     from ..line.line import Line, LineSegment
     from ..vector.vector import Vector
 
-Number = Union[float, int]
-
 from ..circle.circle import Circle
 
 class Point(BaseGeometry):
@@ -41,7 +39,7 @@ class Point(BaseGeometry):
     - `RotatePPA`: 两点旋转角构建旋转点
     """
     attrs: List[str] = Field(default=["coord"], description="点属性列表", init=False)
-    coord: np.ndarray = Field(default_factory=lambda: np.zeros(2), description="点坐标", init=False)
+    coord: np.ndarray = Field(default=np.zeros(2), description="点坐标", init=False)
 
     construct_type: PointConstructType = Field(description="点构造方式")
     adapter: PointAdapter = Field(description="点适配器", init=False)

@@ -170,12 +170,12 @@ class TestPoint:
     def test_TranslationPV(self):
         # 平移点测试
         point = Point.Free(np.array([2, 3]))
-        vector = VectorPP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, -1])))
+        vector = Vector.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, -1])))
         translated_point = Point.TranslationPV(point, vector)
         assert np.allclose(translated_point.coord, [3, 2])
 
         point = Point.Free(np.array([2, 3]))
-        vector = VectorN(np.array([1, -1]))
+        vector = Vector.N(np.array([1, -1]))
         translated_point = Point.TranslationPV(point, vector)
         assert np.allclose(translated_point.coord, [3, 2])
 
