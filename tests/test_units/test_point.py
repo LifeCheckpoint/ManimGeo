@@ -11,12 +11,12 @@ class TestPoint:
 
     def test_AxisymmetricPL(self):
         # 对称点测试
-        line = InfinityLinePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # x轴
+        line = InfinityLine.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # x轴
         point = Point.Free(np.array([2, 3]))
         sym_point = Point.AxisymmetricPL(point, line)
         assert np.allclose(sym_point.coord, np.array(np.array([2, -3])))  # 对称后应为(2,-3)
 
-        line2 = InfinityLinePP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))  # 直线y=x
+        line2 = InfinityLine.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))  # 直线y=x
         point2 = Point.Free(np.array([3, 2]))
         sym_point2 = Point.AxisymmetricPL(point2, line2)
         assert np.allclose(sym_point2.coord, np.array(np.array([2, 3])))  # 关于y=x对称
@@ -42,8 +42,8 @@ class TestPoint:
         # 两圆交点测试
 
         # 相交情况
-        circle1 = CirclePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # 圆心(0,0)，半径1
-        circle2 = CirclePP(Point.Free(np.array([1, 0])), Point.Free(np.array([2, 0])))  # 圆心(1,0)，半径1
+        circle1 = Circle.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # 圆心(0,0)，半径1
+        circle2 = Circle.PP(Point.Free(np.array([1, 0])), Point.Free(np.array([2, 0])))  # 圆心(1,0)，半径1
         inter_points = Point.IntersectionCirCir(circle1, circle2)
         expected1 = np.array([0.5, math.sqrt(3)/2])
         expected2 = np.array([0.5, -math.sqrt(3)/2])
@@ -51,14 +51,14 @@ class TestPoint:
                 np.allclose(inter_points.coord1, expected2))
         
         # 相切情况
-        circle3 = CirclePP(Point.Free(np.array([0, 0])), Point.Free(np.array([2, 0])))  # 半径2
-        circle4 = CirclePP(Point.Free(np.array([4, 0])), Point.Free(np.array([2, 0])))  # 圆心(4,0)，半径2
+        circle3 = Circle.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([2, 0])))  # 半径2
+        circle4 = Circle.PP(Point.Free(np.array([4, 0])), Point.Free(np.array([2, 0])))  # 圆心(4,0)，半径2
         inter_points2 = Point.IntersectionCirCir(circle3, circle4)
         assert np.allclose(inter_points2.coord1, [2, 0])
 
         # 无交点情况 BUG
-        circle5 = CirclePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))
-        circle6 = CirclePP(Point.Free(np.array([3, 0])), Point.Free(np.array([2, 0])))
+        circle5 = Circle.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))
+        circle6 = Circle.PP(Point.Free(np.array([3, 0])), Point.Free(np.array([2, 0])))
         try:
             Point.IntersectionCirCir(circle5, circle6)
             assert False, "Expected ValueError for no intersection"
@@ -70,8 +70,8 @@ class TestPoint:
         # 线圆交点测试
         
         # 线段与圆相交
-        circle = CirclePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # 单位圆
-        line = LineSegmentPP(Point.Free(np.array([-2, 0])), Point.Free(np.array([2, 0])))  # x轴线段
+        circle = Circle.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # 单位圆
+        line = LineSegment.PP(Point.Free(np.array([-2, 0])), Point.Free(np.array([2, 0])))  # x轴线段
         intersections = Point.IntersectionLCir(line, circle)
         assert (np.allclose(intersections.coord1, [1, 0]) and \
                np.allclose(intersections.coord2, [-1, 0])) or \
@@ -79,13 +79,13 @@ class TestPoint:
                np.allclose(intersections.coord2, [1, 0]))
 
         # 射线与圆相切
-        circle2 = CirclePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))
+        circle2 = Circle.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))
         ray = RayPP(Point.Free(np.array([0, 1])), Point.Free(np.array([1, 1])))  # 水平射线y=1
         tangent_point = Point.IntersectionLCir(ray, circle2)
         assert np.allclose(tangent_point.coord1, [0, 1]) and np.allclose(tangent_point.coord2, [0, 1])
 
         # 无限直线不相交
-        inf_line = InfinityLinePP(Point.Free(np.array([3, 0])), Point.Free(np.array([3, 1])))  # x=3
+        inf_line = InfinityLine.PP(Point.Free(np.array([3, 0])), Point.Free(np.array([3, 1])))  # x=3
         try:
             Point.IntersectionLCir(inf_line, circle)
             assert False, "Expected no intersection"
@@ -96,40 +96,40 @@ class TestPoint:
         # 线线交点测试
 
         # 普通测试
-        seg1 = LineSegmentPP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
-        seg2 = LineSegmentPP(Point.Free(np.array([1, 2])), Point.Free(np.array([2, 1])))
+        seg1 = LineSegment.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
+        seg2 = LineSegment.PP(Point.Free(np.array([1, 2])), Point.Free(np.array([2, 1])))
         inter = Point.IntersectionLL(seg1, seg2)
         assert np.allclose(inter.coord, np.array([1.5, 1.5]))
 
-        ray1 = RayPP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
-        ray2 = RayPP(Point.Free(np.array([3.5, -1])), Point.Free(np.array([3.5, 0])))
+        ray1 = Ray.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
+        ray2 = Ray.PP(Point.Free(np.array([3.5, -1])), Point.Free(np.array([3.5, 0])))
         inter = Point.IntersectionLL(ray1, ray2)
         assert np.allclose(inter.coord, np.array([3.5, 3.5]))
 
-        inf1 = InfinityLinePP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
-        inf2 = InfinityLinePP(Point.Free(np.array([1, -1])), Point.Free(np.array([2, -2])))
+        inf1 = InfinityLine.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
+        inf2 = InfinityLine.PP(Point.Free(np.array([1, -1])), Point.Free(np.array([2, -2])))
         inter = Point.IntersectionLL(inf1, inf2)
         assert np.allclose(inter.coord, np.array([0, 0]))
 
         # 无交点测试 BUG
-        seg1 = LineSegmentPP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
-        seg2 = LineSegmentPP(Point.Free(np.array([3, 4])), Point.Free(np.array([4, 3])))
+        seg1 = LineSegment.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
+        seg2 = LineSegment.PP(Point.Free(np.array([3, 4])), Point.Free(np.array([4, 3])))
         try:
             inter = Point.IntersectionLL(seg1, seg2)
             assert False, "Expected ValueError"
         except ValueError:
             pass
 
-        ray1 = RayPP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
-        ray2 = RayPP(Point.Free(np.array([3, 4])), Point.Free(np.array([2, 5])))
+        ray1 = Ray.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
+        ray2 = Ray.PP(Point.Free(np.array([3, 4])), Point.Free(np.array([2, 5])))
         try:
             inter = Point.IntersectionLL(ray1, ray2)
             assert False, "Expected ValueError"
         except ValueError:
             pass
 
-        inf1 = InfinityLinePP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
-        inf2 = InfinityLinePP(Point.Free(np.array([3, 3])), Point.Free(np.array([4, 4])))
+        inf1 = InfinityLine.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))
+        inf2 = InfinityLine.PP(Point.Free(np.array([3, 3])), Point.Free(np.array([4, 4])))
         try:
             inter = Point.IntersectionLL(inf1, inf2)
             assert False, "Expected ValueError"
@@ -145,7 +145,7 @@ class TestPoint:
         # 线段中点测试
         p1 = Point.Free(np.array([1, -3]))
         p2 = Point.Free(np.array([17, -14]))
-        mid = Point.MidL(LineSegmentPP(p1, p2))
+        mid = Point.MidL(LineSegment.PP(p1, p2))
         assert np.allclose(mid.coord, np.array([9, -8.5]))
 
     def test_MidPP(self):
@@ -158,7 +158,7 @@ class TestPoint:
     def test_ParallelPL(self):
         # 平行点测试
         p1 = Point.Free(np.array([-1, 3]))
-        line = InfinityLinePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 1])))
+        line = InfinityLine.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 1])))
         parallel = Point.ParallelPL(p1, line, np.sqrt(2))
         assert np.allclose(parallel.coord, np.array([0, 4]))
 
@@ -181,12 +181,12 @@ class TestPoint:
 
     def test_VerticalPL(self):
         # 垂足点测试
-        line = InfinityLinePP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # x轴
+        line = InfinityLine.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # x轴
         point = Point.Free(np.array([3, 4]))
         foot = Point.VerticalPL(point, line)
         assert np.allclose(foot.coord, np.array([3, 0]))  # 垂足为(3,0)
 
-        line2 = InfinityLinePP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))  # y=x
+        line2 = InfinityLine.PP(Point.Free(np.array([1, 1])), Point.Free(np.array([2, 2])))  # y=x
         point2 = Point.Free(np.array([3, 0]))
         foot2 = Point.VerticalPL(point2, line2)
         assert np.allclose(foot2.coord, np.array([1.5, 1.5]))  # 投影到y=x的垂足
