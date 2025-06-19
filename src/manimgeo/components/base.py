@@ -26,11 +26,11 @@ class GeometryAdapter(BaseModel):
 class BaseGeometry(BaseModel):
     """几何对象基类"""
     name: str = Field(description="几何对象名称")
-    attrs: List[str] = Field(default_factory=list, description="几何对象属性列表")
-    adapter: GeometryAdapter = Field(description="几何对象参数适配器")
+    attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
+    adapter: GeometryAdapter = Field(description="几何对象参数适配器", init=False)
     objs: List[Union[BaseGeometry, Any]] = Field(default_factory=list, description="几何对象依赖的其他对象列表")
-    dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表")
-    on_error: bool = Field(default=False, description="是否在更新过程中发生错误")
+    dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表", init=False)
+    on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
 
     def add_dependent(self, obj: BaseGeometry):
         """
@@ -50,7 +50,7 @@ class BaseGeometry(BaseModel):
 
     def board_update_msg(self, on_error: bool = False):
         """
-        向所有依赖项发出更新信号
+        向所有下游依赖项发出更新信号
         
         - `on_error`: 是否在更新过程中发生错误，默认为 False
         """
@@ -65,8 +65,8 @@ class BaseGeometry(BaseModel):
         - `new_objs`: 如果在当前阶段引入了新的计算上游，则通过 `new_objs` 传入上游对象
         """
 
-        if len(new_objs) != 0:
-            self.objs = new_objs
+        if new_objs != None and len(new_objs) > 0:
+            self.objs = list(new_objs)
         
         try:
             # 重新向适配器注入对象，适配器计算相关属性

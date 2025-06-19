@@ -100,7 +100,7 @@ class GeoMathe:
         return np.array([-direction[1], direction[0]])
     
     @staticmethod
-    def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+    def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
         """三点内接圆，计算半径与圆心"""
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p3 - p1)
@@ -111,7 +111,7 @@ class GeoMathe:
         return r, coord
     
     @staticmethod
-    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, float]:
+    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
         """三点外接圆，计算半径与圆心"""
         a = np.linalg.norm(p2 - p3)
         b = np.linalg.norm(p1 - p3)
