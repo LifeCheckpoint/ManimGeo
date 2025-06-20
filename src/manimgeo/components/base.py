@@ -49,7 +49,7 @@ class BaseGeometry(BaseModel):
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
     
     adapter: GeometryAdapter[Any] = Field(description="几何对象参数适配器", init=False)
-    _dependencies: List[BaseGeometry] = Field(default_factory=list, description="当前几何对象直接依赖的其他几何对象列表", init=False)
+    dependencies: List[BaseGeometry] = Field(default_factory=list, description="当前几何对象直接依赖的其他几何对象列表", init=False)
     dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表", init=False)
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
 
@@ -80,8 +80,8 @@ class BaseGeometry(BaseModel):
 
         - `obj`: 上游依赖对象
         """
-        if obj not in self._dependencies:
-            self._dependencies.append(obj)
+        if obj not in self.dependencies:
+            self.dependencies.append(obj)
             obj.add_dependent(self) # 同时将当前对象添加到上游的 dependents 列表中
 
     def _remove_dependency(self, obj: Optional[BaseGeometry]):
@@ -91,12 +91,12 @@ class BaseGeometry(BaseModel):
         - `obj`: 需要移除的上游依赖对象，如果为 None 则移除所有依赖
         """
         if obj is None:
-            for dep in self._dependencies:
+            for dep in self.dependencies:
                 dep.remove_dependent(self)
-            self._dependencies.clear()
+            self.dependencies.clear()
         else:
-            if obj in self._dependencies:
-                self._dependencies.remove(obj)
+            if obj in self.dependencies:
+                self.dependencies.remove(obj)
                 obj.remove_dependent(self)
 
     def board_update_msg(self, on_error: bool = False):
