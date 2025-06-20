@@ -8,21 +8,6 @@ class GeoMathe:
     _atol = 1e-9       # 绝对容差
     _rtol = 1e-9       # 相对容差
     _epsilon = 1e-3    # 自定义操作容差
-            
-    @staticmethod
-    def is_point_on_infinite_line(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
-        """判断点是否在直线上"""
-        return GeoMathe.close(GeoMathe.point_to_line_distance(p, l_start, l_end), 0)
-    
-    @staticmethod
-    def point_to_line_distance(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
-        """计算点到直线距离"""
-        direction = l_end - l_start
-        norm_val = np.linalg.norm(direction)
-        if GeoMathe.close(norm_val, 0):
-            return np.linalg.norm(p - l_start)
-        cross_product = np.cross(direction, p - l_start)
-        return np.abs(cross_product) / norm_val
     
     @staticmethod
     def vertical_point_to_line(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):

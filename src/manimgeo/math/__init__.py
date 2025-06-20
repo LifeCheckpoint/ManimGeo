@@ -14,6 +14,9 @@ from .base import (
 from .lines import (
     check_paramerized_line_range,
     vertical_line_unit_direction,
+    point_to_line_distance,
+    get_parameter_t_on_line,
+    is_point_on_line,
 )
 
 from .points import (
