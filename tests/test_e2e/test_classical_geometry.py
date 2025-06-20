@@ -1,6 +1,6 @@
 import numpy as np
 from manimgeo.components import *
-from manimgeo.utils import GeoUtils
+from manimgeo.utils.utils import GeoUtils
 
 class TestClassicalGeometry:
     def test_simple_1(self):

@@ -1,5 +1,4 @@
 import numpy as np
-import math
 import pytest
 
 from manimgeo.components import *
@@ -46,8 +45,8 @@ class TestPoint:
         circle1 = Circle.PP(Point.Free(np.array([0, 0])), Point.Free(np.array([1, 0])))  # 圆心(0,0)，半径1
         circle2 = Circle.PP(Point.Free(np.array([1, 0])), Point.Free(np.array([2, 0])))  # 圆心(1,0)，半径1
         inter_points = Point.IntersectionCirCir(circle1, circle2)
-        expected1 = np.array([0.5, math.sqrt(3)/2])
-        expected2 = np.array([0.5, -math.sqrt(3)/2])
+        expected1 = np.array([0.5, np.sqrt(3)/2])
+        expected2 = np.array([0.5, -np.sqrt(3)/2])
         assert (np.allclose(inter_points.coord1, expected1) or 
                 np.allclose(inter_points.coord1, expected2))
         
