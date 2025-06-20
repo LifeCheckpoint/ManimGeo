@@ -9,7 +9,8 @@ if TYPE_CHECKING:
     from ..point import Point
     from ..vector import Vector
     from .line import LineSegment, Ray, InfinityLine
-    type LineConcrete = Union[LineSegment, Ray, InfinityLine]
+
+type LineConcrete = Union["LineSegment", "Ray", "InfinityLine"]
 
 class PPArgs(BaseModel):
     construct_type: Literal["PP"] = "PP"
