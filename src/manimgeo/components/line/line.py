@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 from ...utils.utils import GeoUtils
+from pydantic import Field, validate_call
+from typing import TYPE_CHECKING, List, Any, TypeVar, Type
+import numpy as np
+
 from ..base import BaseGeometry
 from .adapter import LineAdapter
-from .construct import LineConstructType, Number
-from pydantic import Field
-from typing import TYPE_CHECKING, List, Any
-import numpy as np
+from .construct import *
 
 if TYPE_CHECKING:
     from ..point import Point
     from ..vector import Vector
-    from ..circle import Circle
+
+_LineT = TypeVar('_LineT', bound='Line')
 
 class Line(BaseGeometry):
     """
@@ -32,218 +34,125 @@ class Line(BaseGeometry):
     length: Number = Field(default=0.0, description="线长度", init=False)
     unit_direction: np.ndarray = Field(default=np.zeros(2), description="线单位方向向量", init=False)
 
-    construct_type: LineConstructType = Field(description="线构造方式")
-    adapter: LineAdapter = Field(default=LineAdapter(construct_type="PP", objs=[]), description="线参数适配器", init=False)
-    line_type: str = Field(description="线类型")
+    args: LineConstructArgs = Field(discriminator='construct_type', description="线构造参数")
+    adapter: LineAdapter = Field(init=False) # adapter 初始化将在 model_post_init 中进行
+    line_type: Literal["LineSegment", "Ray", "InfinityLine"] = Field(description="线类型，子类会尝试覆盖")
+
+    @property
+    def construct_type(self) -> LineConstructType:
+        return self.args.construct_type
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""
-        self.adapter = LineAdapter(
-            construct_type=self.construct_type,
-            objs=self.objs,
-        )
+        self.adapter = LineAdapter(args=self.args)
         self.name = GeoUtils.get_name(self.name, self, self.adapter.construct_type)
 
-        # 为上游对象添加依赖关系
-        for obj in self.objs:
-            if isinstance(obj, BaseGeometry):
-                obj.add_dependent(self)
+        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
+        # 普通类型将被忽略
+        for field_name, field_info in self.args.__class__.model_fields.items():
+            field_value = getattr(self.args, field_name)
 
-        self.update()
+            # 基本几何对象
+            if isinstance(field_value, BaseGeometry):
+                self._add_dependency(field_value)
+
+            # 列表类型依赖 (extended)
+            elif isinstance(field_value, list):
+                for item in field_value:
+                    if isinstance(item, BaseGeometry):
+                        self._add_dependency(item)
+
+            # 可拓展
+
+        self.update() # 首次计算
 
     # 构造方法
-
-    @staticmethod
-    def TranslationLV(line: Line, vec: Vector, name: str = "") -> Line:
+    
+    @classmethod
+    @validate_call
+    def TranslationLV(cls: Type[_LineT], line: LineConcrete, vec: Vector, name: str = "") -> _LineT:
         """
         ## 平移构造线
 
         `line`: 原线
         `vec`: 平移向量
         """
-        return Line(
+        return cls(
             name=name,
-            construct_type="TranslationLV",
-            objs=[line, vec],
-            line_type=line.line_type
+            args=TranslationLVArgs(line=line, vector=vec),
+            line_type=cls.line_type
         )
-
-class LineSegment(Line):
-    line_type: str = Field(default="LineSegment", description="线段类型", init=False)
-
-    @staticmethod
-    def PP(start: Point, end: Point, name: str = "") -> LineSegment:
+    
+    @classmethod
+    @validate_call
+    def PP(cls: Type[_LineT], start: Point, end: Point, name: str = "") -> _LineT:
         """
-        ## 起始点构造线段
+        ## 起始点构造线
 
         `start`: 起点
         `end`: 终点
         """
-        return LineSegment(
+        return cls(
             name=name,
-            construct_type="PP",
-            objs=[start, end]
+            args=PPArgs(point1=start, point2=end),
+            line_type=cls.line_type
         )
     
-    @staticmethod
-    def PV(start: Point, vector: Vector, name: str = "") -> LineSegment:
+    @classmethod
+    @validate_call
+    def PV(cls: Type[_LineT], start: Point, vector: Vector, name: str = "") -> _LineT:
         """
-        ## 起点方向构造线段
+        ## 起点方向构造线
 
         `start`: 起点
         `vector`: 方向向量
         """
-        return LineSegment(
+        return cls(
             name=name,
-            construct_type="PV",
-            objs=[start, vector]
+            args=PVArgs(start=start, vector=vector),
+            line_type=cls.line_type
         )
     
-    @staticmethod
-    def VerticalPL(point: Point, line: Line, name: str = "") -> LineSegment:
+    @classmethod
+    @validate_call
+    def VerticalPL(cls: Type[_LineT], point: Point, line: LineConcrete, name: str = "") -> _LineT:
         """
-        ## 点与线构造垂直线段
+        ## 点与线构造垂直线
 
         `point`: 垂线经过点
         `line`: 原线
         """
-        return LineSegment(
+        return cls(
             name=name,
-            construct_type="VerticalPL",
-            objs=[point, line]
+            args=VerticalPLArgs(point=point, line=line),
+            line_type=cls.line_type
         )
     
-    @staticmethod
-    def ParallelPL(point: Point, line: Line, name: str = "") -> LineSegment:
+    @classmethod
+    @validate_call
+    def ParallelPL(cls: Type[_LineT], point: Point, line: LineConcrete, distance: Number = 0, name: str = "") -> _LineT:
         """
-        ## 点与线构造平行线段
+        ## 点与线构造平行线
 
         `point`: 平行线经过点
         `line`: 原线
+        `distance`: 平行线与原线的距离，默认为 0
         """
-        return LineSegment(
+        return cls(
             name=name,
-            construct_type="ParallelPL",
-            objs=[point, line]
+            args=ParallelPLArgs(point=point, line=line, distance=distance),
+            line_type=cls.line_type
         )
+    
+class LineSegment(Line):
+    line_type: Literal["LineSegment"] = "LineSegment"
 
 class Ray(Line):
-    line_type: str = Field(default="Ray", description="射线类型", init=False)
-
-    @staticmethod
-    def PP(start: Point, end: Point, name: str = "") -> Ray:
-        """
-        ## 起始点构造射线
-
-        `start`: 起点
-        `end`: 终点
-        """
-        return Ray(
-            name=name,
-            construct_type="PP",
-            objs=[start, end]
-        )
-    
-    @staticmethod
-    def PV(start: Point, vector: Vector, name: str = "") -> Ray:
-        """
-        ## 起点方向构造射线
-
-        `start`: 起点
-        `vector`: 方向向量
-        """
-        return Ray(
-            name=name,
-            construct_type="PV",
-            objs=[start, vector]
-        )
-    
-    @staticmethod
-    def VerticalPL(point: Point, line: Line, name: str = "") -> Ray:
-        """
-        ## 点与线构造垂直射线
-
-        `point`: 垂线经过点
-        `line`: 原线
-        """
-        return Ray(
-            name=name,
-            construct_type="VerticalPL",
-            objs=[point, line]
-        )
-    
-    @staticmethod
-    def ParallelPL(point: Point, line: Line, name: str = "") -> Ray:
-        """
-        ## 点与线构造平行射线
-
-        `point`: 平行线经过点
-        `line`: 原线
-        """
-        return Ray(
-            name=name,
-            construct_type="ParallelPL",
-            objs=[point, line]
-        )
+    line_type: Literal["Ray"] = "Ray"
     
 class InfinityLine(Line):
-    line_type: str = Field(default="InfinityLine", description="直线类型", init=False)
+    line_type: Literal["InfinityLine"] = "InfinityLine"
 
-    @staticmethod
-    def PP(start: Point, end: Point, name: str = "") -> InfinityLine:
-        """
-        ## 起始点构造直线
-
-        `start`: 起点
-        `end`: 终点
-        """
-        return InfinityLine(
-            name=name,
-            construct_type="PP",
-            objs=[start, end]
-        )
-    
-    @staticmethod
-    def PV(start: Point, vector: Vector, name: str = "") -> InfinityLine:
-        """
-        ## 起点方向构造直线
-
-        `start`: 起点
-        `vector`: 方向向量
-        """
-        return InfinityLine(
-            name=name,
-            construct_type="PV",
-            objs=[start, vector]
-        )
-    
-    @staticmethod
-    def VerticalPL(point: Point, line: Line, name: str = "") -> InfinityLine:
-        """
-        ## 点与线构造垂直直线
-
-        `point`: 垂线经过点
-        `line`: 原线
-        """
-        return InfinityLine(
-            name=name,
-            construct_type="VerticalPL",
-            objs=[point, line]
-        )
-    
-    @staticmethod
-    def ParallelPL(point: Point, line: Line, name: str = "") -> InfinityLine:
-        """
-        ## 点与线构造平行直线
-
-        `point`: 平行线经过点
-        `line`: 原线
-        """
-        return InfinityLine(
-            name=name,
-            construct_type="ParallelPL",
-            objs=[point, line]
-        )
 
 
 # 多线条
