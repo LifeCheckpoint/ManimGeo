@@ -1,4 +1,4 @@
-from typing import Tuple, Literal, List, Union, overload
+from typing import Tuple, Literal, List, Union
 import numpy as np
 Number = Union[float, int]
 
@@ -8,58 +8,7 @@ class GeoMathe:
     _atol = 1e-9       # 绝对容差
     _rtol = 1e-9       # 相对容差
     _epsilon = 1e-3    # 自定义操作容差
-
-    @classmethod
-    def close(cls, a: np.ndarray | Number, b: np.ndarray | Number) -> bool:
-        """判断两个数值是否相等"""
-        if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
-            return np.allclose(a, b, atol=GeoMathe._atol, rtol=GeoMathe._rtol)
-        elif isinstance(a, Number) and isinstance(b, Number):
-            return np.isclose(a, b, atol=GeoMathe._atol, rtol=GeoMathe._rtol)
-        else:
-            raise ValueError(f"Arguments must be either np.ndarray or Number, get {type(a)} and {type(b)}")
-
-    @classmethod
-    def set_precision(
-        cls,
-        atol: float = None,
-        rtol: float = None,
-        epsilon: float = None
-    ):
-        """
-        设置精度参数
-        `atol`: 绝对容差
-        `rtol`: 相对容差
-        `epsilon`: 自定义操作容差（如范围检查）
-        """
-        if atol is not None:
-            cls._atol = atol
-        if rtol is not None:
-            cls._rtol = rtol
-        if epsilon is not None:
-            cls._epsilon = epsilon
             
-    @staticmethod
-    def unit_direction_vector(start: np.ndarray, end: np.ndarray):
-        """计算单位方向向量"""
-        if GeoMathe.close(start, end):
-            raise ValueError("Start point and end point cannot be the same.")
-        return (end - start) / np.linalg.norm(end - start)
-
-    @staticmethod
-    def axisymmetric_point(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
-        """计算对称点"""
-        if GeoMathe.is_point_on_infinite_line(p, l_start, l_end):
-            return p.copy()
-
-        u = GeoMathe.unit_direction_vector(l_start, l_end)
-        base = l_start # 基点
-        ap = p - base
-        projection_length = np.dot(ap, u) # 计算投影长度
-        proj_vec = projection_length * u # 投影向量
-        q = base + proj_vec # 投影点坐标
-        return 2 * q - p # 对称点坐标为投影点向量的两倍减去原坐标
-    
     @staticmethod
     def is_point_on_infinite_line(p: np.ndarray, l_start: np.ndarray, l_end: np.ndarray):
         """判断点是否在直线上"""
@@ -88,107 +37,6 @@ class GeoMathe:
             projection_scalar_alt = np.dot(p - l_start, v) / v_squared_norm
             return l_start + projection_scalar_alt * v
         
-    @staticmethod
-    def vertical_line_unit_direction(l_start: np.ndarray, l_end: np.ndarray):
-        """计算给定直线的垂线方向向量"""
-        direction = GeoMathe.unit_direction_vector(l_start, l_end)
-        return np.array([-direction[1], direction[0]])
-    
-    @staticmethod
-    def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
-        """三点内接圆，计算半径与圆心"""
-        a = np.linalg.norm(p2 - p3)
-        b = np.linalg.norm(p3 - p1)
-        c = np.linalg.norm(p1 - p2)
-        coord = (a * p1 + b * p2 + c * p3) / (a + b + c)
-        p = (a + b + c) / 2
-        r = np.sqrt((p - a) * (p - b) * (p - c) / p)
-        return r, coord
-    
-    @staticmethod
-    def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
-        """三点外接圆，计算半径与圆心"""
-        a = np.linalg.norm(p2 - p3)
-        b = np.linalg.norm(p1 - p3)
-        c = np.linalg.norm(p1 - p2)
-        s = (a + b + c) / 2
-        r = a * b * c / (4 * np.sqrt(s * (s - a) * (s - b) * (s - c)))
-
-        if np.linalg.matrix_rank(np.array([p2 - p3, p1 - p3])) == 1:
-            raise ValueError("Matrix is singular, points are collinear")
-
-        # 计算圆心
-        x1, y1 = p1
-        x2, y2 = p2
-        x3, y3 = p3
-
-        # 构造垂直平分线的方程组
-        A = np.array([
-            [2 * (x2 - x1), 2 * (y2 - y1)],
-            [2 * (x3 - x2), 2 * (y3 - y2)]
-        ])
-        B = np.array([
-            x2**2 + y2**2 - x1**2 - y1**2,
-            x3**2 + y3**2 - x2**2 - y2**2
-        ])
-
-        center = np.linalg.solve(A, B)
-        return r, center
-    
-    @staticmethod
-    def orthocenter(a, b, c):
-        """计算三点垂心坐标"""
-        x1, y1 = a[0], a[1]
-        x2, y2 = b[0], b[1]
-        x3, y3 = c[0], c[1]
-        
-        # 计算方程组系数
-        a1 = x3 - x2
-        b1 = y3 - y2
-        c1 = a1 * x1 + b1 * y1  # (x3-x2)*x1 + (y3-y2)*y1
-        
-        a2 = x2 - x1
-        b2 = y2 - y1
-        c2 = a2 * x3 + b2 * y3  # (x2-x1)*x3 + (y2-y1)*y3
-        
-        # 计算分母
-        denominator = a1 * b2 - a2 * b1
-        if GeoMathe.close(denominator, 0):
-            raise ValueError("Three points are degenerated")
-        
-        # 克拉默法则求解
-        x0 = (c1 * b2 - c2 * b1) / denominator
-        y0 = (a1 * c2 - a2 * c1) / denominator
-        
-        return np.array([x0, y0])
-    
-    @staticmethod
-    def inversion_point(p: np.ndarray, center: np.ndarray, r: Number):
-        """计算反演点"""
-        op = p - center
-        d_squared = np.dot(op, op)
-        if GeoMathe.close(d_squared, 0):
-            raise ValueError("Point p coincides with the center, inversion undefined.")
-        k = (r ** 2) / d_squared
-        return center + op * k
-    
-    @staticmethod
-    def check_line_range(
-            t: Number,
-            line_type: Literal["LineSegment", "Ray", "InfinityLine"]
-        ) -> bool:
-        """线对象参数范围检查"""
-        EPSILON = 1e-8
-
-        if line_type == "LineSegment":
-            return -EPSILON <= t <= 1 + EPSILON
-        elif line_type == "Ray":
-            return t >= -EPSILON
-        elif line_type == "InfinityLine":
-            return True
-        
-        raise ValueError(f"{line_type} is not a valid line type")
-    
     @staticmethod
     def intersection_line_line(
             l1_start: np.ndarray, l1_end: np.ndarray, 
@@ -436,20 +284,6 @@ class GeoMathe:
         ])
         
         return [t1, t2]
-
-    @staticmethod
-    def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarray) -> float:
-        """计算三点逆时针角度"""
-        vec1 = np.array(start) - np.array(center)
-        vec2 = np.array(end) - np.array(center)
-        
-        dot = np.dot(vec1, vec2)
-        det = np.cross(vec1, vec2)
-        
-        angle_rad = np.arctan2(det, dot)
-        angle_rad = angle_rad if angle_rad >= 0 else angle_rad + 2 * np.pi
-        
-        return angle_rad
 
     @staticmethod
     def compute_tangent_point(A, B, C, center, r):
