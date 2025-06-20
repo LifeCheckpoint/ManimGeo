@@ -1,4 +1,4 @@
-from ..components.base import GeometryAdapter, BaseGeometry
+from .base import GeometryAdapter, BaseGeometry
 from .angle import Angle, AngleAdapter, AngleConstructArgsList
 from .circle import Circle, CircleAdapter, CircleConstructArgsList
 from .line import Line, LineSegment, Ray, InfinityLine, LineAdapter, LineConstructArgsList
