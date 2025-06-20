@@ -57,7 +57,7 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
                 result = GeoMathe.intersection_line_line(
                     args.line1.start, args.line1.end,
                     args.line2.start, args.line2.end,
-                    type(args.line1).__name__, type(args.line2).__name__, # type: ignore
+                    args.line1.line_type, args.line2.line_type,
                     args.regard_infinite
                 )
                 if result[0] and result[1] is not None:

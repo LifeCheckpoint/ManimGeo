@@ -172,6 +172,7 @@ class GeoMathe:
         k = (r ** 2) / d_squared
         return center + op * k
     
+    @staticmethod
     def check_line_range(
             t: Number,
             line_type: Literal["LineSegment", "Ray", "InfinityLine"]
