@@ -1,19 +1,10 @@
-from typing import Sequence, Iterable, Dict, Union, TYPE_CHECKING
+from __future__ import annotations
 
-if TYPE_CHECKING:
-    from ..components import *
+from typing import Iterable
 
 class GeoUtils:
     GEO_PRINT_EXC: bool = True
     
-    @staticmethod
-    def get_name(default_name: str, obj, construct_type: str):
-        """以统一方式设置几何对象名称"""
-        if default_name != "":
-            return default_name
-        else:
-            return f"{type(obj).__name__}[{construct_type}]@{id(obj) % 10000}"
-
     @staticmethod
     def flatten(iterable: Iterable):
         """展平对象"""
@@ -23,8 +14,9 @@ class GeoUtils:
             else:
                 yield item
 
+    from ..components import BaseGeometry
     @staticmethod
-    def print_dependencies(root, depth: int = 0, max_depth: int = 20):
+    def print_dependencies(root: "BaseGeometry", depth: int = 0, max_depth: int = 20):
         """绘制依赖关系"""
         from ..utils.output import color_text, generate_color_from_id
         

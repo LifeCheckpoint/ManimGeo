@@ -1,18 +1,12 @@
 from __future__ import annotations
 
 from ...utils.mathe import GeoMathe
-from ...utils.utils import GeoUtils
-from ..base import GeometryAdapter, BaseGeometry
-from .construct import *
 from pydantic import Field
-from typing import TYPE_CHECKING, Union, List, Any, cast
+from typing import cast
 import numpy as np
 
-if TYPE_CHECKING:
-    from ..circle import Circle
-    from ..point import Point
-    from ..vector import Vector
-    from .line import Line
+from ..base import GeometryAdapter
+from .construct import *
 
 class LineAdapter(GeometryAdapter[LineConstructArgs]): # 继承 GeometryAdapter 并指定参数模型类型
     start: np.ndarray = Field(default=np.zeros(2), description="计算线首坐标", init=False)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from ...utils.utils import GeoUtils
-from pydantic import Field, validate_call, model_validator
+from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, List, Any
 import numpy as np
 
@@ -37,7 +36,7 @@ class Vector(BaseGeometry):
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""
         self.adapter = VectorAdapter(args=self.args)
-        self.name = GeoUtils.get_name(self.name, self, self.adapter.construct_type)
+        self.name = self.get_name(self.name)
 
         # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
         # 普通类型将被忽略

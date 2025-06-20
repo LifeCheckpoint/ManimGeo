@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from ..utils import GeoUtils
 from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from typing import List, Optional, Any, TypeVar, Generic
 import logging
@@ -52,6 +51,13 @@ class BaseGeometry(BaseModel):
     dependencies: List[BaseGeometry] = Field(default_factory=list, description="当前几何对象直接依赖的其他几何对象列表", init=False)
     dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表", init=False)
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
+
+    def get_name(self, default_name: str):
+        """以统一方式设置几何对象名称"""
+        if default_name != "":
+            return default_name
+        else:
+            return f"{type(self).__name__}[{self.adapter.construct_type}]@{id(self) % 100000}"
 
     def add_dependent(self, obj: BaseGeometry):
         """
@@ -143,9 +149,7 @@ class BaseGeometry(BaseModel):
             self.adapter.bind_attributes(self, self.attrs)
             
         except Exception as e:
-            if GeoUtils.GEO_PRINT_EXC:
-                print(e) # 调试时可以打开
-                logger.warning(f"节点 {self.name} ({type(self).__name__}) 计算失败", exc_info=True)
+            logger.warning(f"节点 {self.name} ({type(self).__name__}) 计算失败", exc_info=True)
             
             # 传播更新消息并标记错误
             self.board_update_msg(True)
