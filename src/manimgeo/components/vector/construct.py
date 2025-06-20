@@ -58,6 +58,11 @@ type VectorConstructArgs = Union[
     AddVVArgs, SubVVArgs, MulNVArgs
 ]
 
+VectorConstructArgsList = [
+    PPArgs, LArgs, NArgs, NPPArgs, NNormDirectionArgs,
+    AddVVArgs, SubVVArgs, MulNVArgs
+]
+
 type VectorConstructType = Literal[
     "PP", "L", "N", "NPP", "NNormDirection",
     "AddVV", "SubVV", "MulNV"

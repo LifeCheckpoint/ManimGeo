@@ -112,6 +112,13 @@ type PointConstructArgs = Union[
     IncenterPPPArgs, OrthocenterPPPArgs, CirArgs, RotatePPAArgs
 ]
 
+PointConstructArgsList = [
+    FreeArgs, ConstraintArgs, MidPPArgs, MidLArgs, ExtensionPPArgs,
+    AxisymmetricPLArgs, VerticalPLArgs, ParallelPLArgs, InversionPCirArgs,
+    IntersectionLLArgs, TranslationPVArgs, CentroidPPPArgs, CircumcenterPPPArgs,
+    IncenterPPPArgs, OrthocenterPPPArgs, CirArgs, RotatePPAArgs
+]
+
 type PointConstructType = Literal[
     "Free", "Constraint", "MidPP", "MidL", "ExtensionPP",
     "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",

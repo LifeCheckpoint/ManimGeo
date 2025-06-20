@@ -55,6 +55,11 @@ type AngleConstructArgs = Union[
     TurnAArgs, AddAAArgs, SubAAArgs, MulNAArgs
 ]
 
+AngleConstructArgsList = [
+    PPPArgs, LLArgs, LPArgs, NArgs,
+    TurnAArgs, AddAAArgs, SubAAArgs, MulNAArgs
+]
+
 type AngleConstructType = Literal[
     "PPP", "LL", "LP", "N",
     "TurnA", "AddAA", "SubAA", "MulNA"

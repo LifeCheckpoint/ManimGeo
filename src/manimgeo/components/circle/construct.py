@@ -53,6 +53,11 @@ type CircleConstructArgs = Union[
     InverseCirCirArgs, InscribePPPArgs
 ]
 
+CircleConstructArgsList = [
+    PRArgs, PPArgs, LArgs, PPPArgs, TranslationCirVArgs,
+    InverseCirCirArgs, InscribePPPArgs
+]
+
 type CircleConstructType = Literal[
     "PR", "PP", "L", "PPP", "TranslationCirV",
     "InverseCirCir", "InscribePPP"

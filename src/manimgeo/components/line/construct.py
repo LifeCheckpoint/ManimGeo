@@ -43,6 +43,10 @@ type LineConstructArgs = Union[
     PPArgs, PVArgs, TranslationLVArgs, VerticalPLArgs, ParallelPLArgs
 ]
 
+LineConstructArgsList = [
+    PPArgs, PVArgs, TranslationLVArgs, VerticalPLArgs, ParallelPLArgs
+]
+
 type LineConstructType = Literal[
     "PP", "PV", "TranslationLV", "VerticalPL", "ParallelPL"
 ]
