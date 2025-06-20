@@ -1,74 +1,73 @@
 from __future__ import annotations
 
 from ...utils.utils import GeoUtils
+from pydantic import Field, validate_call
+from typing import TYPE_CHECKING, Literal, List, Any
+
 from ..base import BaseGeometry
 from .adapter import AngleAdapter
-from .construct import AngleConstructType, Number
-from pydantic import Field
-from typing import TYPE_CHECKING, Literal, List, Any
+from .construct import *
 
 if TYPE_CHECKING:
     from ..point.point import Point
     from ..line.line import Line, LineSegment
 
 class Angle(BaseGeometry):
-    """
-    角对象，允许如下构造：
-    - `PPP`: 三点构造角
-    - `LL`: 两线构造角
-    - `LP`: 线与一点构造角
-    - `N`: （数值）构造角
-    - `TurnA`: 角方向反转构造角
-    - `AddAA`: 相加构造角
-    - `SubAA`: 相减构造角
-    - `MulNA`: 数乘构造角
-    """
     attrs: List[str] = Field(default=["angle", "turn"], description="角属性列表", init=False)
     angle: Number = Field(default=0.0, description="角度大小", init=False)
     turn: Literal["Clockwise", "Counterclockwise"] = Field(default="Counterclockwise", description="角方向", init=False)
+    args: AngleConstructArgs = Field(discriminator='construct_type', description="角构造参数")
 
-    construct_type: AngleConstructType = Field(description="角构造方式")
-    adapter: AngleAdapter = Field(default=AngleAdapter(construct_type="PPP", objs=[]), description="角适配器", init=False)
+    @property
+    def construct_type(self) -> AngleConstructType:
+        return self.args.construct_type
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""
-        self.adapter = AngleAdapter(
-            construct_type=self.construct_type,
-            objs=self.objs,
-        )
+        self.adapter = AngleAdapter(args=self.args)
         self.name = GeoUtils.get_name(self.name, self, self.adapter.construct_type)
 
-        # 为上游对象添加依赖关系
-        for obj in self.objs:
-            if isinstance(obj, BaseGeometry):
-                obj.add_dependent(self)
+        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
+        # 普通类型将被忽略
+        for field_name, field_info in self.args.__class__.model_fields.items():
+            field_value = getattr(self.args, field_name)
 
-        self.update()
+            # 基本几何对象
+            if isinstance(field_value, BaseGeometry):
+                self._add_dependency(field_value)
+
+            # 列表类型依赖 (extended)
+            elif isinstance(field_value, list):
+                for item in field_value:
+                    if isinstance(item, BaseGeometry):
+                        self._add_dependency(item)
+
+            # 可拓展
+
+        self.update() # 首次计算
 
     def __add__(self, other: Angle):
         return Angle(
             name=f"{self.name} + {other.name}",
-            construct_type="AddAA",
-            objs=[self, other]
+            args=AddAAArgs(angle1=self, angle2=other)
         )
-    
+
     def __sub__(self, other: Angle):
         return Angle(
             name=f"{self.name} - {other.name}",
-            construct_type="SubAA",
-            objs=[self, other]
+            args=SubAAArgs(angle1=self, angle2=other)
         )
-    
+
     def __mul__(self, other: Number):
         return Angle(
             name=f"{self.name} * {other}",
-            construct_type="MulNA",
-            objs=[self, other]
+            args=MulNAArgs(factor=other, angle=self)
         )
-    
+
     # 构造方法
 
     @staticmethod
+    @validate_call
     def PPP(start: Point, center: Point, end: Point, name: str = ""):
         """
         ## 通过三点构造角
@@ -79,11 +78,11 @@ class Angle(BaseGeometry):
         """
         return Angle(
             name=name,
-            construct_type="PPP",
-            objs=[start, center, end]
+            args=PPPArgs(start=start, center=center, end=end)
         )
 
     @staticmethod
+    @validate_call
     def LL(line1: Line, line2: Line, name: str = ""):
         """
         ## 通过两条线构造角
@@ -93,11 +92,11 @@ class Angle(BaseGeometry):
         """
         return Angle(
             name=name,
-            construct_type="LL",
-            objs=[line1, line2]
+            args=LLArgs(line1=line1, line2=line2)
         )
-    
+
     @staticmethod
+    @validate_call
     def LP(line: LineSegment, point: Point, name: str = ""):
         """
         ## 通过一线一点构造角
@@ -107,11 +106,11 @@ class Angle(BaseGeometry):
         """
         return Angle(
             name=name,
-            construct_type="LP",
-            objs=[line, point]
+            args=LPArgs(line=line, point=point)
         )
-    
+
     @staticmethod
+    @validate_call
     def N(angle: Number, turn: Literal["Clockwise", "Counterclockwise"] = "Counterclockwise", name: str = ""):
         """
         ## 通过角度构造角
@@ -121,11 +120,11 @@ class Angle(BaseGeometry):
         """
         return Angle(
             name=name,
-            construct_type="N",
-            objs=[angle, turn]
+            args=NArgs(angle=angle, turn=turn)
         )
-    
+
     @staticmethod
+    @validate_call
     def TurnA(angle: Angle, name: str = ""):
         """
         ## 反转角旋转方向构造角
@@ -134,7 +133,6 @@ class Angle(BaseGeometry):
         """
         return Angle(
             name=name,
-            construct_type="TurnA",
-            objs=[angle]
+            args=TurnAArgs(angle=angle)
         )
     
