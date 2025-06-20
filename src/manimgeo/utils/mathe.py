@@ -9,23 +9,15 @@ class GeoMathe:
     _rtol = 1e-9       # 相对容差
     _epsilon = 1e-3    # 自定义操作容差
 
-    @overload
-    def close(a: np.ndarray, b: np.ndarray) -> bool:
-        ...
-
-    @overload
-    def close(a: Number, b: Number) -> bool:
-        ...
-
     @classmethod
-    def close(a: np.ndarray | Number, b: np.ndarray | Number) -> bool:
+    def close(cls, a: np.ndarray | Number, b: np.ndarray | Number) -> bool:
         """判断两个数值是否相等"""
         if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
             return np.allclose(a, b, atol=GeoMathe._atol, rtol=GeoMathe._rtol)
         elif isinstance(a, Number) and isinstance(b, Number):
             return np.isclose(a, b, atol=GeoMathe._atol, rtol=GeoMathe._rtol)
         else:
-            raise ValueError("Arguments must be either np.ndarray or Number")
+            raise ValueError(f"Arguments must be either np.ndarray or Number, get {type(a)} and {type(b)}")
 
     @classmethod
     def set_precision(
@@ -89,9 +81,12 @@ class GeoMathe:
         if GeoMathe.is_point_on_infinite_line(p, l_start, l_end):
             return p.copy()
         else:
-            direction = GeoMathe.unit_direction_vector(l_start, l_end)
-            projection_scalar = np.dot(p - l_start, direction)
-            return l_start + projection_scalar * direction
+            v = l_end - l_start
+            v_squared_norm = float(np.dot(v, v))
+            if GeoMathe.close(v_squared_norm, 0):
+                return l_start.copy()
+            projection_scalar_alt = np.dot(p - l_start, v) / v_squared_norm
+            return l_start + projection_scalar_alt * v
         
     @staticmethod
     def vertical_line_unit_direction(l_start: np.ndarray, l_end: np.ndarray):
@@ -214,16 +209,16 @@ class GeoMathe:
         v = l2_end - l2_start
         diff = l2_start - l1_start
 
-        if GeoMathe.close(u, 0):
+        if GeoMathe.close(u, np.zeros(2)):
             raise ValueError("Line 1 is degenerate")
-        if GeoMathe.close(v, 0):
+        if GeoMathe.close(v, np.zeros(2)):
             raise ValueError("Line 2 is degenerate")
 
         cross = np.cross(u, v)
         sqrlen_u = np.dot(u, u)
         sqrlen_v = np.dot(v, v)
 
-        if not GeoMathe.close(cross, 0):
+        if not GeoMathe.close(cross, np.zeros(2)):
             # 两线不平行，计算参数t和s
             t = np.cross(diff, v) / cross
             s = np.cross(diff, u) / cross
@@ -244,7 +239,7 @@ class GeoMathe:
         else:
             # 处理平行或共线情况
             cross_diff_u = np.cross(diff, u)
-            if not GeoMathe.close(cross_diff_u, 0):
+            if not GeoMathe.close(cross_diff_u, np.zeros(2)):
                 # 平行但不共线
                 return (False, None)
             else:
