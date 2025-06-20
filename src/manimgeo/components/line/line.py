@@ -69,7 +69,6 @@ class Line(BaseGeometry):
     # 构造方法
     
     @classmethod
-    @validate_call
     def TranslationLV(cls: Type[_LineT], line: LineConcrete, vec: Vector, name: str = "") -> _LineT:
         """
         平移构造线
@@ -84,7 +83,6 @@ class Line(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def PP(cls: Type[_LineT], start: Point, end: Point, name: str = "") -> _LineT:
         """
         起始点构造线
@@ -99,7 +97,6 @@ class Line(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def PV(cls: Type[_LineT], start: Point, vector: Vector, name: str = "") -> _LineT:
         """
         起点方向构造线
@@ -114,7 +111,6 @@ class Line(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def VerticalPL(cls: Type[_LineT], point: Point, line: LineConcrete, name: str = "") -> _LineT:
         """
         点与线构造垂直线
@@ -129,7 +125,6 @@ class Line(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def ParallelPL(cls: Type[_LineT], point: Point, line: LineConcrete, distance: Number = 0, name: str = "") -> _LineT:
         """
         点与线构造平行线

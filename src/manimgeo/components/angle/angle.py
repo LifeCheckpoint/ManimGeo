@@ -67,7 +67,6 @@ class Angle(BaseGeometry):
     # 构造方法
 
     @classmethod
-    @validate_call
     def PPP(cls, start: Point, center: Point, end: Point, name: str = ""):
         """
         通过三点构造角
@@ -82,7 +81,6 @@ class Angle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def LL(cls, line1: Line, line2: Line, name: str = ""):
         """
         通过两条线构造角
@@ -96,7 +94,6 @@ class Angle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def LP(cls, line: LineSegment, point: Point, name: str = ""):
         """
         通过一线一点构造角
@@ -110,7 +107,6 @@ class Angle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def N(cls, angle: Number, turn: Literal["Clockwise", "Counterclockwise"] = "Counterclockwise", name: str = ""):
         """
         通过角度构造角
@@ -124,7 +120,6 @@ class Angle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def TurnA(cls, angle: Angle, name: str = ""):
         """
         反转角旋转方向构造角

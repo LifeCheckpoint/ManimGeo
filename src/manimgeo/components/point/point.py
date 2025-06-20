@@ -63,7 +63,6 @@ class Point(BaseGeometry):
     # 构造方法
     
     @classmethod
-    @validate_call
     def Free(cls, coord: np.ndarray, name: str = "") -> Point:
         """
         构造自由点（叶子节点）
@@ -76,7 +75,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def Constraint(cls, coord: np.ndarray, name: str = "") -> Point:
         """
         构造约束点（非叶子节点）
@@ -89,7 +87,6 @@ class Point(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def MidPP(cls, point1: Point, point2: Point, name: str = "") -> Point:
         """
         构造两点中点
@@ -103,7 +100,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def MidL(cls, line: LineSegment, name: str = "") -> Point:
         """
         构造线段中点
@@ -116,7 +112,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def ExtensionPP(cls, start: Point, through: Point, factor: Number, name: str = "") -> Point:
         """
         构造比例延长（位似）点
@@ -131,7 +126,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def AxisymmetricPL(cls, point: Point, line: Line, name: str = "") -> Point:
         """
         构造轴对称点
@@ -145,7 +139,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def VerticalPL(cls, point: Point, line: Line, name: str = "") -> Point:
         """
         构造垂足点
@@ -159,7 +152,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def ParallelPL(cls, point: Point, line: Line, distance: Number, name: str = "") -> Point:
         """
         构造平行线上一点
@@ -174,7 +166,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def InversionPCir(cls, point: Point, circle: Circle, name: str = "") -> Point:
         """
         构造反演点
@@ -188,7 +179,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def IntersectionLL(cls, line1: Line, line2: Line, regard_infinite: bool = False, name: str = "") -> Point:
         """
         构造两线交点
@@ -203,7 +193,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def TranslationPV(cls, point: Point, vector: Vector, name: str = "") -> Point:
         """
         构造平移点
@@ -217,7 +206,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def CentroidPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形重心
@@ -232,7 +220,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def CircumcenterPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形外心
@@ -247,7 +234,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def IncenterPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形内心
@@ -262,7 +248,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def OrthocenterPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形垂心
@@ -277,7 +262,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def Cir(cls, circle: Circle, name: str = "") -> Point:
         """
         构造圆心
@@ -290,7 +274,6 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    @validate_call
     def RotatePPA(cls, point: Point, center: Point, angle: Angle, name: str = "") -> Point:
         """
         构造旋转点

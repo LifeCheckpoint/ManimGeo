@@ -54,7 +54,6 @@ class Circle(BaseGeometry):
     # 构造方法
     
     @classmethod
-    @validate_call
     def PR(cls, center: Point, radius: Number, name: str = "") -> Circle:
         """
         中心与半径构造圆
@@ -68,7 +67,6 @@ class Circle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def PP(cls, center: Point, point: Point, name: str = "") -> Circle:
         """
         中心与圆上一点构造圆
@@ -82,7 +80,6 @@ class Circle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def L(cls, radius_segment: LineSegment, name: str = "") -> Circle:
         """
         半径线段构造圆
@@ -95,7 +92,6 @@ class Circle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def PPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
         圆上三点构造圆
@@ -110,7 +106,6 @@ class Circle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def TranslationCirV(cls, circle: Circle, vec: Vector, name: str = "") -> Circle:
         """
         平移构造圆
@@ -124,7 +119,6 @@ class Circle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def InverseCirCir(cls, circle: Circle, base_circle: Circle, name: str = "") -> Circle:
         """
         构造反演圆
@@ -138,7 +132,6 @@ class Circle(BaseGeometry):
         )
 
     @classmethod
-    @validate_call
     def InscribePPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
         三点内切圆
