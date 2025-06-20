@@ -1,29 +1,45 @@
 from __future__ import annotations
 
 from ..utils import GeoUtils
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Union, Optional, Any
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from typing import List, Optional, Any, TypeVar, Generic
 import logging
 
+# 日志
 logger = logging.getLogger(__name__)
 
-class GeometryAdapter(BaseModel):
+# 适配器的泛型参数模型
+ArgsModel = TypeVar('ArgsModel', bound=BaseModel)
+
+class GeometryAdapter(BaseModel, Generic[ArgsModel]):
     """几何对象参数适配器基类"""
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    construct_type: str = Field(description="适配器计算构造方式")
+    # 适配器直接持有参数模型
+    args: ArgsModel = Field(description="适配器依赖的参数模型")
+
+    @property
+    def construct_type(self) -> str:
+        # 所有 ArgsModel 都需要有一个 construct_type 字段
+        return getattr(self.args, 'construct_type', 'Unknown')
 
     def bind_attributes(self, target: BaseGeometry, attrs: List[str]):
-        """将适配器计算得到的参数绑定到几何对象"""
+        """
+        将适配器计算得到的参数绑定到几何对象
+
+        - `target`: 目标几何对象
+        - `attrs`: 需要绑定的属性列表
+        """
         for attr in attrs:
             if hasattr(self, attr):
                 setattr(target, attr, getattr(self, attr))
             else:
-                raise AttributeError(f"适配器缺少属性: {attr}")
+                # 如果 target 期望某个属性而适配器没有，则抛出异常
+                raise AttributeError(f"适配器 '{self.__class__.__name__}' 缺少属性: '{attr}'，无法绑定到目标对象 '{target.name}'")
 
-    def __call__(self, *objs: Union[BaseGeometry, Any]):
+    def __call__(self):
         """根据 construct_type 规定的计算方法计算具体参数"""
-        ...
+        raise NotImplementedError("子类须实现 __call__ 以执行具体计算")
 
 class BaseGeometry(BaseModel):
     """几何对象基类"""
@@ -31,26 +47,57 @@ class BaseGeometry(BaseModel):
     
     name: str = Field(description="几何对象名称")
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
-    adapter: GeometryAdapter = Field(default=GeometryAdapter(construct_type=""), description="几何对象参数适配器", init=False)
-    objs: List[Union[BaseGeometry, Any]] = Field(default_factory=list, description="几何对象依赖的其他对象列表")
+    
+    adapter: GeometryAdapter[Any] = Field(description="几何对象参数适配器", init=False)
+    _dependencies: List[BaseGeometry] = Field(default_factory=list, description="当前几何对象直接依赖的其他几何对象列表", init=False)
     dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表", init=False)
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
 
     def add_dependent(self, obj: BaseGeometry):
         """
-        添加上游依赖对象
+        添加依赖于当前对象的下游对象
         
+        - `obj`: 下游依赖对象
+        """
+        if obj not in self.dependents:
+            self.dependents.append(obj)
+
+    def remove_dependent(self, obj: Optional[BaseGeometry]):
+        """
+        移除依赖于当前对象的下游对象
+        
+        - `obj`: 需要移除的下游依赖对象，如果为 None 则移除所有依赖
+        """
+        if obj is None:
+            self.dependents.clear()
+        else:
+            if obj in self.dependents:
+                self.dependents.remove(obj)
+
+    def _add_dependency(self, obj: BaseGeometry):
+        """
+        添加当前对象直接依赖的上游几何对象
+
         - `obj`: 上游依赖对象
         """
-        self.dependents.append(obj)
+        if obj not in self._dependencies:
+            self._dependencies.append(obj)
+            obj.add_dependent(self) # 同时将当前对象添加到上游的 dependents 列表中
 
-    def remove_dependent(self, obj: BaseGeometry):
+    def _remove_dependency(self, obj: Optional[BaseGeometry]):
         """
-        删除上游依赖对象
-        
-        - `obj`: 需要删除的上游依赖对象
+        移除当前对象直接依赖的上游几何对象
+
+        - `obj`: 需要移除的上游依赖对象，如果为 None 则移除所有依赖
         """
-        self.dependents.remove(obj)
+        if obj is None:
+            for dep in self._dependencies:
+                dep.remove_dependent(self)
+            self._dependencies.clear()
+        else:
+            if obj in self._dependencies:
+                self._dependencies.remove(obj)
+                obj.remove_dependent(self)
 
     def board_update_msg(self, on_error: bool = False):
         """
@@ -59,33 +106,53 @@ class BaseGeometry(BaseModel):
         - `on_error`: 是否在更新过程中发生错误，默认为 False
         """
         for dep in self.dependents:
-            dep.update()
+            dep.update() # 递归更新下游
             dep.on_error = on_error
 
-    def update(self, *new_objs: Optional[Union[BaseGeometry, Any]]):
+    def update(self, new_args_model: Optional[BaseModel] = None):
         """
         执行当前对象的更新
         
-        - `new_objs`: 如果在当前阶段引入了新的计算上游，则通过 `new_objs` 传入上游对象
+        - `new_args_model`: 如果需要更新构造参数，则传入新的 Pydantic 参数模型实例。如果传入，会尝试替换 adapter.args
         """
-
-        if new_objs != None and len(new_objs) > 0:
-            self.objs = list(new_objs)
+        if new_args_model:
+            try:
+                # 检查传入的模型类型是否与当前适配器期望的 args 类型兼容
+                # 简化的检查，更严格的检查可能需要比较 TypeVar ArgsModel
+                if not isinstance(new_args_model, type(self.adapter.args)):
+                    raise TypeError(f"传入的参数模型类型 {type(new_args_model).__name__} 与当前适配器期望的类型 {type(self.adapter.args).__name__} 不匹配。")
+                
+                self.adapter.args = new_args_model
+            
+            except (TypeError, ValidationError) as e:
+                logger.error(f"更新对象 {self.name} 的参数失败: {e}")
+                self.board_update_msg(True)
+                self.on_error = True
+                return
+            
+            except Exception as e:
+                logger.error(f"更新对象 {self.name} 的参数时发生未知错误: {e}")
+                self.board_update_msg(True)
+                self.on_error = True
+                return
         
         try:
-            # 重新向适配器注入对象，适配器计算相关属性
-            self.adapter(*self.objs)
+            # 调用适配器进行计算
+            self.adapter()
             # 将参数从适配器绑定到几何对象
             self.adapter.bind_attributes(self, self.attrs)
             
-        except Exception:
+        except Exception as e:
             if GeoUtils.GEO_PRINT_EXC:
-                logger.warning(f"上游节点 {self.name} ({type(self).__name__}) 计算失败", exc_info=True)
-
+                print(e) # 调试时可以打开
+                logger.warning(f"节点 {self.name} ({type(self).__name__}) 计算失败", exc_info=True)
+            
             # 传播更新消息并标记错误
             self.board_update_msg(True)
             self.on_error = True
             return
-
+        
+        # 成功更新，清除错误标记
+        self.on_error = False
         # 向下游广播更新信息
         self.board_update_msg()

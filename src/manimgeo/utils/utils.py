@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from ..components import *
 
 class GeoUtils:
-    GEO_PRINT_EXC: bool = False
+    GEO_PRINT_EXC: bool = True
     
     @staticmethod
     def check_params(objs: Sequence, *expected_types):
