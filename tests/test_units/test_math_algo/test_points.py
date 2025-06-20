@@ -48,12 +48,19 @@ def test_axisymmetric_point(point, line_start, line_end, expected):
         pytest.param([0.5, 0, 0], [0, 0, 0], 0.5, [0.5, 0, 0], id="different_r"), # 点在球面上
         pytest.param([0.25, 0, 0], [0, 0, 0], 0.5, [1, 0, 0], id="different_r"),  # 点在球内 (0.25 -> 0.5^2/0.25 = 1)
         pytest.param([1, 0, 0], [0, 0, 0], 0.5, [0.25, 0, 0], id="different_r"),  # 点在球外 (1 -> 0.5^2/1 = 0.25)
+        pytest.param([0, 0, 0], [0, 0, 0], 1, None, id="center_point"), # 点与圆心重合
     ]
 )
 def test_inversion_point(point, center, r, expected):
     point = np.array(point, dtype=float)
     center = np.array(center, dtype=float)
-    expected = np.array(expected, dtype=float)
-
-    result = inversion_point(point, center, r)
-    assert close(result, expected), f"Expected {expected}, got {result}"
+    if expected:
+        expected = np.array(expected, dtype=float)
+        result = inversion_point(point, center, r)
+        assert close(result, expected), f"Expected {expected}, got {result}"
+    else:
+        try:
+            result = inversion_point(point, center, r)
+            pytest.fail(f"Expected ValueError but no exception was raised. get {result}")
+        except ValueError:
+            pass

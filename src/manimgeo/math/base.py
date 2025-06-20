@@ -13,6 +13,12 @@ def close(a: Union[np.ndarray, Number], b: Union[np.ndarray, Number]) -> bool:
     if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
         return np.allclose(a, b, atol=cfg.atol, rtol=cfg.rtol)
     elif isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        if np.isnan(a) or np.isnan(b):
+            return False # NaN 永远不等于任何值，包括自身
+        if np.isinf(a) and np.isinf(b):
+            return (a == b) # 只有符号相同才相等 (inf == inf, -inf == -inf)
+        if np.isinf(a) or np.isinf(b):
+            return False # 一个是无穷大，另一个是有限数，则不相等
         return abs(a - b) <= cfg.atol + cfg.rtol * abs(b)
     else:
         raise TypeError("不允许比较类型不同的两个数据是否一致: {} and {}".format(type(a), type(b)))
