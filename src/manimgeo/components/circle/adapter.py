@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from ...utils.mathe import GeoMathe
+from ...math import (
+    circumcenter_r_c,
+    inscribed_r_c,
+)
 from ..base import GeometryAdapter
 from .construct import *
 from pydantic import Field
@@ -36,7 +39,7 @@ class CircleAdapter(GeometryAdapter[CircleConstructArgs]):
 
             case "PPP":
                 args = cast(PPPArgs, self.args)
-                self.radius, self.center = GeoMathe.circumcenter_r_c(
+                self.radius, self.center = circumcenter_r_c(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
@@ -51,7 +54,7 @@ class CircleAdapter(GeometryAdapter[CircleConstructArgs]):
 
             case "InscribePPP":
                 args = cast(InscribePPPArgs, self.args)
-                self.radius, self.center = GeoMathe.inscribed_r_c(args.point1.coord, args.point2.coord, args.point3.coord)
+                self.radius, self.center = inscribed_r_c(args.point1.coord, args.point2.coord, args.point3.coord)
 
             case _:
                 raise NotImplementedError(f"Invalid constructing method: {self.construct_type}")

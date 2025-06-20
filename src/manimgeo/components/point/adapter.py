@@ -1,11 +1,19 @@
 from __future__ import annotations
 
-from ...utils.mathe import GeoMathe
 from pydantic import Field
 from typing import cast
 import numpy as np
 
-# 基类与参数模型
+from ...math import (
+    axisymmetric_point,
+    vertical_point_to_line,
+    inversion_point,
+    intersection_line_line,
+    circumcenter_r_c,
+    inscribed_r_c,
+    orthocenter_r_c,
+    angle_3p_countclockwise,
+)
 from ..base import GeometryAdapter
 from .construct import *
 
@@ -38,11 +46,11 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "AxisymmetricPL":
                 args = cast(AxisymmetricPLArgs, self.args)
-                self.coord = GeoMathe.axisymmetric_point(args.point.coord, args.line.start, args.line.end)
+                self.coord = axisymmetric_point(args.point.coord, args.line.start, args.line.end)
 
             case "VerticalPL":
                 args = cast(VerticalPLArgs, self.args)
-                self.coord = GeoMathe.vertical_point_to_line(args.point.coord, args.line.start, args.line.end)
+                self.coord = vertical_point_to_line(args.point.coord, args.line.start, args.line.end)
 
             case "ParallelPL":
                 args = cast(ParallelPLArgs, self.args)
@@ -50,22 +58,20 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "InversionPCir":
                 args = cast(InversionPCirArgs, self.args)
-                self.coord = GeoMathe.inversion_point(args.point.coord, args.circle.center, args.circle.radius)
+                self.coord = inversion_point(args.point.coord, args.circle.center, args.circle.radius)
 
             case "IntersectionLL":
                 args = cast(IntersectionLLArgs, self.args)
-                result = GeoMathe.intersection_line_line(
+                result = intersection_line_line(
                     args.line1.start, args.line1.end,
                     args.line2.start, args.line2.end,
                     args.line1.line_type, args.line2.line_type,
                     args.regard_infinite
                 )
-                if result[0] and result[1] is not None:
-                    self.coord = result[1]
-                elif result[0] and result[1] is None:
-                    raise ValueError("Infinites intersections")
+                if result:
+                    self.coord = result
                 else:
-                    raise ValueError("No intersections")
+                    raise ValueError(f"两线无交点: {args.line1.name}, {args.line2.name}")
                 
             case "TranslationPV":
                 args = cast(TranslationPVArgs, self.args)
@@ -77,19 +83,19 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "CircumcenterPPP":
                 args = cast(CircumcenterPPPArgs, self.args)
-                _, self.coord = GeoMathe.circumcenter_r_c(
+                _, self.coord = circumcenter_r_c(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
             case "IncenterPPP":
                 args = cast(IncenterPPPArgs, self.args)
-                _, self.coord = GeoMathe.inscribed_r_c(
+                _, self.coord = inscribed_r_c(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
             case "OrthocenterPPP":
                 args = cast(OrthocenterPPPArgs, self.args)
-                self.coord = GeoMathe.orthocenter(
+                _, self.coord = orthocenter_r_c(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
@@ -99,8 +105,10 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "RotatePPA":
                 args = cast(RotatePPAArgs, self.args)
-                angle_num = args.angle.angle if args.angle.turn == 'Counterclockwise' else (2 * np.pi - args.angle.angle) # type: ignore
-                self.coord = GeoMathe.angle_3p_countclockwise(args.point.coord, args.center.coord, angle_num) # type: ignore
+                angle_num = args.angle.angle if args.angle.turn == 'Counterclockwise' else (2 * np.pi - args.angle.angle)
+                # BUG
+                # self.coord = angle_3p_countclockwise(args.point.coord, args.center.coord, angle_num)
+                self.coord = args.point.coord
 
             case _:
                 raise NotImplementedError(f"Invalid construct type: {self.construct_type}")

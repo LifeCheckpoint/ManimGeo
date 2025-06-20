@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from ...utils.mathe import GeoMathe
 from pydantic import Field
 from typing import cast
 import numpy as np
 
+from ...math import (
+    close,
+    unit_direction_vector,
+)
 from ..base import GeometryAdapter
 from .construct import *
 
@@ -35,7 +38,7 @@ class VectorAdapter(GeometryAdapter[VectorConstructArgs]): # 继承 GeometryAdap
 
             case "NNormDirection":
                 args = cast(NNormDirectionArgs, self.args)
-                self.vec = args.norm * GeoMathe.unit_direction_vector(np.zeros_like(args.direction), args.direction)
+                self.vec = args.norm * unit_direction_vector(np.zeros_like(args.direction), args.direction)
 
             case "AddVV":
                 args = cast(AddVVArgs, self.args)
@@ -54,7 +57,7 @@ class VectorAdapter(GeometryAdapter[VectorConstructArgs]): # 继承 GeometryAdap
 
         self.norm = float(np.linalg.norm(self.vec))
         # 避免除以零
-        if self.norm > 1e-9:
+        if not close(self.norm, 0):
             self.unit_direction = self.vec / self.norm
         else:
             self.unit_direction = np.zeros(2)

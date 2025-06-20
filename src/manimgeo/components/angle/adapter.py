@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from ...utils.mathe import GeoMathe
 from pydantic import Field
 from typing import Literal, cast
 import numpy as np
 
+from ...math import (
+    angle_3p_countclockwise as angle_3p_ccw,
+)
 from ..base import GeometryAdapter
 from .construct import *
 
@@ -18,19 +20,19 @@ class AngleAdapter(GeometryAdapter[AngleConstructArgs]): # 继承 GeometryAdapte
         match self.construct_type:
             case "PPP":
                 args = cast(PPPArgs, self.args)
-                self.angle = GeoMathe.angle_3p_countclockwise(args.start.coord, args.center.coord, args.end.coord)
+                self.angle = angle_3p_ccw(args.start.coord, args.center.coord, args.end.coord)
                 self.turn = "Counterclockwise"
 
             case "LL":
                 args = cast(LLArgs, self.args)
                 if not np.allclose(args.line1.start, args.line2.start):
                     raise ValueError("无法从起始点不等的两条线构造角")
-                self.angle = GeoMathe.angle_3p_countclockwise(args.line1.end, args.line1.start, args.line2.end)
+                self.angle = angle_3p_ccw(args.line1.end, args.line1.start, args.line2.end)
                 self.turn = "Counterclockwise"
 
             case "LP":
                 args = cast(LPArgs, self.args)
-                self.angle = GeoMathe.angle_3p_countclockwise(args.line.end, args.line.start, args.point.coord)
+                self.angle = angle_3p_ccw(args.line.end, args.line.start, args.point.coord)
                 self.turn = "Counterclockwise"
 
             case "N":
