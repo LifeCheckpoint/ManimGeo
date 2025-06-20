@@ -21,6 +21,10 @@ class GeometryAdapter(BaseModel, Generic[ArgsModel]):
     def construct_type(self) -> str:
         # 所有 ArgsModel 都需要有一个 construct_type 字段
         return getattr(self.args, 'construct_type', 'Unknown')
+    
+    def __repr__(self):
+        # 原始 BaseModel 的 __repr__ 方法开销巨大，改为简化输出
+        return f"{self.__class__.__name__}(args={self.args})"
 
     def bind_attributes(self, target: BaseGeometry, attrs: List[str]):
         """
@@ -42,7 +46,7 @@ class GeometryAdapter(BaseModel, Generic[ArgsModel]):
 
 class BaseGeometry(BaseModel):
     """几何对象基类"""
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
     
     name: str = Field(description="几何对象名称")
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
@@ -51,6 +55,10 @@ class BaseGeometry(BaseModel):
     dependencies: List[BaseGeometry] = Field(default_factory=list, description="当前几何对象直接依赖的其他几何对象列表", init=False)
     dependents: List[BaseGeometry] = Field(default_factory=list, description="依赖于当前几何对象的其他几何对象列表", init=False)
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
+
+    def __repr__(self):
+        # 原始 BaseModel 的 __repr__ 方法开销巨大，改为简化输出
+        return f"{self.__class__.__name__}(name={self.name}, adapter={self.adapter}, attrs={self.attrs}, dependencies={len(self.dependencies)}, dependents={len(self.dependents)}, on_error={self.on_error})"
 
     def get_name(self, default_name: str):
         """以统一方式设置几何对象名称"""
