@@ -1,3 +1,3 @@
 from .circle import Circle
 from .adapter import CircleAdapter
-from .construct import CircleConstructType
+from .construct import CircleConstructType, CircleConstructArgs

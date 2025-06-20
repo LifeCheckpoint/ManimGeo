@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from ...utils.utils import GeoUtils
-from ..base import BaseGeometry
-from .adapter import CircleAdapter
-from .construct import CircleConstructType, Number
-from pydantic import Field
+from pydantic import Field, validate_call
 from typing import TYPE_CHECKING, List, Any
 import numpy as np
+
+from ..base import BaseGeometry
+from .adapter import CircleAdapter
+from .construct import *
 
 if TYPE_CHECKING:
     from ..line import LineSegment
@@ -14,42 +15,46 @@ if TYPE_CHECKING:
     from ..vector import Vector
 
 class Circle(BaseGeometry):
-    """
-    圆对象，允许如下构造：
-    - `PR`: 通过中心点与半径构造圆
-    - `PP`: 通过中心点与圆上一点构造圆
-    - `L`: 通过半径线段构造圆
-    - `PPP`: 通过圆上三点构造圆
-    - `TranslationCirV`: 通过平移向量平移原始圆构造新圆
-    - `InverseCirCir`: 通过反演圆构造新圆
-    - `InscribePPP`: 通过三点构造内切圆
-    """
     attrs: List[str] = Field(default=["center", "radius", "area", "circumference"], description="圆属性列表", init=False)
-    center: np.ndarray = Field(default=np.zeros(2), description="圆心坐标")
-    radius: Number = Field(default=0.0, description="圆半径")
-    area: Number = Field(default=0.0, description="圆面积")
-    circumference: Number = Field(default=0.0, description="圆周长")
+    center: np.ndarray = Field(default=np.zeros(2), description="圆心坐标", init=False)
+    radius: Number = Field(default=0.0, description="圆半径", init=False)
+    area: Number = Field(default=0.0, description="圆面积", init=False)
+    circumference: Number = Field(default=0.0, description="圆周长", init=False)
 
-    construct_type: CircleConstructType = Field(description="圆构造方式")
-    adapter: CircleAdapter = Field(default=CircleAdapter(construct_type="PR", objs=[]), description="圆适配器", init=False)
+    args: CircleConstructArgs = Field(discriminator='construct_type', description="圆构造参数")
+
+    @property
+    def construct_type(self) -> CircleConstructType:
+        return self.args.construct_type
 
     def model_post_init(self, __context: Any):
         """模型初始化后，更新名字并添加依赖关系"""
-        self.adapter = CircleAdapter(
-            construct_type=self.construct_type,
-            objs=self.objs,
-        )
+        self.adapter = CircleAdapter(args=self.args)
         self.name = GeoUtils.get_name(self.name, self, self.adapter.construct_type)
 
-        # 为上游对象添加依赖关系
-        for obj in self.objs:
-            if isinstance(obj, BaseGeometry):
-                obj.add_dependent(self)
+        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
+        # 普通类型将被忽略
+        for field_name, field_info in self.args.__class__.model_fields.items():
+            field_value = getattr(self.args, field_name)
 
-        self.update()
+            # 基本几何对象
+            if isinstance(field_value, BaseGeometry):
+                self._add_dependency(field_value)
+
+            # 列表类型依赖 (extended)
+            elif isinstance(field_value, list):
+                for item in field_value:
+                    if isinstance(item, BaseGeometry):
+                        self._add_dependency(item)
+
+            # 可拓展
+
+        self.update() # 首次计算
 
     # 构造方法
+    
     @staticmethod
+    @validate_call
     def PR(center: Point, radius: Number, name: str = "") -> Circle:
         """
         ## 中心与半径构造圆
@@ -59,11 +64,11 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="PR",
-            objs=[center, radius],
+            args=PRArgs(center=center, radius=radius),
         )
-    
+
     @staticmethod
+    @validate_call
     def PP(center: Point, point: Point, name: str = "") -> Circle:
         """
         ## 中心与圆上一点构造圆
@@ -73,11 +78,11 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="PP",
-            objs=[center, point],
+            args=PPArgs(center=center, point=point),
         )
-    
+
     @staticmethod
+    @validate_call
     def L(radius_segment: LineSegment, name: str = "") -> Circle:
         """
         ## 半径线段构造圆
@@ -86,11 +91,11 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="L",
-            objs=[radius_segment],
+            args=LArgs(radius_segment=radius_segment),
         )
-    
+
     @staticmethod
+    @validate_call
     def PPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
         ## 圆上三点构造圆
@@ -101,11 +106,11 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="PPP",
-            objs=[point1, point2, point3],
+            args=PPPArgs(point1=point1, point2=point2, point3=point3),
         )
 
     @staticmethod
+    @validate_call
     def TranslationCirV(circle: Circle, vec: Vector, name: str = "") -> Circle:
         """
         ## 平移构造圆
@@ -115,11 +120,11 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="TranslationCirV",
-            objs=[circle, vec],
+            args=TranslationCirVArgs(circle=circle, vector=vec),
         )
-    
+
     @staticmethod
+    @validate_call
     def InverseCirCir(circle: Circle, base_circle: Circle, name: str = "") -> Circle:
         """
         ## 构造反演圆
@@ -129,11 +134,11 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="InverseCirCir",
-            objs=[circle, base_circle],
+            args=InverseCirCirArgs(circle=circle, base_circle=base_circle),
         )
-    
+
     @staticmethod
+    @validate_call
     def InscribePPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
         ## 三点内切圆
@@ -144,6 +149,5 @@ class Circle(BaseGeometry):
         """
         return Circle(
             name=name,
-            construct_type="InscribePPP",
-            objs=[point1, point2, point3],
+            args=InscribePPPArgs(point1=point1, point2=point2, point3=point3),
         )

@@ -1,81 +1,57 @@
 from __future__ import annotations
 
 from ...utils.mathe import GeoMathe
-from ...utils.utils import GeoUtils
-from ..base import GeometryAdapter, BaseGeometry
-from .construct import CircleConstructType, Number
+from ..base import GeometryAdapter
+from .construct import *
 from pydantic import Field
-from typing import TYPE_CHECKING, List, Union, Any, cast
+from typing import TYPE_CHECKING, cast
 import numpy as np
 
-if TYPE_CHECKING:
-    from ..point import Point
-    from ..vector import Vector
-    from ..line import LineSegment
-    from .circle import Circle
+class CircleAdapter(GeometryAdapter[CircleConstructArgs]):
+    center: np.ndarray = Field(default=np.zeros(2), description="计算圆心坐标", init=False)
+    radius: Number = Field(default=0.0, description="计算圆半径", init=False)
+    area: Number = Field(default=0.0, description="计算圆面积", init=False)
+    circumference: Number = Field(default=0.0, description="计算圆周长", init=False)
 
-class CircleAdapter(GeometryAdapter):
-    center: np.ndarray = Field(default=np.zeros(2), description="计算圆心坐标")
-    radius: Number = Field(default=0.0, description="计算圆半径")
-    area: Number = Field(default=0.0, description="计算圆面积")
-    circumference: Number = Field(default=0.0, description="计算圆周长")
-    construct_type: CircleConstructType = Field(description="圆计算方式")
-    objs: List[Union[BaseGeometry, Any]] = Field(description="圆适配器依赖的其他对象列表")
-
-    def __call__(self, *objs: Union[BaseGeometry, Any]):
-
-        op_type_map = {
-            "PR": [Point, Number],
-            "PP": [Point, Point],
-            "L": [LineSegment],
-            "PPP": [Point, Point, Point],
-            "TranslationCirV": [Circle, Vector],
-            "InverseCirCir": [Circle, Circle],
-            "InscribePPP": [Point, Point, Point]
-        }
-        GeoUtils.check_params_batch(op_type_map, self.construct_type, objs)
+    def __call__(self):
+        """根据 self.args 执行具体计算"""
 
         match self.construct_type:
             case "PR":
-                self.center = cast(Point, objs[0]).coord.copy()
-                self.radius = cast(Number, objs[1])
+                args = cast(PRArgs, self.args)
+                self.center = args.center.coord.copy()
+                self.radius = args.radius
 
             case "PP":
-                center = cast(Point, objs[0])
-                point = cast(Point, objs[1])
-                self.center = center.coord.copy()
-                self.radius = np.linalg.norm(point.coord - center.coord) # type: ignore
+                args = cast(PPArgs, self.args)
+                self.center = args.center.coord.copy()
+                self.radius = np.linalg.norm(args.point.coord - args.center.coord) # type: ignore
 
             case "L":
-                start = cast(LineSegment, objs[0]).start.copy()
-                end = cast(LineSegment, objs[0]).end.copy()
+                args = cast(LArgs, self.args)
+                start = args.radius_segment.start.copy()
+                end = args.radius_segment.end.copy()
                 self.center = start
                 self.radius = np.linalg.norm(end - start) # type: ignore
 
             case "PPP":
-                point1 = cast(Point, objs[0])
-                point2 = cast(Point, objs[1])
-                point3 = cast(Point, objs[2])
+                args = cast(PPPArgs, self.args)
                 self.radius, self.center = GeoMathe.circumcenter_r_c(
-                    point1.coord, point2.coord, point3.coord
+                    args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
             case "TranslationCirV":
-                circle = cast(Circle, objs[0])
-                vec = cast(Vector, objs[1])
-                self.center = circle.center + vec.vec
-                self.radius = circle.radius
+                args = cast(TranslationCirVArgs, self.args)
+                self.center = args.circle.center + args.vector.vec
+                self.radius = args.circle.radius
 
             case "InverseCirCir":
-                circle = cast(Circle, objs[0])
-                base_circle = cast(Circle, objs[1])
-                self.center, self.radius = GeoMathe.inverse_circle(circle.center, circle.radius, base_circle.center, base_circle.radius)
+                args = cast(InverseCirCirArgs, self.args)
+                self.center, self.radius = GeoMathe.inverse_circle(args.circle.center, args.circle.radius, args.base_circle.center, args.base_circle.radius)
 
             case "InscribePPP":
-                point1 = cast(Point, objs[0])
-                point2 = cast(Point, objs[1])
-                point3 = cast(Point, objs[2])
-                self.radius, self.center = GeoMathe.inscribed_r_c(point1.coord, point2.coord, point3.coord)
+                args = cast(InscribePPPArgs, self.args)
+                self.radius, self.center = GeoMathe.inscribed_r_c(args.point1.coord, args.point2.coord, args.point3.coord)
 
             case _:
                 raise NotImplementedError(f"Invalid constructing method: {self.construct_type}")
