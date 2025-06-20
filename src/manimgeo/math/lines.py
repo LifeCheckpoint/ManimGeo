@@ -8,6 +8,7 @@ logger = getLogger(__name__)
 def check_paramerized_line_range(t: Number, line_type: Literal["LineSegment", "Ray", "InfinityLine"]):
     """
     检查参数化直线的范围是否符合要求
+    
     - `t`: 参数值
     - `line_type`: 直线类型，可为 "LineSegment", "Ray", "InfinityLine"
     """
@@ -27,11 +28,41 @@ def check_paramerized_line_range(t: Number, line_type: Literal["LineSegment", "R
 
 @array2float
 def vertical_line_unit_direction(line_start: np.ndarray, line_end: np.ndarray, turn: Literal["clockwise", "counterclockwise"] = "counterclockwise") -> np.ndarray:
-    """计算给定直线的垂线方向向量"""
+    """
+    计算给定直线的垂线方向向量
+
+    - `line_start`: 直线起点
+    - `line_end`: 直线终点
+    - `turn`: 方向，可为 "clockwise" 或 "counterclockwise"
+    """
     from .vectors import unit_direction_vector
     direction = unit_direction_vector(line_start, line_end)
     direction[0], direction[1] = -direction[1], direction[0]
     return direction if turn == "counterclockwise" else -direction
+
+@array2float
+def vertical_point_to_line(point: np.ndarray, line_start: np.ndarray, line_end: np.ndarray):
+    """
+    计算给定点到直线的垂足点
+
+    - `point`: 要计算垂足点的点
+    - `line_start`: 直线起点
+    - `line_end`: 直线终点
+    """
+    v = line_end - line_start
+    v_squared_norm = np.dot(v, v)
+
+    # 如果直线退化为一个点 (l_start == l_end)，垂足点就是这个点本身
+    if close(v_squared_norm, 0):
+        return line_start.copy()
+        
+    # t = ((p - l_start).v) / (v.v)
+    # 这个 t 值表示垂足点在参数化直线 l_start + t * v 上的位置
+    t = np.dot(point - line_start, v) / v_squared_norm
+    
+    # 垂足点 q = l_start + t * v
+    foot_of_perpendicular = line_start + t * v
+    return foot_of_perpendicular
 
 @array2float
 def point_to_line_distance(point: np.ndarray, line_start: np.ndarray, line_end: np.ndarray):
