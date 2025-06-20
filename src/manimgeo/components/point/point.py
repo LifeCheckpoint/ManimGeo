@@ -62,9 +62,9 @@ class Point(BaseGeometry):
 
     # 构造方法
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def Free(coord: np.ndarray, name: str = "") -> Point:
+    def Free(cls, coord: np.ndarray, name: str = "") -> Point:
         """
         构造自由点（叶子节点）
 
@@ -75,9 +75,9 @@ class Point(BaseGeometry):
             args=FreeArgs(coord=coord)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def Constraint(coord: np.ndarray, name: str = "") -> Point:
+    def Constraint(cls, coord: np.ndarray, name: str = "") -> Point:
         """
         构造约束点（非叶子节点）
 
@@ -88,9 +88,9 @@ class Point(BaseGeometry):
             args=ConstraintArgs(coord=coord)
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def MidPP(point1: Point, point2: Point, name: str = "") -> Point:
+    def MidPP(cls, point1: Point, point2: Point, name: str = "") -> Point:
         """
         构造两点中点
 
@@ -102,9 +102,9 @@ class Point(BaseGeometry):
             args=MidPPArgs(point1=point1, point2=point2)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def MidL(line: LineSegment, name: str = "") -> Point:
+    def MidL(cls, line: LineSegment, name: str = "") -> Point:
         """
         构造线段中点
 
@@ -115,9 +115,9 @@ class Point(BaseGeometry):
             args=MidLArgs(line=line)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def ExtensionPP(start: Point, through: Point, factor: Number, name: str = "") -> Point:
+    def ExtensionPP(cls, start: Point, through: Point, factor: Number, name: str = "") -> Point:
         """
         构造比例延长（位似）点
 
@@ -130,9 +130,9 @@ class Point(BaseGeometry):
             args=ExtensionPPArgs(start=start, through=through, factor=factor)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def AxisymmetricPL(point: Point, line: Line, name: str = "") -> Point:
+    def AxisymmetricPL(cls, point: Point, line: Line, name: str = "") -> Point:
         """
         构造轴对称点
 
@@ -144,9 +144,9 @@ class Point(BaseGeometry):
             args=AxisymmetricPLArgs(point=point, line=line)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def VerticalPL(point: Point, line: Line, name: str = "") -> Point:
+    def VerticalPL(cls, point: Point, line: Line, name: str = "") -> Point:
         """
         构造垂足点
 
@@ -158,9 +158,9 @@ class Point(BaseGeometry):
             args=VerticalPLArgs(point=point, line=line)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def ParallelPL(point: Point, line: Line, distance: Number, name: str = "") -> Point:
+    def ParallelPL(cls, point: Point, line: Line, distance: Number, name: str = "") -> Point:
         """
         构造平行线上一点
 
@@ -173,9 +173,9 @@ class Point(BaseGeometry):
             args=ParallelPLArgs(point=point, line=line, distance=distance)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def InversionPCir(point: Point, circle: Circle, name: str = "") -> Point:
+    def InversionPCir(cls, point: Point, circle: Circle, name: str = "") -> Point:
         """
         构造反演点
 
@@ -187,9 +187,9 @@ class Point(BaseGeometry):
             args=InversionPCirArgs(point=point, circle=circle)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def IntersectionLL(line1: Line, line2: Line, regard_infinite: bool = False, name: str = "") -> Point:
+    def IntersectionLL(cls, line1: Line, line2: Line, regard_infinite: bool = False, name: str = "") -> Point:
         """
         构造两线交点
 
@@ -202,9 +202,9 @@ class Point(BaseGeometry):
             args=IntersectionLLArgs(line1=line1, line2=line2, regard_infinite=regard_infinite)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def TranslationPV(point: Point, vector: Vector, name: str = "") -> Point:
+    def TranslationPV(cls, point: Point, vector: Vector, name: str = "") -> Point:
         """
         构造平移点
 
@@ -216,9 +216,9 @@ class Point(BaseGeometry):
             args=TranslationPVArgs(point=point, vector=vector)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def CentroidPPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
+    def CentroidPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形重心
 
@@ -231,9 +231,9 @@ class Point(BaseGeometry):
             args=CentroidPPPArgs(point1=point1, point2=point2, point3=point3)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def CircumcenterPPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
+    def CircumcenterPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形外心
 
@@ -246,9 +246,9 @@ class Point(BaseGeometry):
             args=CircumcenterPPPArgs(point1=point1, point2=point2, point3=point3)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def IncenterPPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
+    def IncenterPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形内心
 
@@ -261,9 +261,9 @@ class Point(BaseGeometry):
             args=IncenterPPPArgs(point1=point1, point2=point2, point3=point3)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def OrthocenterPPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
+    def OrthocenterPPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Point:
         """
         构造三角形垂心
 
@@ -276,9 +276,9 @@ class Point(BaseGeometry):
             args=OrthocenterPPPArgs(point1=point1, point2=point2, point3=point3)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def Cir(circle: Circle, name: str = "") -> Point:
+    def Cir(cls, circle: Circle, name: str = "") -> Point:
         """
         构造圆心
 
@@ -289,9 +289,9 @@ class Point(BaseGeometry):
             args=CirArgs(circle=circle)
         )
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def RotatePPA(point: Point, center: Point, angle: Angle, name: str = "") -> Point:
+    def RotatePPA(cls, point: Point, center: Point, angle: Angle, name: str = "") -> Point:
         """
         构造旋转点
 

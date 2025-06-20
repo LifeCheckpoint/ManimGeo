@@ -53,9 +53,9 @@ class Circle(BaseGeometry):
 
     # 构造方法
     
-    @staticmethod
+    @classmethod
     @validate_call
-    def PR(center: Point, radius: Number, name: str = "") -> Circle:
+    def PR(cls, center: Point, radius: Number, name: str = "") -> Circle:
         """
         中心与半径构造圆
 
@@ -67,9 +67,9 @@ class Circle(BaseGeometry):
             args=PRArgs(center=center, radius=radius),
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def PP(center: Point, point: Point, name: str = "") -> Circle:
+    def PP(cls, center: Point, point: Point, name: str = "") -> Circle:
         """
         中心与圆上一点构造圆
 
@@ -81,9 +81,9 @@ class Circle(BaseGeometry):
             args=PPArgs(center=center, point=point),
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def L(radius_segment: LineSegment, name: str = "") -> Circle:
+    def L(cls, radius_segment: LineSegment, name: str = "") -> Circle:
         """
         半径线段构造圆
 
@@ -94,9 +94,9 @@ class Circle(BaseGeometry):
             args=LArgs(radius_segment=radius_segment),
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def PPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
+    def PPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
         圆上三点构造圆
 
@@ -109,9 +109,9 @@ class Circle(BaseGeometry):
             args=PPPArgs(point1=point1, point2=point2, point3=point3),
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def TranslationCirV(circle: Circle, vec: Vector, name: str = "") -> Circle:
+    def TranslationCirV(cls, circle: Circle, vec: Vector, name: str = "") -> Circle:
         """
         平移构造圆
 
@@ -123,9 +123,9 @@ class Circle(BaseGeometry):
             args=TranslationCirVArgs(circle=circle, vector=vec),
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def InverseCirCir(circle: Circle, base_circle: Circle, name: str = "") -> Circle:
+    def InverseCirCir(cls, circle: Circle, base_circle: Circle, name: str = "") -> Circle:
         """
         构造反演圆
 
@@ -137,9 +137,9 @@ class Circle(BaseGeometry):
             args=InverseCirCirArgs(circle=circle, base_circle=base_circle),
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def InscribePPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
+    def InscribePPP(cls, point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
         三点内切圆
 

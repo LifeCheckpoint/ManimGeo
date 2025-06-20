@@ -68,9 +68,9 @@ class Vector(BaseGeometry):
         )
 
     # 构造方法
-    @staticmethod
+    @classmethod
     @validate_call
-    def PP(start: Point, end: Point, name: str = ""):
+    def PP(cls, start: Point, end: Point, name: str = ""):
         """
         通过两点构造向量
 
@@ -82,9 +82,9 @@ class Vector(BaseGeometry):
             args=PPArgs(start=start, end=end)
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def L(line: LineSegment, name: str = ""):
+    def L(cls, line: LineSegment, name: str = ""):
         """
         通过线段构造向量
 
@@ -95,9 +95,9 @@ class Vector(BaseGeometry):
             args=LArgs(line=line)
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def N(vec: np.ndarray, name: str = ""):
+    def N(cls, vec: np.ndarray, name: str = ""):
         """
         （数值）构造向量
 
@@ -108,9 +108,9 @@ class Vector(BaseGeometry):
             args=NArgs(vec=vec)
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def NPP(start: np.ndarray, end: np.ndarray, name: str = ""):
+    def NPP(cls, start: np.ndarray, end: np.ndarray, name: str = ""):
         """
         通过两点（数值）构造向量
 
@@ -122,9 +122,9 @@ class Vector(BaseGeometry):
             args=NPPArgs(start=start, end=end)
         )
 
-    @staticmethod
+    @classmethod
     @validate_call
-    def NNormDirection(norm: Number, direction: np.ndarray, name: str = ""):
+    def NNormDirection(cls, norm: Number, direction: np.ndarray, name: str = ""):
         """
         通过模长与方向构造向量
 
