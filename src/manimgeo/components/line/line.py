@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ...utils.utils import GeoUtils
-from pydantic import Field, validate_call
+from pydantic import Field, validate_call, model_validator
 from typing import TYPE_CHECKING, List, Any, TypeVar, Type
 import numpy as np
 
@@ -36,6 +36,16 @@ class Line(BaseGeometry):
 
     args: LineConstructArgs = Field(discriminator='construct_type', description="线构造参数")
     adapter: LineAdapter = Field(init=False) # adapter 初始化将在 model_post_init 中进行
+
+    @model_validator(mode='before')
+    @classmethod
+    def set_adapter_before_validation(cls, data: Any) -> Any:
+        """在验证前设置 adapter 字段"""
+        if isinstance(data, dict) and 'args' in data:
+            # 假设 args 已经是 Pydantic 模型或可以被 LineAdapter 接受
+            data['adapter'] = LineAdapter(args=data['args'])
+        return data
+
     line_type: Literal["LineSegment", "Ray", "InfinityLine"] = Field(description="线类型，子类会尝试覆盖")
 
     @property

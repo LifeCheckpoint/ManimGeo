@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ...utils.utils import GeoUtils
-from pydantic import Field, validate_call
+from pydantic import Field, validate_call, model_validator
 from typing import TYPE_CHECKING, Literal, List, Any
 
 from ..base import BaseGeometry
@@ -17,6 +17,15 @@ class Angle(BaseGeometry):
     angle: Number = Field(default=0.0, description="角度大小", init=False)
     turn: Literal["Clockwise", "Counterclockwise"] = Field(default="Counterclockwise", description="角方向", init=False)
     args: AngleConstructArgs = Field(discriminator='construct_type', description="角构造参数")
+
+    @model_validator(mode='before')
+    @classmethod
+    def set_adapter_before_validation(cls, data: Any) -> Any:
+        """在验证前设置 adapter 字段"""
+        if isinstance(data, dict) and 'args' in data:
+            # 假设 args 已经是 Pydantic 模型或可以被 AngleAdapter 接受
+            data['adapter'] = AngleAdapter(args=data['args'])
+        return data
 
     @property
     def construct_type(self) -> AngleConstructType:

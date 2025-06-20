@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ...utils.utils import GeoUtils
-from pydantic import Field, validate_call
+from pydantic import Field, validate_call, model_validator
 from typing import TYPE_CHECKING, List, Any
 import numpy as np
 
@@ -20,6 +20,15 @@ class Vector(BaseGeometry):
     unit_direction: np.ndarray = Field(default=np.zeros(2), description="向量单位方向", init=False)
 
     args: VectorConstructArgs = Field(discriminator='construct_type', description="向量构造参数")
+
+    @model_validator(mode='before')
+    @classmethod
+    def set_adapter_before_validation(cls, data: Any) -> Any:
+        """在验证前设置 adapter 字段"""
+        if isinstance(data, dict) and 'args' in data:
+            # 假设 args 已经是 Pydantic 模型或可以被 VectorAdapter 接受
+            data['adapter'] = VectorAdapter(args=data['args'])
+        return data
 
     @property
     def construct_type(self) -> VectorConstructType:
