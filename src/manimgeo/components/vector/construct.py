@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
 
@@ -21,15 +21,18 @@ class LArgs(BaseModel):
     line: LineSegment
 
 class NArgs(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     construct_type: Literal["N"] = "N"
     vec: np.ndarray
 
 class NPPArgs(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     construct_type: Literal["NPP"] = "NPP"
     start: np.ndarray
     end: np.ndarray
 
 class NNormDirectionArgs(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     construct_type: Literal["NNormDirection"] = "NNormDirection"
     norm: Number
     direction: np.ndarray

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
 
@@ -13,10 +13,12 @@ if TYPE_CHECKING:
     from .point import Point
 
 class FreeArgs(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     construct_type: Literal["Free"] = "Free"
     coord: np.ndarray
 
 class ConstraintArgs(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     construct_type: Literal["Constraint"] = "Constraint"
     coord: np.ndarray
 
