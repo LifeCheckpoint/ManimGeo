@@ -40,8 +40,7 @@ def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float
 @array2float
 def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
     """
-    计算三维空间中三点构成的三角形的外接圆半径和外接圆圆心。
-    外接圆和圆心位于这三点定义的平面内。
+    计算三维空间中三点构成的三角形的外接圆半径和外接圆圆心，外接圆和圆心位于这三点定义的平面内
 
     Returns: `Tuple[float, np.ndarray]`, 外接圆半径和外接圆圆心坐标。
     """
@@ -78,48 +77,37 @@ def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[fl
     return r, circumcenter
 
 @array2float
-def orthocenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
+def orthocenter_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> np.ndarray:
     """
-    计算三维空间中三点构成的三角形的垂心半径与坐标。
-    垂心位于这三点定义的平面内。
+    计算三维空间中三点构成的三角形的垂心坐标，垂心位于这三点定义的平面内
 
     Returns: `np.ndarray`, 垂心坐标。
     """
-    v_p1p2 = p2 - p1
+    v1 = p2 - p1
+    v2 = p3 - p1
     v_p2p3 = p3 - p2
-    v_p3p1 = p1 - p3
 
-    # 垂心 H 满足以下条件：
-    # 1. (H - p1).(p3 - p2) = 0  (从 p1 到 p2p3 的高线垂直于 p2p3)
-    # 2. (H - p2).(p1 - p3) = 0  (从 p2 到 p1p3 的高线垂直于 p1p3)
-    # 3. (H - p3).(p2 - p1) = 0  (从 p3 到 p1p2 的高线垂直于 p1p2)
-
-    # 展开为线性方程组 H_x * V_x + H_y * V_y + H_z * V_z = P . V
-    # 1. H.(p3 - p2) = p1.(p3 - p2)
-    # 2. H.(p1 - p3) = p2.(p1 - p3)
-    # 3. H.(p2 - p1) = p3.(p2 - p1)
-
-    # 构建系数矩阵 M 和右侧向量 RHS
-    M = np.array([
-        v_p2p3,  # (p3 - p2)
-        v_p3p1,  # (p1 - p3)
-        v_p1p2   # (p2 - p1)
-    ])
-    
-    RHS = np.array([
-        np.dot(p1, v_p2p3),
-        np.dot(p2, v_p3p1),
-        np.dot(p3, v_p1p2)
-    ])
-
-    # 求解 M @ orthocenter = RHS
-    # np.linalg.solve 会检查 M 是否奇异。如果点共线，M 将是奇异的
-    try:
-        ortho_coord = np.linalg.solve(M, RHS)
-    except np.linalg.LinAlgError:
+    area_vec = np.cross(v1, v2)
+    if np.linalg.norm(area_vec) < 1e-9: # Use a small tolerance for floating point comparison
         logger.warning("三点共线退化，无法计算垂心：{}, {}, {}".format(p1, p2, p3))
         raise ValueError("三点共线，无法计算垂心")
-    
-    r = float(np.linalg.norm(ortho_coord - p1))
-    return r, ortho_coord
 
+    dot_v1_v_p2p3 = np.dot(v1, v_p2p3)
+    dot_v2_v_p2p3 = np.dot(v2, v_p2p3)
+    dot_v1_v2 = np.dot(v1, v2)
+    dot_v2_v2 = np.dot(v2, v2) # |v2|^2
+    A = np.array([
+        [dot_v1_v_p2p3, dot_v2_v_p2p3],
+        [dot_v1_v2, dot_v2_v2]
+    ])
+    B = np.array([0, dot_v1_v2]) # Right-hand side of the 2x2 system
+
+    try:
+        coeffs = np.linalg.solve(A, B)
+    except np.linalg.LinAlgError:
+        logger.warning("无法求解垂心方程组，可能存在数值问题：{}, {}, {}".format(p1, p2, p3))
+        raise ValueError("无法求解垂心方程组，可能存在数值问题")
+
+    x, y = coeffs[0], coeffs[1]
+    orthocenter = p1 + x * v1 + y * v2
+    return orthocenter

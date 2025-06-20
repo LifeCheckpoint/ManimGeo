@@ -28,7 +28,7 @@ from .points import (
 from .three_points import (
     inscribed_r_c, 
     circumcenter_r_c, 
-    orthocenter_r_c,
+    orthocenter_c,
 )
 
 from .vectors import (

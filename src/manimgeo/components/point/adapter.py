@@ -11,7 +11,7 @@ from ...math import (
     intersection_line_line,
     circumcenter_r_c,
     inscribed_r_c,
-    orthocenter_r_c,
+    orthocenter_c,
     angle_3p_countclockwise,
 )
 from ..base import GeometryAdapter
@@ -95,7 +95,7 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "OrthocenterPPP":
                 args = cast(OrthocenterPPPArgs, self.args)
-                _, self.coord = orthocenter_r_c(
+                self.coord = orthocenter_c(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 

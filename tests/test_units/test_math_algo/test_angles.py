@@ -30,7 +30,7 @@ from manimgeo.math import *
         pytest.param([-1, -1, -1], [0, 0, 0], [1, 1, 1], np.pi, id="mixed_sign_coords_180"),
         pytest.param([1, -1, 0], [0, 0, 0], [-1, 1, 0], np.pi, id="mixed_sign_coords_180_diagonal"),
         pytest.param([1, 0, 0], [0, 0, 0], [0, 1, 0], np.pi / 2, id="mixed_sign_coords_90"),
-        pytest.param([0, 1, 0], [0, 0, 0], [0, 1, 0], np.pi / 2, id="same_y_axis_90_degrees"),
+        pytest.param([0, 1, 0], [0, 0, 0], [0, 1, 0], 0.0, id="same_y_axis_90_degrees"),
     ]
 )
 def test_angle_3p_countclockwise(start, center, end, expected):
