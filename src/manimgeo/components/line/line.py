@@ -89,8 +89,7 @@ class Line(BaseGeometry):
         return cls(
             name=name,
             args=TranslationLVArgs(line=line, vector=vec),
-            line_type=cls.line_type
-        )
+        ) # type: ignore[call-arg]
     
     @classmethod
     def PP(cls: Type[_LineT], start: Point, end: Point, name: str = "") -> _LineT:
@@ -103,8 +102,7 @@ class Line(BaseGeometry):
         return cls(
             name=name,
             args=PPArgs(point1=start, point2=end),
-            line_type=cls.line_type
-        )
+        ) # type: ignore[call-arg]
     
     @classmethod
     def PV(cls: Type[_LineT], start: Point, vector: Vector, name: str = "") -> _LineT:
@@ -117,8 +115,7 @@ class Line(BaseGeometry):
         return cls(
             name=name,
             args=PVArgs(start=start, vector=vector),
-            line_type=cls.line_type
-        )
+        ) # type: ignore[call-arg]
     
     @classmethod
     def VerticalPL(cls: Type[_LineT], point: Point, line: LineConcrete, name: str = "") -> _LineT:
@@ -131,8 +128,7 @@ class Line(BaseGeometry):
         return cls(
             name=name,
             args=VerticalPLArgs(point=point, line=line),
-            line_type=cls.line_type
-        )
+        ) # type: ignore[call-arg]
     
     @classmethod
     def ParallelPL(cls: Type[_LineT], point: Point, line: LineConcrete, distance: Number = 0, name: str = "") -> _LineT:
@@ -146,8 +142,7 @@ class Line(BaseGeometry):
         return cls(
             name=name,
             args=ParallelPLArgs(point=point, line=line, distance=distance),
-            line_type=cls.line_type
-        )
+        ) # type: ignore[call-arg]
     
 class LineSegment(Line):
     line_type: Literal["LineSegment"] = "LineSegment"
