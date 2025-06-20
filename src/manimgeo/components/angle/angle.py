@@ -70,11 +70,11 @@ class Angle(BaseGeometry):
     @validate_call
     def PPP(start: Point, center: Point, end: Point, name: str = ""):
         """
-        ## 通过三点构造角
+        通过三点构造角
 
-        `start`: 角的起始点
-        `center`: 角的中心点
-        `end`: 角的终止点
+        - `start`: 角的起始点
+        - `center`: 角的中心点
+        - `end`: 角的终止点
         """
         return Angle(
             name=name,
@@ -85,10 +85,10 @@ class Angle(BaseGeometry):
     @validate_call
     def LL(line1: Line, line2: Line, name: str = ""):
         """
-        ## 通过两条线构造角
+        通过两条线构造角
 
-        `line1`: 角的一边
-        `line2`: 角的另一边
+        - `line1`: 角的一边
+        - `line2`: 角的另一边
         """
         return Angle(
             name=name,
@@ -99,10 +99,10 @@ class Angle(BaseGeometry):
     @validate_call
     def LP(line: LineSegment, point: Point, name: str = ""):
         """
-        ## 通过一线一点构造角
+        通过一线一点构造角
 
-        `line`: 角的始边
-        `point`: 角的另一端点
+        - `line`: 角的始边
+        - `point`: 角的另一端点
         """
         return Angle(
             name=name,
@@ -113,10 +113,10 @@ class Angle(BaseGeometry):
     @validate_call
     def N(angle: Number, turn: Literal["Clockwise", "Counterclockwise"] = "Counterclockwise", name: str = ""):
         """
-        ## 通过角度构造角
+        通过角度构造角
 
-        `angle`: 角度
-        `turn`: 角的转向
+        - `angle`: 角度
+        - `turn`: 角的转向
         """
         return Angle(
             name=name,
@@ -127,9 +127,9 @@ class Angle(BaseGeometry):
     @validate_call
     def TurnA(angle: Angle, name: str = ""):
         """
-        ## 反转角旋转方向构造角
+        反转角旋转方向构造角
 
-        `angle`: 角
+        - `angle`: 角
         """
         return Angle(
             name=name,

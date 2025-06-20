@@ -72,10 +72,10 @@ class Line(BaseGeometry):
     @validate_call
     def TranslationLV(cls: Type[_LineT], line: LineConcrete, vec: Vector, name: str = "") -> _LineT:
         """
-        ## 平移构造线
+        平移构造线
 
-        `line`: 原线
-        `vec`: 平移向量
+        - `line`: 原线
+        - `vec`: 平移向量
         """
         return cls(
             name=name,
@@ -87,10 +87,10 @@ class Line(BaseGeometry):
     @validate_call
     def PP(cls: Type[_LineT], start: Point, end: Point, name: str = "") -> _LineT:
         """
-        ## 起始点构造线
+        起始点构造线
 
-        `start`: 起点
-        `end`: 终点
+        - `start`: 起点
+        - `end`: 终点
         """
         return cls(
             name=name,
@@ -102,10 +102,10 @@ class Line(BaseGeometry):
     @validate_call
     def PV(cls: Type[_LineT], start: Point, vector: Vector, name: str = "") -> _LineT:
         """
-        ## 起点方向构造线
+        起点方向构造线
 
-        `start`: 起点
-        `vector`: 方向向量
+        - `start`: 起点
+        - `vector`: 方向向量
         """
         return cls(
             name=name,
@@ -117,10 +117,10 @@ class Line(BaseGeometry):
     @validate_call
     def VerticalPL(cls: Type[_LineT], point: Point, line: LineConcrete, name: str = "") -> _LineT:
         """
-        ## 点与线构造垂直线
+        点与线构造垂直线
 
-        `point`: 垂线经过点
-        `line`: 原线
+        - `point`: 垂线经过点
+        - `line`: 原线
         """
         return cls(
             name=name,
@@ -132,11 +132,11 @@ class Line(BaseGeometry):
     @validate_call
     def ParallelPL(cls: Type[_LineT], point: Point, line: LineConcrete, distance: Number = 0, name: str = "") -> _LineT:
         """
-        ## 点与线构造平行线
+        点与线构造平行线
 
-        `point`: 平行线经过点
-        `line`: 原线
-        `distance`: 平行线与原线的距离，默认为 0
+        - `point`: 平行线经过点
+        - `line`: 原线
+        - `distance`: 平行线与原线的距离，默认为 0
         """
         return cls(
             name=name,
@@ -193,7 +193,7 @@ class InfinityLine(Line):
 
 # def Lines2TangentsCirP(circle: Circle, point: Point, name: str = ""):
 #     """
-#     ## 过一点构造圆切线
+#     过一点构造圆切线
 
 #     `circle`: 圆
 #     `point`: 圆外或圆上一点
@@ -206,7 +206,7 @@ class InfinityLine(Line):
 #         name: str = ""
 #     ) -> Union[List[InfinityLine], InfinityLine]:
 #     """
-#     ## 构造两圆外切线
+#     构造两圆外切线
 
 #     `circle1`: 圆1
 #     `circle2`: 圆2
@@ -224,7 +224,7 @@ class InfinityLine(Line):
 #         name: str = ""
 #     ) -> Union[List[InfinityLine], InfinityLine]:
 #     """
-#     ## 构造两圆内切线
+#     构造两圆内切线
 
 #     `circle1`: 圆1
 #     `circle2`: 圆2
@@ -238,7 +238,7 @@ class InfinityLine(Line):
 
 # def LineOfLines2(lines2: Lines2, index: Literal[0, 1], name: str = "") -> Line:
 #     """
-#     ## 获取两条线中的单线对象
+#     获取两条线中的单线对象
 
 #     `lines2`: 两线组合对象
 #     `index`: 两线中的其中一线索引
@@ -252,7 +252,7 @@ class InfinityLine(Line):
 
 # def LineOfLines2List(lines2: Lines2, name: str = "") -> List[Line, Line]:
 #     """
-#     ## 获取两线中的单线对象列表
+#     获取两线中的单线对象列表
 
 #     `lines2`: 两线组合对象
 #     """
@@ -260,7 +260,7 @@ class InfinityLine(Line):
 
 # def LineOfLines2Fit(lines2: Lines2, filter: Callable[[np.ndarray, np.ndarray], bool], name: str = ""):
 #     """
-#     ## 获得两点中符合条件的第一个单点对象
+#     获得两点中符合条件的第一个单点对象
 
 #     `points2`: 两点组合对象
 #     `filter`: 给定点坐标，返回是否符合条件

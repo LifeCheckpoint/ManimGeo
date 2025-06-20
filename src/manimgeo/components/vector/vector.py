@@ -74,8 +74,8 @@ class Vector(BaseGeometry):
         """
         通过两点构造向量
 
-        `start`: 起点
-        `end`: 终点
+        - `start`: 起点
+        - `end`: 终点
         """
         return Vector(
             name=name,
@@ -88,7 +88,7 @@ class Vector(BaseGeometry):
         """
         通过线段构造向量
 
-        `line`: 线段
+        - `line`: 线段
         """
         return Vector(
             name=name,
@@ -101,7 +101,7 @@ class Vector(BaseGeometry):
         """
         （数值）构造向量
 
-        `vec`: 向量数值
+        - `vec`: 向量数值
         """
         return Vector(
             name=name,
@@ -114,8 +114,8 @@ class Vector(BaseGeometry):
         """
         通过两点（数值）构造向量
 
-        `start`: 起点
-        `end`: 终点
+        - `start`: 起点
+        - `end`: 终点
         """
         return Vector(
             name=name,
@@ -128,8 +128,8 @@ class Vector(BaseGeometry):
         """
         通过模长与方向构造向量
 
-        `norm`: 模长
-        `direction`: 方向
+        - `norm`: 模长
+        - `direction`: 方向
         """
         return Vector(
             name=name,

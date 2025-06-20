@@ -57,10 +57,10 @@ class Circle(BaseGeometry):
     @validate_call
     def PR(center: Point, radius: Number, name: str = "") -> Circle:
         """
-        ## 中心与半径构造圆
+        中心与半径构造圆
 
-        `center`: 中心点
-        `radius`: 数值半径
+        - `center`: 中心点
+        - `radius`: 数值半径
         """
         return Circle(
             name=name,
@@ -71,10 +71,10 @@ class Circle(BaseGeometry):
     @validate_call
     def PP(center: Point, point: Point, name: str = "") -> Circle:
         """
-        ## 中心与圆上一点构造圆
+        中心与圆上一点构造圆
 
-        `center`: 圆心
-        `point`: 圆上一点
+        - `center`: 圆心
+        - `point`: 圆上一点
         """
         return Circle(
             name=name,
@@ -85,9 +85,9 @@ class Circle(BaseGeometry):
     @validate_call
     def L(radius_segment: LineSegment, name: str = "") -> Circle:
         """
-        ## 半径线段构造圆
+        半径线段构造圆
 
-        `radius_segment`: 半径线段
+        - `radius_segment`: 半径线段
         """
         return Circle(
             name=name,
@@ -98,11 +98,11 @@ class Circle(BaseGeometry):
     @validate_call
     def PPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
-        ## 圆上三点构造圆
+        圆上三点构造圆
 
-        `point1`: 圆上一点
-        `point2`: 圆上一点
-        `point3`: 圆上一点
+        - `point1`: 圆上一点
+        - `point2`: 圆上一点
+        - `point3`: 圆上一点
         """
         return Circle(
             name=name,
@@ -113,10 +113,10 @@ class Circle(BaseGeometry):
     @validate_call
     def TranslationCirV(circle: Circle, vec: Vector, name: str = "") -> Circle:
         """
-        ## 平移构造圆
+        平移构造圆
 
-        `circle`: 原始圆
-        `vec`: 平移向量
+        - `circle`: 原始圆
+        - `vec`: 平移向量
         """
         return Circle(
             name=name,
@@ -127,10 +127,10 @@ class Circle(BaseGeometry):
     @validate_call
     def InverseCirCir(circle: Circle, base_circle: Circle, name: str = "") -> Circle:
         """
-        ## 构造反演圆
+        构造反演圆
 
-        `circle`: 将要进行反演的圆
-        `base_circle`: 基圆
+        - `circle`: 将要进行反演的圆
+        - `base_circle`: 基圆
         """
         return Circle(
             name=name,
@@ -141,11 +141,11 @@ class Circle(BaseGeometry):
     @validate_call
     def InscribePPP(point1: Point, point2: Point, point3: Point, name: str = "") -> Circle:
         """
-        ## 三点内切圆
+        三点内切圆
 
-        `point1`: 第一个点
-        `point2`: 第二个点
-        `point3`: 第三个点
+        - `point1`: 第一个点
+        - `point2`: 第二个点
+        - `point3`: 第三个点
         """
         return Circle(
             name=name,

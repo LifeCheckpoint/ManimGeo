@@ -32,7 +32,7 @@ class Point(BaseGeometry):
 
         # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
         # 普通类型将被忽略
-        for field_name, field_info in self.args.model_fields.items():
+        for field_name, field_info in self.args.__class__.model_fields.items():
             field_value = getattr(self.args, field_name)
             
             # 基本几何对象

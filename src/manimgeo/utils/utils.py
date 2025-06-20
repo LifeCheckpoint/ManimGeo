@@ -7,16 +7,6 @@ class GeoUtils:
     GEO_PRINT_EXC: bool = True
     
     @staticmethod
-    def check_params(objs: Sequence, *expected_types):
-        """检查参数数量与类型"""
-        if len(objs) != len(expected_types):
-            raise ValueError(f"Invalid Param number, expected {len(expected_types)} but got {len(objs)}")
-        
-        for i, (obj, expected_type) in enumerate(zip(objs, expected_types)):
-            if expected_type is not None and not isinstance(obj, expected_type):
-                raise ValueError(f"Invalid Param {i}, expected {expected_type.__name__} but got {type(obj).__name__}")
-            
-    @staticmethod
     def check_params_batch(op_type_map: Dict[str, Sequence], op: str, objs: Sequence):
         """批量检查参数数量与类型"""
         GeoUtils.check_params(objs, *op_type_map[op])
