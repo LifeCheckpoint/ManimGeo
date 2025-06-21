@@ -12,6 +12,10 @@ def check_paramerized_line_range(t: Number, line_type: Literal["LineSegment", "R
     - `t`: 参数值
     - `line_type`: 直线类型，可为 "LineSegment", "Ray", "InfinityLine"
     """
+    if line_type not in ["LineSegment", "Ray", "InfinityLine"]:
+        logger.error(f"未知的直线类型: {line_type}")
+        raise ValueError(f"未知的直线类型: {line_type}")
+
     # 检查端点，如果接近则认为符合
     if close(t, 0) or close(t, 1):
         return True
@@ -23,8 +27,7 @@ def check_paramerized_line_range(t: Number, line_type: Literal["LineSegment", "R
     elif line_type == "InfinityLine":
         return True
     else:
-        logger.error(f"未知的直线类型: {line_type}")
-        raise ValueError(f"未知的直线类型: {line_type}")
+        raise NotImplementedError()
 
 @array2float
 def vertical_line_unit_direction(line_start: np.ndarray, line_end: np.ndarray, turn: Literal["clockwise", "counterclockwise"] = "counterclockwise") -> np.ndarray:
@@ -38,6 +41,11 @@ def vertical_line_unit_direction(line_start: np.ndarray, line_end: np.ndarray, t
     from .vectors import unit_direction_vector
     direction = unit_direction_vector(line_start, line_end)
     direction[0], direction[1] = -direction[1], direction[0]
+
+    if turn not in ["clockwise", "counterclockwise"]:
+        logger.error(f"未知的转向类型: {turn}")
+        raise ValueError(f"未知的转向类型: {turn}")
+    
     return direction if turn == "counterclockwise" else -direction
 
 @array2float
