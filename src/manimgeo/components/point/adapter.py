@@ -9,9 +9,9 @@ from ...math import (
     vertical_point_to_line,
     inversion_point,
     intersection_line_line,
-    circumcenter_r_c,
-    inscribed_r_c,
-    orthocenter_c,
+    circumcenter,
+    inscribed,
+    orthocenter,
     angle_3p_countclockwise,
 )
 from ..base import GeometryAdapter
@@ -83,19 +83,19 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "CircumcenterPPP":
                 args = cast(CircumcenterPPPArgs, self.args)
-                _, self.coord = circumcenter_r_c(
+                _, self.coord = circumcenter(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
             case "IncenterPPP":
                 args = cast(IncenterPPPArgs, self.args)
-                _, self.coord = inscribed_r_c(
+                _, self.coord = inscribed(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 
             case "OrthocenterPPP":
                 args = cast(OrthocenterPPPArgs, self.args)
-                self.coord = orthocenter_c(
+                self.coord = orthocenter(
                     args.point1.coord, args.point2.coord, args.point3.coord
                 )
 

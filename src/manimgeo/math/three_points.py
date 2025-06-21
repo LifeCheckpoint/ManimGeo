@@ -6,7 +6,7 @@ import numpy as np
 logger = getLogger(__name__)
 
 @array2float
-def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
+def inscribed(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
     """
     计算三维空间中三点构成的三角形的内切圆半径和内切圆圆心，内切圆和圆心位于这三点定义的平面内
 
@@ -38,7 +38,7 @@ def inscribed_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float
     return r, incenter
 
 @array2float
-def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
+def circumcenter(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[float, np.ndarray]:
     """
     计算三维空间中三点构成的三角形的外接圆半径和外接圆圆心，外接圆和圆心位于这三点定义的平面内
 
@@ -77,7 +77,7 @@ def circumcenter_r_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> Tuple[fl
     return r, circumcenter
 
 @array2float
-def orthocenter_c(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> np.ndarray:
+def orthocenter(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> np.ndarray:
     """
     计算三维空间中三点构成的三角形的垂心坐标，垂心位于这三点定义的平面内
 

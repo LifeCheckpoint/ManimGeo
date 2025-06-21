@@ -98,7 +98,7 @@ def test_inscribed_r_c(p1, p2, p3, expected_r, expected_c, expected_exc):
     expected_c = np.array(expected_c, dtype=float)
 
     if not expected_exc:
-        r, c = inscribed_r_c(p1, p2, p3)
+        r, c = inscribed(p1, p2, p3)
         assert close(r, expected_r), f"Expected {expected_r}, got {r} for inputs {p1}, {p2}, {p3}" # type: ignore
         assert close(c, expected_c), f"Expected {expected_c}, got {c} for inputs {p1}, {p2}, {p3}" # type: ignore
 
@@ -193,12 +193,12 @@ def test_circumcenter_r_c(p1, p2, p3, expected_r, expected_c, expected_exc):
     expected_c = np.array(expected_c, dtype=float) if expected_c is not None else None
 
     if not expected_exc:
-        r, c = circumcenter_r_c(p1, p2, p3)
+        r, c = circumcenter(p1, p2, p3)
         assert close(r, expected_r), f"Expected {expected_r}, got {r} for inputs {p1}, {p2}, {p3}" # type: ignore
         assert close(c, expected_c), f"Expected {expected_c}, got {c} for inputs {p1}, {p2}, {p3}" # type: ignore
     else:
         with pytest.raises(expected_exc):
-            circumcenter_r_c(p1, p2, p3)
+            circumcenter(p1, p2, p3)
 
 
 @pytest.mark.parametrize(
@@ -291,8 +291,8 @@ def test_orthocenter_r_c(p1, p2, p3, expected_c, expected_exc):
     expected_c = np.array(expected_c, dtype=float) if expected_c is not None else None
 
     if not expected_exc:
-        c = orthocenter_c(p1, p2, p3)
+        c = orthocenter(p1, p2, p3)
         assert close(c, expected_c), f"Expected {expected_c}, got {c} for inputs {p1}, {p2}, {p3}" # type: ignore
     else:
         with pytest.raises(expected_exc):
-            orthocenter_c(p1, p2, p3)
+            orthocenter(p1, p2, p3)
