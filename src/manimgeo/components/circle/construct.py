@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel
-from typing import TYPE_CHECKING, Union, Literal
+from typing import TYPE_CHECKING, Union, Literal, Optional
 
 type Number = Union[float, int]
 
@@ -11,19 +11,28 @@ if TYPE_CHECKING:
     from ..vector import Vector
     from .circle import Circle
 
+class CNRArgs(BaseModel):
+    construct_type: Literal["CNR"] = "CNR"
+    center: Point
+    normal: Vector
+    radius: Number
+
 class PRArgs(BaseModel):
     construct_type: Literal["PR"] = "PR"
     center: Point
     radius: Number
+    normal: Optional[Vector] = None
 
 class PPArgs(BaseModel):
     construct_type: Literal["PP"] = "PP"
     center: Point
     point: Point
+    normal: Optional[Vector] = None
 
 class LArgs(BaseModel):
     construct_type: Literal["L"] = "L"
     radius_segment: LineSegment
+    normal: Optional[Vector] = None
 
 class PPPArgs(BaseModel):
     construct_type: Literal["PPP"] = "PPP"
@@ -49,16 +58,16 @@ class InscribePPPArgs(BaseModel):
 
 # 所有参数模型的联合类型
 type CircleConstructArgs = Union[
-    PRArgs, PPArgs, LArgs, PPPArgs, TranslationCirVArgs,
+    CNRArgs, PRArgs, PPArgs, LArgs, PPPArgs, TranslationCirVArgs,
     InverseCirCirArgs, InscribePPPArgs
 ]
 
 CircleConstructArgsList = [
-    PRArgs, PPArgs, LArgs, PPPArgs, TranslationCirVArgs,
+    CNRArgs, PRArgs, PPArgs, LArgs, PPPArgs, TranslationCirVArgs,
     InverseCirCirArgs, InscribePPPArgs
 ]
 
 type CircleConstructType = Literal[
-    "PR", "PP", "L", "PPP", "TranslationCirV",
+    "CNR", "PR", "PP", "L", "PPP", "TranslationCirV",
     "InverseCirCir", "InscribePPP"
 ]

@@ -104,3 +104,55 @@ def test_unit_direction_vector(start, end, expected_vec, expected_exc):
     else:
         with pytest.raises(expected_exc):
             unit_direction_vector(start_arr, end_arr)
+
+@pytest.mark.parametrize(
+    "normal, expected_exc",
+    [
+        pytest.param(np.array([1, 0, 0]), None, id="Normal_X_Axis"),
+        pytest.param(np.array([-1, 0, 0]), None, id="Normal_NegX_Axis"),
+        pytest.param(np.array([0, 1, 0]), None, id="Normal_Y_Axis"),
+        pytest.param(np.array([0, -1, 0]), None, id="Normal_NegY_Axis"),
+        pytest.param(np.array([0, 0, 1]), None, id="Normal_Z_Axis"),
+        pytest.param(np.array([0, 0, -1]), None, id="Normal_NegZ_Axis"),
+        pytest.param(np.array([1, 1, 1]), None, id="Normal_Diagonal_Pos"),
+        pytest.param(np.array([-1, -1, -1]), None, id="Normal_Diagonal_Neg"),
+        pytest.param(np.array([1, -1, 1]), None, id="Normal_Diagonal_Mixed"),
+        pytest.param(np.array([1, 1, 0]), None, id="Normal_XY_Plane"),
+        pytest.param(np.array([1, 0, 1]), None, id="Normal_XZ_Plane"),
+        pytest.param(np.array([0, 1, 1]), None, id="Normal_YZ_Plane"),
+        pytest.param(np.array([1, 2, 3]), None, id="Normal_Arbitrary_Pos"),
+        pytest.param(np.array([-3, 2, -1]), None, id="Normal_Arbitrary_Mixed"),
+        pytest.param(np.array([100, 0, 0]), None, id="Normal_LargeMagnitude_X"),
+        pytest.param(np.array([0.001, 0.001, 0.001]), None, id="Normal_SmallMagnitude_Diagonal"),
+        pytest.param(np.array([1e5, 2e5, 3e5]), None, id="Normal_VeryLargeMagnitude"),
+        pytest.param(np.array([1e-5, 2e-5, 3e-5]), None, id="Normal_VerySmallMagnitude"),
+        pytest.param(np.array([0, 0, 0]), ValueError, id="Normal_ZeroVector"),
+    ]
+)
+def test_get_two_vector_from_normal(normal, expected_exc):
+    """
+    Tests the properties of the two orthogonal vectors generated from a normal.
+    """
+    if expected_exc is None:
+        v1, v2 = get_two_vector_from_normal(normal)
+        # 1. Check if v1 and v2 are numpy arrays of correct shape
+        assert isinstance(v1, np.ndarray) and v1.shape == (3,), f"v1 is not a 3D numpy array"
+        assert isinstance(v2, np.ndarray) and v2.shape == (3,), f"v2 is not a 3D numpy array"
+        # Calculate unit normal for comparison
+        unit_normal = normal / np.linalg.norm(normal)
+        # 2. Check Orthogonality
+        # v1 should be orthogonal to normal
+        assert close(np.dot(v1, unit_normal), 0), f"v1 not orthogonal to normal. Dot product: {np.dot(v1, unit_normal)}"
+        # v2 should be orthogonal to normal
+        assert close(np.dot(v2, unit_normal), 0), f"v2 not orthogonal to normal. Dot product: {np.dot(v2, unit_normal)}"
+        # v1 should be orthogonal to v2
+        assert close(np.dot(v1, v2), 0), f"v1 not orthogonal to v2. Dot product: {np.dot(v1, v2)}"
+        # 3. Check Unit Length
+        assert close(float(np.linalg.norm(v1)), 1), f"v1 is not a unit vector. Norm: {np.linalg.norm(v1)}"
+        assert close(float(np.linalg.norm(v2)), 1), f"v2 is not a unit vector. Norm: {np.linalg.norm(v2)}"
+        # 4. Check Right-Handed System (v1, v2, normal)
+        # cross(v1, v2) should be equal to unit_normal
+        assert close(np.cross(v1, v2), unit_normal), f"(v1, v2, normal) do not form a right-handed system: {v1}, {v2}, {unit_normal}"
+    else:
+        with pytest.raises(expected_exc):
+            get_two_vector_from_normal(normal)

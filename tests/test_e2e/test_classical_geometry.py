@@ -199,7 +199,7 @@ class TestClassicalGeometry:
         # 使用两点构造法创建反演圆（圆心O，半径2）
         O = Point.Free(np.array([0, 0, 0]), "O")
         R = Point.Free(np.array([2, 0, 0]), "R")
-        inversion_circle = Circle.PP(O, R, "InversionCircle")
+        inversion_circle = Circle.PP(O, R, name="InversionCircle")
         
         # 构造点P并计算反演点
         P = Point.Free(np.array([3, 0, 0]), "P")

@@ -30,8 +30,13 @@ def get_two_vector_from_normal(normal: np.ndarray) -> Tuple[np.ndarray, np.ndarr
 
     向量选取的方向将尽可能保证数值稳定，v1, v2, normal 构成右手系
     """
+    norm_val = np.linalg.norm(normal)
+    if norm_val == 0:
+        logger.warning("法向量不能是零向量")
+        raise ValueError("法向量不能是零向量")
+    
     # 确保法向量是单位向量
-    unit_normal = normal / np.linalg.norm(normal)
+    unit_normal = normal / norm_val
         
     # 选择一个健壮的参考向量
     # 选择参考向量的标准，与法向量的分量比较，选择最小的分量对应的轴
