@@ -14,7 +14,29 @@ ManimGeo 是一个用于简化几何图形创建和动画生成的辅助库。�
 
 ## 项目文档
 
-[ManimGeo 文档](https://lifecheckpoint.github.io/docs/computer_science/projects/manimgeo/main)
+[ManimGeo 文档](https://manimgeo.readthedocs.io/zh-cn/latest/)
+
+## 安装 ManimGeo
+
+```bash
+# 仅安装数值计算
+pip install manimgeo
+
+# 安装 manimgl 集成
+pip install manimgeo[manim]
+
+# 安装 janim 集成
+pip install manimgeo[janim]
+
+# 全部安装
+pip install manimgeo[full]
+```
+
+或使用 uv 进行安装（推荐）
+
+```bash
+uv add manimgeo[full]
+```
 
 ## 样例展示
 

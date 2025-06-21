@@ -1,34 +1,10 @@
-from typing import Sequence, Iterable, Dict, Union, TYPE_CHECKING
+from __future__ import annotations
 
-if TYPE_CHECKING:
-    from manimgeo.components import *
+from typing import Iterable
 
 class GeoUtils:
-    GEO_PRINT_EXC: bool = False
+    GEO_PRINT_EXC: bool = True
     
-    @staticmethod
-    def check_params(objs: Sequence, *expected_types):
-        """检查参数数量与类型"""
-        if len(objs) != len(expected_types):
-            raise ValueError(f"Invalid Param number, expected {len(expected_types)} but got {len(objs)}")
-        
-        for i, (obj, expected_type) in enumerate(zip(objs, expected_types)):
-            if expected_type is not None and not isinstance(obj, expected_type):
-                raise ValueError(f"Invalid Param {i}, expected {expected_type.__name__} but got {type(obj).__name__}")
-            
-    @staticmethod
-    def check_params_batch(op_type_map: Dict[str, Sequence], op: str, objs: Sequence):
-        """批量检查参数数量与类型"""
-        GeoUtils.check_params(objs, *op_type_map[op])
-
-    @staticmethod
-    def get_name(default_name: str, obj, construct_type: str):
-        """以统一方式设置几何对象名称"""
-        if default_name != "":
-            return default_name
-        else:
-            return f"{type(obj).__name__}[{construct_type}]@{id(obj) % 10000}"
-
     @staticmethod
     def flatten(iterable: Iterable):
         """展平对象"""
@@ -38,10 +14,11 @@ class GeoUtils:
             else:
                 yield item
 
+    from ..components import BaseGeometry
     @staticmethod
-    def print_dependencies(root, depth: int = 0, max_depth: int = 20):
+    def print_dependencies(root: "BaseGeometry", depth: int = 0, max_depth: int = 20):
         """绘制依赖关系"""
-        from manimgeo.utils.output import color_text, generate_color_from_id
+        from ..utils.output import color_text, generate_color_from_id
         
         if root is None:
             print("  "*depth + "· None")
