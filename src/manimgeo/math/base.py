@@ -1,10 +1,12 @@
 from ..utils.config import GeoConfig
 from typing import Union
+from logging import getLogger
 import functools
 import numpy as np
 
 type Number = Union[int, float]
 cfg = GeoConfig()
+logger = getLogger(__name__)
 
 def close(a: Union[np.ndarray, Number], b: Union[np.ndarray, Number]) -> bool:
     """
@@ -35,6 +37,8 @@ def array2float(func):
         for arg in args:
             if isinstance(arg, np.ndarray) and not np.issubdtype(arg.dtype, np.floating):
                 processed_args.append(arg.astype(np.float64))
+                if arg.ndim <= 2:
+                    logger.warning(f"参数 {arg} 维度少于 3，可能引发计算错误")
             else:
                 processed_args.append(arg)
         processed_kwargs = {}
@@ -43,6 +47,8 @@ def array2float(func):
         for k, v in kwargs.items():
             if isinstance(v, np.ndarray) and not np.issubdtype(v.dtype, np.floating):
                 processed_kwargs[k] = v.astype(np.float64)
+                if v.ndim <= 2:
+                    logger.warning(f"参数 {k}: {v} 维度少于 3，可能引发计算错误")
             else:
                 processed_kwargs[k] = v
         return func(*processed_args, **processed_kwargs)

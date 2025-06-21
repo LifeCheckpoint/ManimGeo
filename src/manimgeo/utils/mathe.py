@@ -262,34 +262,3 @@ class GeoMathe:
                 continue
         
         return tangents
-    
-    @staticmethod
-    def inverse_circle(
-            circle_center: np.ndarray, r_circle: Number, 
-            base_circle_center: np.ndarray, r_base_circle: Number
-        ) -> Tuple[np.ndarray, Number]:
-        """计算 circle 关于 base_circle 的反形圆圆心坐标和半径"""
-        x_A = circle_center[0]
-        y_A = circle_center[1]
-        x_B = base_circle_center[0]
-        y_B = base_circle_center[1]
-        
-        # 平移坐标系，使圆B的圆心位于原点
-        a = x_A - x_B
-        b = y_A - y_B
-        
-        # 计算分母D
-        D = a**2 + b**2 - r_circle**2
-        
-        # 计算反形圆心（平移后坐标系）
-        inv_center_x_translated = a * r_base_circle**2 / D
-        inv_center_y_translated = b * r_base_circle**2 / D
-        
-        # 转换回原坐标系
-        inv_center_x = inv_center_x_translated + x_B
-        inv_center_y = inv_center_y_translated + y_B
-        
-        # 计算反形半径
-        inv_radius = (r_circle * r_base_circle**2) / np.abs(D)
-        
-        return np.array((inv_center_x, inv_center_y)), inv_radius

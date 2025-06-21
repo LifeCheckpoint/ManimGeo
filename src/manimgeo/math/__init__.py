@@ -7,6 +7,11 @@ from .base import (
     array2float,
 )
 
+from .circles import (
+    inverse_circle,
+    inverse_circle_to_line,
+)
+
 from .intersections import (
     intersection_line_line,
 )
@@ -18,6 +23,10 @@ from .lines import (
     point_to_line_distance,
     get_parameter_t_on_line,
     is_point_on_line,
+)
+
+from .planes import (
+    plane_get_ABCD,
 )
 
 from .points import (
@@ -33,4 +42,5 @@ from .three_points import (
 
 from .vectors import (
     unit_direction_vector,
+    get_two_vector_from_normal,
 )

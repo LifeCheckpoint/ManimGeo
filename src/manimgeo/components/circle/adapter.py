@@ -3,11 +3,12 @@ from __future__ import annotations
 from ...math import (
     circumcenter_r_c,
     inscribed_r_c,
+    inverse_circle,
 )
 from ..base import GeometryAdapter
 from .construct import *
 from pydantic import Field
-from typing import TYPE_CHECKING, cast
+from typing import cast
 import numpy as np
 
 class CircleAdapter(GeometryAdapter[CircleConstructArgs]):
@@ -50,7 +51,11 @@ class CircleAdapter(GeometryAdapter[CircleConstructArgs]):
 
             case "InverseCirCir":
                 args = cast(InverseCirCirArgs, self.args)
-                self.center, self.radius = GeoMathe.inverse_circle(args.circle.center, args.circle.radius, args.base_circle.center, args.base_circle.radius)
+                # TODO
+                self.center, self.radius, _ = inverse_circle(
+                    args.circle.center, args.circle.radius, None,
+                    args.base_circle.center, args.base_circle.radius, None
+                )
 
             case "InscribePPP":
                 args = cast(InscribePPPArgs, self.args)
