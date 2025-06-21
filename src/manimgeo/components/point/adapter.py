@@ -18,7 +18,7 @@ from ..base import GeometryAdapter
 from .construct import *
 
 class PointAdapter(GeometryAdapter[PointConstructArgs]):
-    coord: np.ndarray = Field(default_factory=lambda: np.zeros(2), description="计算点坐标", init=False)
+    coord: np.ndarray = Field(default_factory=lambda: np.zeros(3), description="计算点坐标", init=False)
     
     def __call__(self):
         """根据 self.args 执行具体计算"""
@@ -68,10 +68,10 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
                     args.line1.line_type, args.line2.line_type,
                     args.regard_infinite
                 )
-                if result:
-                    self.coord = result
-                else:
+                if result is None:
                     raise ValueError(f"两线无交点: {args.line1.name}, {args.line2.name}")
+                else:
+                    self.coord = result
                 
             case "TranslationPV":
                 args = cast(TranslationPVArgs, self.args)

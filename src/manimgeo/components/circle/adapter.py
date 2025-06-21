@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 
 class CircleAdapter(GeometryAdapter[CircleConstructArgs]):
-    center: np.ndarray = Field(default=np.zeros(2), description="计算圆心坐标", init=False)
+    center: np.ndarray = Field(default=np.zeros(3), description="计算圆心坐标", init=False)
     radius: Number = Field(default=0.0, description="计算圆半径", init=False)
     area: Number = Field(default=0.0, description="计算圆面积", init=False)
     circumference: Number = Field(default=0.0, description="计算圆周长", init=False)

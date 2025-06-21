@@ -12,9 +12,9 @@ from ..base import GeometryAdapter
 from .construct import *
 
 class VectorAdapter(GeometryAdapter[VectorConstructArgs]): # 继承 GeometryAdapter 并指定参数模型类型
-    vec: np.ndarray = Field(default=np.zeros(2), description="计算向量坐标", init=False)
+    vec: np.ndarray = Field(default=np.zeros(3), description="计算向量坐标", init=False)
     norm: Number = Field(default=0.0, description="计算向量模长", init=False)
-    unit_direction: np.ndarray = Field(default=np.zeros(2), description="计算向量单位方向", init=False)
+    unit_direction: np.ndarray = Field(default=np.zeros(3), description="计算向量单位方向", init=False)
 
     def __call__(self):
         """根据 self.args 执行具体计算"""
@@ -60,4 +60,4 @@ class VectorAdapter(GeometryAdapter[VectorConstructArgs]): # 继承 GeometryAdap
         if not close(self.norm, 0):
             self.unit_direction = self.vec / self.norm
         else:
-            self.unit_direction = np.zeros(2)
+            self.unit_direction = np.zeros(3)

@@ -127,7 +127,7 @@ class BaseGeometry(BaseModel):
             # 传播更新消息并标记错误
             self.board_update_msg(True)
             self.on_error = True
-            return
+            raise e
         
         # 成功更新，清除错误标记
         self.on_error = False
