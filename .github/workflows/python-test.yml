@@ -28,4 +28,4 @@ jobs:
         uv sync --extra dev
     - name: Run tests with pytest
       run: |
-        poetry run pytest
+        uv run pytest
