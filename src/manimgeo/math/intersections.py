@@ -1,3 +1,7 @@
+"""
+交点相关计算
+"""
+
 from .base import close, array2float
 from logging import getLogger
 import numpy as np

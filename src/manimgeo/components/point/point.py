@@ -1,3 +1,7 @@
+"""
+Point 几何类
+"""
+
 from __future__ import annotations
 
 from pydantic import Field, model_validator

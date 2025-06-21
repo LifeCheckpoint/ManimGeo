@@ -1,4 +1,3 @@
-
 # ManimGeo - 平面几何快速构造库
 
 ManimGeo 是一个用于简化几何图形创建和动画生成的辅助库。它提供丰富的几何元素和操作，帮助快速构建复杂的几何场景。
@@ -21,4 +20,5 @@ tutorial/index
 components/index
 anime/index
 utils/index
+apidoc/index
 ```

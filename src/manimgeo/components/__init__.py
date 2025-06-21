@@ -1,3 +1,9 @@
+"""
+components 模块包含了所有几何组件的定义和适配器。
+
+每个几何组件都继承自 BaseGeometry，并提供了相应的适配器类。
+"""
+
 from .base import GeometryAdapter, BaseGeometry
 from .angle import Angle, AngleAdapter, AngleConstructArgsList
 from .circle import Circle, CircleAdapter, CircleConstructArgsList

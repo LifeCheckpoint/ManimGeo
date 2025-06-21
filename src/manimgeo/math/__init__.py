@@ -1,3 +1,7 @@
+"""
+math 模块实现了具体几何计算相关的函数
+"""
+
 from .angles import (
     angle_3p_countclockwise,
 )
