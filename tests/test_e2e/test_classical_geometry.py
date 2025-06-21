@@ -5,9 +5,9 @@ from manimgeo.utils.utils import GeoUtils
 class TestClassicalGeometry:
     def test_simple_1(self):
         # 创建自由点
-        A = Point.Free(np.array([0, 0]), "A")
-        B = Point.Free(np.array([4, 0]), "B")
-        C = Point.Free(np.array([1, 3]), "C")
+        A = Point.Free(np.array([0, 0, 0]), "A")
+        B = Point.Free(np.array([4, 0, 0]), "B")
+        C = Point.Free(np.array([1, 3, 0]), "C")
 
         # 构造线段AB, BC, AC
         AB = LineSegment.PP(A, B, "AB")
@@ -37,22 +37,22 @@ class TestClassicalGeometry:
         # 输出移动前坐标
         print("Before moving B:")
         print(f"{P.name}: {P.coord}")
-        assert np.allclose(P.coord, np.array([4, -4]))
+        assert np.allclose(P.coord, np.array([4, -4, 0]))
 
         # 移动B
-        B.set_coord(np.array([5, 0]))
+        B.set_coord(np.array([5, 0, 0]))
 
         # 输出移动后坐标
         print("After moving P:")
         print(f"{P.name}: {P.coord}")
-        assert np.allclose(P.coord, np.array([16/3, -4]))
+        assert np.allclose(P.coord, np.array([16/3, -4, 0]))
 
     def test_simple_2(self):
         # 创建自由点
-        A = Point.Free(np.array([0, 0]), "A")
-        B = Point.Free(np.array([5, 0]), "B")
-        C = Point.Free(np.array([1, 3]), "C")
-        D = Point.Free(np.array([2, -1]), "D")
+        A = Point.Free(np.array([0, 0, 0]), "A")
+        B = Point.Free(np.array([5, 0, 0]), "B")
+        C = Point.Free(np.array([1, 3, 0]), "C")
+        D = Point.Free(np.array([2, -1, 0]), "D")
 
         AB = InfinityLine.PP(A, B, "AB")
         BC = InfinityLine.PP(B, C, "BC")
@@ -61,7 +61,7 @@ class TestClassicalGeometry:
         E = Point.IntersectionLL(BC, vl_d_ab, True, "IE")
 
         print(E.coord)
-        assert np.allclose(E.coord, np.array([2, 2.25]))
+        assert np.allclose(E.coord, np.array([2, 2.25, 0]))
 
         # 构造三点圆
         circle = Circle.PPP(E, D, C, "ThreePointCircle")
@@ -69,13 +69,13 @@ class TestClassicalGeometry:
 
         GeoUtils.print_dependencies(A)
         print(centerF.coord)
-        assert np.allclose(centerF.coord, np.array([0, 0.625]))
+        assert np.allclose(centerF.coord, np.array([0, 0.625, 0]))
 
     def test_nine_point_circle(self):
         # 构造三角形ABC
-        A = Point.Free(np.array([0, 0]), "A")
-        B = Point.Free(np.array([5, 0]), "B")
-        C = Point.Free(np.array([2, 3]), "C")
+        A = Point.Free(np.array([0, 0, 0]), "A")
+        B = Point.Free(np.array([5, 0, 0]), "B")
+        C = Point.Free(np.array([2, 3, 0]), "C")
         print(f"顶点 {A.name} 坐标: {A.coord}")
         print(f"顶点 {B.name} 坐标: {B.coord}")
         print(f"顶点 {C.name} 坐标: {C.coord}")
@@ -134,9 +134,9 @@ class TestClassicalGeometry:
         
     def test_euler_line(self):
         # 构造三角形ABC
-        A = Point.Free(np.array([0, 0]), "A")
-        B = Point.Free(np.array([5, 0]), "B")
-        C = Point.Free(np.array([2, 3]), "C")
+        A = Point.Free(np.array([0, 0, 0]), "A")
+        B = Point.Free(np.array([5, 0, 0]), "B")
+        C = Point.Free(np.array([2, 3, 0]), "C")
         
         # 构造边
         AB = InfinityLine.PP(A, B, "AB")
@@ -163,9 +163,9 @@ class TestClassicalGeometry:
         
     def test_simson_line(self):
         # 构造三角形ABC
-        A = Point.Free(np.array([0, 0]), "A")
-        B = Point.Free(np.array([4, 0]), "B")
-        C = Point.Free(np.array([2, 3]), "C")
+        A = Point.Free(np.array([0, 0, 0]), "A")
+        B = Point.Free(np.array([4, 0, 0]), "B")
+        C = Point.Free(np.array([2, 3, 0]), "C")
         
         # 构造边
         AB = LineSegment.PP(A, B, "AB")
@@ -176,7 +176,7 @@ class TestClassicalGeometry:
         circumcircle = Circle.PPP(A, B, C)
         
         # 构造圆上一点P
-        P = Point.Free(np.array([2, -4/3]), "P")
+        P = Point.Free(np.array([2, -4/3, 0]), "P")
         
         # 使用高级几何工具构造垂足点
         foot_AB = Point.VerticalPL(P, AB, "foot_AB")
@@ -197,12 +197,12 @@ class TestClassicalGeometry:
         
     def test_inversion(self):
         # 使用两点构造法创建反演圆（圆心O，半径2）
-        O = Point.Free(np.array([0, 0]), "O")
-        R = Point.Free(np.array([2, 0]), "R")
+        O = Point.Free(np.array([0, 0, 0]), "O")
+        R = Point.Free(np.array([2, 0, 0]), "R")
         inversion_circle = Circle.PP(O, R, "InversionCircle")
         
         # 构造点P并计算反演点
-        P = Point.Free(np.array([3, 0]), "P")
+        P = Point.Free(np.array([3, 0, 0]), "P")
         Q = Point.InversionPCir(P, inversion_circle, name="Q")
         
         # 打印依赖关系
