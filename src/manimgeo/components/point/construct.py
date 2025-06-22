@@ -6,11 +6,13 @@ import numpy as np
 type Number = Union[float, int]
 
 if TYPE_CHECKING:
+    from ..base import BaseGeometry
     from ..angle import Angle
     from ..circle import Circle
     from ..line import Line, LineSegment
     from ..vector import Vector
     from .point import Point
+    from .intersections import IntType
 
 class FreeArgs(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -63,6 +65,11 @@ class IntersectionLLArgs(BaseModel):
     line1: Line
     line2: Line
     regard_infinite: bool = False
+
+class Intersections(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    construct_type: Literal["Intersections"] = "Intersections"
+    int_type: IntType.ConcreteIntType
 
 class TranslationPVArgs(BaseModel):
     construct_type: Literal["TranslationPV"] = "TranslationPV"
