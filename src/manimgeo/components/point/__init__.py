@@ -4,4 +4,4 @@ Point 类，表示一个几何点
 
 from .point import Point
 from .adapter import PointAdapter
-from .construct import PointConstructArgsList
+from .args import PointConstructArgsList

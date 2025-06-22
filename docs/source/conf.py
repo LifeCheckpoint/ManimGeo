@@ -17,7 +17,7 @@ sys.path.insert(0, str(src_dir))
 project = 'ManimGeo'
 copyright = '2025, LifeCheckpoint'
 author = 'LifeCheckpoint'
-release = '1.3.0'
+release = '1.3.0a2'
 
 html_theme = "furo"
 
@@ -68,19 +68,19 @@ source_suffix = {
 # Generate API documentation
 # sphinx-apidoc -o source/apidoc ../src/manimgeo --separate --force -d 6 
 
-try:
-    subprocess.run(
-        [
-            'sphinx-apidoc',
-            '-o', str(source_dir / "apidoc"),
-            str(src_dir / 'manimgeo'),
-            '--separate',
-            '--force',
-            '-d', '6'
-        ],
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-except subprocess.CalledProcessError as e:
-    print(f"生成 API 文档错误: {e}")
+# try:
+#     subprocess.run(
+#         [
+#             'sphinx-apidoc',
+#             '-o', str(source_dir / "apidoc"),
+#             str(src_dir / 'manimgeo'),
+#             '--separate',
+#             '--force',
+#             '-d', '6'
+#         ],
+#         check=True,
+#         stdout=subprocess.PIPE,
+#         stderr=subprocess.PIPE
+#     )
+# except subprocess.CalledProcessError as e:
+#     print(f"生成 API 文档错误: {e}")

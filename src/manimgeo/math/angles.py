@@ -1,5 +1,6 @@
 from .base import close, array2float
 from logging import getLogger
+from typing import Optional
 import numpy as np
 
 logger = getLogger(__name__)
@@ -54,3 +55,51 @@ def angle_3p_countclockwise(start: np.ndarray, center: np.ndarray, end: np.ndarr
         angle_rad += 2 * np.pi
     
     return angle_rad
+
+@array2float
+def point_3p_countclockwise(start: np.ndarray, center: np.ndarray, angle_rad: float, axis_vec: Optional[np.ndarray] = None) -> np.ndarray:
+    """
+    根据始点、中心点和角度，按逆时针方向计算终点
+    
+    - `start`: 始点
+    - `center`: 中心点
+    - `angle_rad`: 角度（弧度），逆时针为正
+    - `axis_vec`: 旋转轴向量（默认使用 z 轴）
+    
+    Returns: 终点坐标
+    """
+    vec1 = start - center
+
+    if axis_vec is None:
+        axis_vec = np.array([0.0, 0.0, 1.0])
+    
+    # 检查零向量
+    norm_vec1 = float(np.linalg.norm(vec1))
+    if close(norm_vec1, 0):
+        # 始点与中心重合，直接返回始点
+        logger.warning(f"始点与中心重合：{start}, {center}")
+        return start.copy()
+    
+    # 对于2D情况的特殊处理
+    if len(vec1) == 2:
+        # 2D旋转矩阵
+        cos_angle = np.cos(angle_rad)
+        sin_angle = np.sin(angle_rad)
+        rotation_matrix = np.array([
+            [cos_angle, -sin_angle],
+            [sin_angle, cos_angle]
+        ])
+        rotated_vec = rotation_matrix @ vec1
+        return center + rotated_vec
+    
+    # 3D情况：使用Rodrigues旋转公式
+    if len(vec1) == 3:
+        
+        # Rodrigues旋转公式
+        cos_angle = np.cos(angle_rad)
+        sin_angle = np.sin(angle_rad)
+        
+        rotated_vec = (vec1 * cos_angle + np.cross(axis_vec, vec1) * sin_angle + axis_vec * np.dot(axis_vec, vec1) * (1 - cos_angle))
+        return center + rotated_vec
+    
+    raise ValueError(f"不支持的维度：{len(vec1)}")

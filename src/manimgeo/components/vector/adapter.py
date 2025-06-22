@@ -9,7 +9,7 @@ from ...math import (
     unit_direction_vector,
 )
 from ..base import GeometryAdapter
-from .construct import *
+from .args import *
 
 class VectorAdapter(GeometryAdapter[VectorConstructArgs]): # 继承 GeometryAdapter 并指定参数模型类型
     vec: np.ndarray = Field(default=np.zeros(3), description="计算向量坐标", init=False)

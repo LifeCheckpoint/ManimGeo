@@ -1,5 +1,6 @@
-
 # GeoManimGLManager
+
+⚠ **文档已过时**
 
 `GeoManimGLManager` 负责管理 ManimGL Mobject 和几何对象之间的自动映射
 

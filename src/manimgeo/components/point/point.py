@@ -10,13 +10,21 @@ import numpy as np
 
 from ..base import BaseGeometry
 from .adapter import PointAdapter
-from .construct import *
+from .args import *
 
 if TYPE_CHECKING:
     from ..angle import Angle
-    from ..line import Line, LineSegment
+    from ..line import Line, LineSegment, Ray, InfinityLine
     from ..vector import Vector
     from ..circle import Circle
+    type ConcreteLine = Union[LineSegment, Ray, InfinityLine]
+
+from .intersections import (
+    LL as IntersectionLL,
+    LCir as IntersectionLCir,
+    CirCir as IntersectionCirCir,
+    ConcreteIntType
+)
 
 class Point(BaseGeometry):
     attrs: List[str] = Field(default=["coord"], description="点属性列表", init=False)
@@ -41,24 +49,8 @@ class Point(BaseGeometry):
         # 实例化 PointAdapter，传入 PointConstructArgs
         self.adapter = PointAdapter(args=self.args)
         self.name = self.get_name(self.name)
-
-        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
-        # 普通类型将被忽略
-        for field_name, field_info in self.args.__class__.model_fields.items():
-            field_value = getattr(self.args, field_name)
-            
-            # 基本几何对象
-            if isinstance(field_value, BaseGeometry):
-                self._add_dependency(field_value)
-
-            # 列表类型依赖 (extended)
-            elif isinstance(field_value, list):
-                for item in field_value:
-                    if isinstance(item, BaseGeometry):
-                        self._add_dependency(item)
-        
-            # 可拓展
-
+        # 添加依赖关系
+        self._extract_dependencies_from_args(self.args)
         self.update() # 首次计算
     
     def set_coord(self, coord: np.ndarray):
@@ -191,7 +183,7 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    def IntersectionLL(cls, line1: Line, line2: Line, regard_infinite: bool = False, name: str = "") -> Point:
+    def IntersectionLL(cls, line1: ConcreteLine, line2: ConcreteLine, regard_infinite: bool = False, name: str = "") -> Point:
         """
         构造两线交点
 
@@ -201,7 +193,7 @@ class Point(BaseGeometry):
         """
         return Point(
             name=name,
-            args=IntersectionLLArgs(line1=line1, line2=line2, regard_infinite=regard_infinite)
+            args=IntersectionsArgs(int_type=IntersectionLL(line1=line1, line2=line2, as_infinity=regard_infinite))
         )
     
     @classmethod

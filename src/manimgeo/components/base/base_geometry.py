@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, ConfigDict, ValidationError
-from typing import List, Optional, Any
+from pydantic import Field, ValidationError
+from .base_pydantic import BaseModelN
+from typing import List, Optional, Any, Generic
 
 from .base_adapter import GeometryAdapter
 
@@ -9,10 +10,10 @@ from .base_adapter import GeometryAdapter
 import logging
 logger = logging.getLogger(__name__)
 
-class BaseGeometry(BaseModel):
+from .base_argsmodel import _ArgsModelT
+
+class BaseGeometry(BaseModelN, Generic[_ArgsModelT]):
     """几何对象基类"""
-    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
-    
     name: str = Field(description="几何对象名称")
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
     
@@ -22,7 +23,7 @@ class BaseGeometry(BaseModel):
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
 
     def __repr__(self):
-        # 原始 BaseModel 的 __repr__ 方法开销巨大，改为简化输出
+        # 原始 BaseModelN 的 __repr__ 方法开销巨大，改为简化输出
         return f"{self.__class__.__name__}(name={self.name}, adapter={self.adapter}, attrs={self.attrs}, dependencies={len(self.dependencies)}, dependents={len(self.dependents)}, on_error={self.on_error})"
 
     def get_name(self, default_name: str):
@@ -88,11 +89,28 @@ class BaseGeometry(BaseModel):
             dep.update() # 递归更新下游
             dep.on_error = on_error
 
-    def update(self, new_args_model: Optional[BaseModel] = None):
+    def _extract_dependencies_from_args(self, args_model: _ArgsModelT):
+        """
+        从 Pydantic 参数模型中提取依赖的几何对象，并添加到当前对象的依赖列表中
+        
+        - `args_model`: Pydantic 参数模型实例
+        """
+        # 调用 ArgsModelBase 的 _get_deps 方法获取依赖几何对象列表
+        deps = args_model._get_deps()
+        # 添加到当前的依赖列表中
+        for dep in deps:
+            if isinstance(dep, BaseGeometry):
+                self._add_dependency(dep)
+            else:
+                logger.warning(f"参数模型 {args_model.__class__.__name__} 中包含非几何对象依赖: {dep}，将被忽略")
+
+    def update(self, new_args_model: Optional[_ArgsModelT] = None):
         """
         执行当前对象的更新
         
         - `new_args_model`: 如果需要更新构造参数，则传入新的 Pydantic 参数模型实例。如果传入，会尝试替换 adapter.args
+
+        注意不能更改参数模型的类型，只能更改参数模型的实例
         """
         if new_args_model:
             try:

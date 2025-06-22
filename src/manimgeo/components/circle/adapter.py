@@ -7,7 +7,7 @@ from ...math import (
     plane_get_ABCD, # 新增
 )
 from ..base import GeometryAdapter
-from .construct import *
+from .args import *
 from pydantic import Field
 from typing import cast
 import numpy as np

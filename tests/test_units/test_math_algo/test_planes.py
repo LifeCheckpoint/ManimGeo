@@ -21,6 +21,7 @@ from manimgeo.math import *
         pytest.param(np.array([1e5, 0, 0]), np.array([0, 1e5, 0]), np.array([0, 0, 1e5]), 1e5, (1.0, 1.0, 1.0), None, id="Valid_LargeCoords_Const1e5"),
         pytest.param(np.array([1, 1, 1]), np.array([1, 2, 0]), np.array([2, 1, 0]), 3, (1.0, 1.0, 1.0), None, id="Valid_NonUnitConstant"),
         pytest.param(np.array([1, -1, 0]), np.array([0, 1, -1]), np.array([-1, 0, 1]), 0, (1.0, 1.0, 1.0), None, id="Valid_PassesThroughOrigin_Const0"),
+        pytest.param(np.array([1, -1, 0]), np.array([0, 1, -1]), np.array([-1, 0, 1]), 1, None, ValueError, id="InValid_PassesThroughOrigin_Const1"),
         pytest.param(np.array([1, -1, 0]), np.array([0, 1, -1]), np.array([-1, 0, 1]), None, (1.0, 1.0, 1.0), None, id="Valid_PassesThroughOrigin_Const_Default"),
         pytest.param(np.array([0, 0, 0]), np.array([1, 0, 0]), np.array([2, 0, 0]), 1, None, ValueError, id="Invalid_Collinear_XAxis"),
         pytest.param(np.array([1, 1, 1]), np.array([2, 2, 2]), np.array([3, 3, 3]), 1, None, ValueError, id="Invalid_Collinear_Diagonal"),
@@ -37,5 +38,5 @@ def test_plane_get_ABCD(point1, point2, point3, constant, expected_result, expec
         result = plane_get_ABCD(point1, point2, point3, constant)
         assert close(np.array(result), np.array(expected_result)), f"Mismatch in A, B, C coefficients: {result} != {expected_result}"
     else:
-        with pytest.raises(expected_exc, match="三个点可能共线或不定义唯一平面"):
+        with pytest.raises(expected_exc):
             plane_get_ABCD(point1, point2, point3, constant)

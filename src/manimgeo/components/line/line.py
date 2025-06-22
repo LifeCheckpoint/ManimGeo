@@ -6,7 +6,7 @@ import numpy as np
 
 from ..base import BaseGeometry
 from .adapter import LineAdapter
-from .construct import *
+from .args import *
 
 if TYPE_CHECKING:
     from ..point import Point
@@ -16,17 +16,11 @@ _LineT = TypeVar('_LineT', bound='Line')
 
 class Line(BaseGeometry):
     """
-    线对象，允许以下构造
-    - `PP`: 始终点构造线
-    - `PV`: 始点方向构造线
-    - `TranslationLV`: 平移构造线
-    - `VerticalPL`: 点与线构造垂直线
-    - `ParallelPL`: 点与线构造平行线
-    - `TangentsCirP`: 圆与点构造切线
-    - `TangentsOutCirCir`: 圆与圆构造外切线
-    - `TangentsInCirCir`: 圆与圆构造内切线
+    线类
+
+    建议对 Line 的子类进行实例化，而不是直接实例化 Line
     """
-    
+
     attrs: List[str] = Field(default=["start", "end", "length", "unit_direction"], description="线对象属性列表", init=False)
     start: np.ndarray = Field(default=np.zeros(2), description="线首坐标", init=False)
     end: np.ndarray = Field(default=np.zeros(2), description="线尾坐标", init=False)
@@ -55,24 +49,8 @@ class Line(BaseGeometry):
         """模型初始化后，更新名字并添加依赖关系"""
         self.adapter = LineAdapter(args=self.args)
         self.name = self.get_name(self.name)
-
-        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
-        # 普通类型将被忽略
-        for field_name, field_info in self.args.__class__.model_fields.items():
-            field_value = getattr(self.args, field_name)
-
-            # 基本几何对象
-            if isinstance(field_value, BaseGeometry):
-                self._add_dependency(field_value)
-
-            # 列表类型依赖 (extended)
-            elif isinstance(field_value, list):
-                for item in field_value:
-                    if isinstance(item, BaseGeometry):
-                        self._add_dependency(item)
-
-            # 可拓展
-
+        # 添加依赖关系
+        self._extract_dependencies_from_args(self.args)
         self.update() # 首次计算
 
     # 构造方法

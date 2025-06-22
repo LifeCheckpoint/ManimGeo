@@ -6,3 +6,4 @@
 install
 quick_start
 examples
+architecture_overview

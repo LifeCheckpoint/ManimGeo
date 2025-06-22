@@ -12,10 +12,10 @@ from ...math import (
     circumcenter,
     inscribed,
     orthocenter,
-    angle_3p_countclockwise,
+    point_3p_countclockwise
 )
 from ..base import GeometryAdapter
-from .construct import *
+from .args import *
 
 class PointAdapter(GeometryAdapter[PointConstructArgs]):
     coord: np.ndarray = Field(default_factory=lambda: np.zeros(3), description="计算点坐标", init=False)
@@ -72,6 +72,20 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
                     raise ValueError(f"两线无交点: {args.line1.name}, {args.line2.name}")
                 else:
                     self.coord = result
+
+            case "Intersections":
+                from .intersections import PointIntersections
+                args = cast(IntersectionsArgs, self.args)
+                result = PointIntersections(int_type=args.int_type)()
+                result_num = result.num_results
+                result_points = result.result_points
+                
+                if result_num == 0:
+                    raise ValueError(f"两对象无交点：{args.int_type}")
+                elif result_num > 1:
+                    raise ValueError(f"多于一个交点的求解结果不可以 Point 类导出：{result_num} 个交点")
+                else:
+                    self.coord = result_points[0]
                 
             case "TranslationPV":
                 args = cast(TranslationPVArgs, self.args)
@@ -106,9 +120,9 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
             case "RotatePPA":
                 args = cast(RotatePPAArgs, self.args)
                 angle_num = args.angle.angle if args.angle.turn == 'Counterclockwise' else (2 * np.pi - args.angle.angle)
-                # BUG
-                # self.coord = angle_3p_countclockwise(args.point.coord, args.center.coord, angle_num)
-                self.coord = args.point.coord
+                self.coord = point_3p_countclockwise(
+                    args.point.coord, args.center.coord, angle_num, args.axis
+                )
 
             case _:
                 raise NotImplementedError(f"Invalid construct type: {self.construct_type}")
