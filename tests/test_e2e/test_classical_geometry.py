@@ -30,8 +30,8 @@ class TestClassicalGeometry:
         P = Point.IntersectionLL(AN, OB, False, "P")
 
         # 打印 A 依赖关系
-        print("Dependencies of A:")
-        GeoUtils.print_dependencies(A)
+        print("Dependencies of B:")
+        GeoUtils.print_dependencies(B)
         print("")
 
         # 输出移动前坐标

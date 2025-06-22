@@ -14,9 +14,10 @@ from .construct import *
 
 if TYPE_CHECKING:
     from ..angle import Angle
-    from ..line import Line, LineSegment
+    from ..line import Line, LineSegment, Ray, InfinityLine
     from ..vector import Vector
     from ..circle import Circle
+    type ConcreteLine = Union[LineSegment, Ray, InfinityLine]
 
 class Point(BaseGeometry):
     attrs: List[str] = Field(default=["coord"], description="点属性列表", init=False)
@@ -191,7 +192,7 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    def IntersectionLL(cls, line1: Line, line2: Line, regard_infinite: bool = False, name: str = "") -> Point:
+    def IntersectionLL(cls, line1: ConcreteLine, line2: ConcreteLine, regard_infinite: bool = False, name: str = "") -> Point:
         """
         构造两线交点
 
@@ -199,9 +200,10 @@ class Point(BaseGeometry):
         `line2`: 第二条线  
         `regard_infinite`: 是否视为无限长直线
         """
+        from .intersections import LL
         return Point(
             name=name,
-            args=IntersectionLLArgs(line1=line1, line2=line2, regard_infinite=regard_infinite)
+            args=IntersectionsArgs(int_type=LL(line1=line1, line2=line2, as_infinity=regard_infinite))
         )
     
     @classmethod

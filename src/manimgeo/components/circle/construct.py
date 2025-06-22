@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, Literal, Optional
 
 type Number = Union[float, int]
@@ -11,46 +11,46 @@ if TYPE_CHECKING:
     from ..vector import Vector
     from .circle import Circle
 
-class CNRArgs(BaseModel):
+class CNRArgs(BaseModelN):
     construct_type: Literal["CNR"] = "CNR"
     center: Point
     normal: Vector
     radius: Number
 
-class PRArgs(BaseModel):
+class PRArgs(BaseModelN):
     construct_type: Literal["PR"] = "PR"
     center: Point
     radius: Number
     normal: Optional[Vector] = None
 
-class PPArgs(BaseModel):
+class PPArgs(BaseModelN):
     construct_type: Literal["PP"] = "PP"
     center: Point
     point: Point
     normal: Optional[Vector] = None
 
-class LArgs(BaseModel):
+class LArgs(BaseModelN):
     construct_type: Literal["L"] = "L"
     radius_segment: LineSegment
     normal: Optional[Vector] = None
 
-class PPPArgs(BaseModel):
+class PPPArgs(BaseModelN):
     construct_type: Literal["PPP"] = "PPP"
     point1: Point
     point2: Point
     point3: Point
 
-class TranslationCirVArgs(BaseModel):
+class TranslationCirVArgs(BaseModelN):
     construct_type: Literal["TranslationCirV"] = "TranslationCirV"
     circle: Circle
     vector: Vector
 
-class InverseCirCirArgs(BaseModel):
+class InverseCirCirArgs(BaseModelN):
     construct_type: Literal["InverseCirCir"] = "InverseCirCir"
     circle: Circle
     base_circle: Circle
 
-class InscribePPPArgs(BaseModel):
+class InscribePPPArgs(BaseModelN):
     construct_type: Literal["InscribePPP"] = "InscribePPP"
     point1: Point
     point2: Point
