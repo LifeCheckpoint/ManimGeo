@@ -1,5 +1,7 @@
 # Anime 动画集成
 
+⚠ **文档已过时**
+
 ```{toctree}
 :maxdepth: 2
 

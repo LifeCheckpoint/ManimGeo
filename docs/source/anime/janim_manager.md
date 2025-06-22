@@ -1,5 +1,6 @@
-
 # GeoJAnimManager
+
+⚠ **文档已过时**
 
 `GeoJAnimManager` 负责管理 JAnim VItem 和几何对象之间的自动映射
 

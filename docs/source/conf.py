@@ -68,19 +68,19 @@ source_suffix = {
 # Generate API documentation
 # sphinx-apidoc -o source/apidoc ../src/manimgeo --separate --force -d 6 
 
-try:
-    subprocess.run(
-        [
-            'sphinx-apidoc',
-            '-o', str(source_dir / "apidoc"),
-            str(src_dir / 'manimgeo'),
-            '--separate',
-            '--force',
-            '-d', '6'
-        ],
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-except subprocess.CalledProcessError as e:
-    print(f"生成 API 文档错误: {e}")
+# try:
+#     subprocess.run(
+#         [
+#             'sphinx-apidoc',
+#             '-o', str(source_dir / "apidoc"),
+#             str(src_dir / 'manimgeo'),
+#             '--separate',
+#             '--force',
+#             '-d', '6'
+#         ],
+#         check=True,
+#         stdout=subprocess.PIPE,
+#         stderr=subprocess.PIPE
+#     )
+# except subprocess.CalledProcessError as e:
+#     print(f"生成 API 文档错误: {e}")
