@@ -102,6 +102,7 @@ class RotatePPAArgs(BaseModel):
     point: Point
     center: Point
     angle: Angle
+    axis: np.ndarray | None = None
 
 # 所有参数模型的联合类型
 

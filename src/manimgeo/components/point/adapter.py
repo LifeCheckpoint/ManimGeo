@@ -12,7 +12,7 @@ from ...math import (
     circumcenter,
     inscribed,
     orthocenter,
-    angle_3p_countclockwise,
+    point_3p_countclockwise
 )
 from ..base import GeometryAdapter
 from .construct import *
@@ -106,9 +106,9 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
             case "RotatePPA":
                 args = cast(RotatePPAArgs, self.args)
                 angle_num = args.angle.angle if args.angle.turn == 'Counterclockwise' else (2 * np.pi - args.angle.angle)
-                # BUG
-                # self.coord = angle_3p_countclockwise(args.point.coord, args.center.coord, angle_num)
-                self.coord = args.point.coord
+                self.coord = point_3p_countclockwise(
+                    args.point.coord, args.center.coord, angle_num, args.axis
+                )
 
             case _:
                 raise NotImplementedError(f"Invalid construct type: {self.construct_type}")
