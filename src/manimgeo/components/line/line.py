@@ -16,17 +16,11 @@ _LineT = TypeVar('_LineT', bound='Line')
 
 class Line(BaseGeometry):
     """
-    线对象，允许以下构造
-    - `PP`: 始终点构造线
-    - `PV`: 始点方向构造线
-    - `TranslationLV`: 平移构造线
-    - `VerticalPL`: 点与线构造垂直线
-    - `ParallelPL`: 点与线构造平行线
-    - `TangentsCirP`: 圆与点构造切线
-    - `TangentsOutCirCir`: 圆与圆构造外切线
-    - `TangentsInCirCir`: 圆与圆构造内切线
+    线类
+
+    建议对 Line 的子类进行实例化，而不是直接实例化 Line
     """
-    
+
     attrs: List[str] = Field(default=["start", "end", "length", "unit_direction"], description="线对象属性列表", init=False)
     start: np.ndarray = Field(default=np.zeros(2), description="线首坐标", init=False)
     end: np.ndarray = Field(default=np.zeros(2), description="线尾坐标", init=False)
