@@ -2,6 +2,7 @@ from __future__ import annotations
 from pydantic import ConfigDict
 from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, Literal
+from typing_extensions import deprecated
 import numpy as np
 
 type Number = Union[float, int]
@@ -59,13 +60,14 @@ class InversionPCirArgs(BaseModelN):
     point: Point
     circle: Circle
 
+@deprecated("求交点由通用参数模型 IntersectionsArgs 接管")
 class IntersectionLLArgs(BaseModelN):
     construct_type: Literal["IntersectionLL"] = "IntersectionLL"
     line1: Line
     line2: Line
     regard_infinite: bool = False
 
-class Intersections(BaseModelN):
+class IntersectionsArgs(BaseModelN):
     construct_type: Literal["Intersections"] = "Intersections"
     int_type: IntType.ConcreteIntType
 

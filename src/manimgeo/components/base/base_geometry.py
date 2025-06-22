@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import Field, ConfigDict, ValidationError
+from pydantic import Field, ValidationError
 from .base_pydantic import BaseModelN
 from typing import List, Optional, Any
 

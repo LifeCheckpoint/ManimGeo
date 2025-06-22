@@ -3,7 +3,6 @@ from __future__ import annotations
 from pydantic import Field
 from typing import cast
 import numpy as np
-import warnings
 
 from ...math import (
     axisymmetric_point,
@@ -62,10 +61,6 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
                 self.coord = inversion_point(args.point.coord, args.circle.center, args.circle.radius)
 
             case "IntersectionLL":
-                warnings.warn(
-                    "IntersectionLL construct is deprecated, use Intersections instead.",
-                    DeprecationWarning
-                )
                 args = cast(IntersectionLLArgs, self.args)
                 result = intersection_line_line(
                     args.line1.start, args.line1.end,
@@ -80,7 +75,7 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
 
             case "Intersection":
                 from .intersections import PointIntersections
-                args = cast(Intersections, self.args)
+                args = cast(IntersectionsArgs, self.args)
                 result = PointIntersections(int_type=args.int_type)()
                 result_num = result.num_results
                 result_points = result.result_points
