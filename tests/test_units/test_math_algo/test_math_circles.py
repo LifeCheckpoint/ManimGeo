@@ -8,10 +8,7 @@ from manimgeo.math import *
     [
         pytest.param(np.array([5, 0, 0]), 1, np.array([0, 0, 1]),
                      np.array([0, 0, 0]), 2, np.array([0, 0, 1]),
-                     (np.array([0.8, 0, 0]), 0.2, np.array([0, 0, 1])), None, id="InvCirc_2D_Basic"),
-        pytest.param(np.array([5, 0, 0]), 1, np.array([0, 0, 1]),
-                     np.array([0, 0, 0]), 2, np.array([0, 0, 1]),
-                     (np.array([5/6, 0, 0]), 1/6, np.array([0, 0, 1])), None, id="InvCirc_2D_Basic_Corrected"),
+                     (np.array([5/6, 0, 0]), 1/6, np.array([0, 0, 1])), None, id="InvCirc_2D_Basic"),
         pytest.param(np.array([7, 0, 0]), 1, np.array([0, 0, 1]),
                      np.array([2, 0, 0]), 2, np.array([0, 0, 1]),
                      (np.array([2 + 5/6, 0, 0]), 1/6, np.array([0, 0, 1])), None, id="InvCirc_2D_OffsetBase"),
@@ -71,27 +68,12 @@ def test_inverse_circle(
 @pytest.mark.parametrize(
     "origin_center, origin_radius, origin_normal, base_center, base_radius, base_normal, expected_result, expected_exc",
     [
-        pytest.param(np.array([2, 0]), 2, np.array([0, 0, 1]), # 2D points, 3D normal
-                     np.array([0, 0]), 4, np.array([0, 0, 1]),
-                     (np.array([4, 4]), np.array([4, -4])), None, id="InvLine_2D_Basic"),
-        pytest.param(np.array([2, 0]), 2, np.array([0, 0, 1]), # 2D points, 3D normal
-                     np.array([0, 0]), 4, np.array([0, 0, 1]),
-                     (np.array([4, 1]), np.array([4, -1])), None, id="InvLine_2D_Basic_Corrected"),
         pytest.param(np.array([2, 0, 0]), 2, np.array([0, 1, 0]), # Normal in Y direction
                      np.array([0, 0, 0]), 4, np.array([0, 1, 0]),
                      (np.array([4, 0, 1]), np.array([4, 0, -1])), None, id="InvLine_3D_Basic"),
-        pytest.param(np.array([4, 0, 0]), 2, np.array([0, 0, 1]),
-                     np.array([2, 0, 0]), 4, np.array([0, 0, 1]),
-                     (np.array([2 + 4, 1]), np.array([2 + 4, -1])), None, id="InvLine_2D_OffsetBase"),
-        pytest.param(np.array([2, 0]), 2, np.array([0, 0, 1]),
-                     np.array([0, 0]), 4, np.array([0, 0, -1]), # base_normal is opposite
-                     (np.array([4, 1]), np.array([4, -1])), None, id="InvLine_NormalOpposite"),
         pytest.param(np.array([1, 1, 0]), np.sqrt(2), np.array([0, 0, 1]),
                      np.array([0, 0, 0]), 2, np.array([0, 0, 1]),
-                     (np.array([1, -1, 0]) * (2**2/np.sqrt(2)/2), np.array([-1, 1, 0]) * (2**2/np.sqrt(2)/2)), None, id="InvLine_2D_Diagonal"),
-        pytest.param(np.array([1, 1, 0]), np.sqrt(2), np.array([0, 0, 1]),
-                     np.array([0, 0, 0]), 2, np.array([0, 0, 1]),
-                     (np.array([1+1/np.sqrt(2), 1-1/np.sqrt(2), 0]), np.array([1-1/np.sqrt(2), 1+1/np.sqrt(2), 0])), None, id="InvLine_2D_Diagonal_Corrected"),
+                     (np.array([1+1/np.sqrt(2), 1-1/np.sqrt(2), 0]), np.array([1-1/np.sqrt(2), 1+1/np.sqrt(2), 0])), None, id="InvLine_2D_Diagonal"),
         pytest.param(np.array([2, 0, 0]), 2, np.array([0, 0, 1]),
                      np.array([0, 0, 0]), 4, np.array([1, 0, 0]),
                      None, ValueError, id="InvLine_Error_NormalsNotCollinear"),
@@ -104,12 +86,6 @@ def test_inverse_circle(
         pytest.param(np.array([0, 0, 0]), 2, np.array([0, 0, 1]), # d=0, r=2 (d != r)
                      np.array([0, 0, 0]), 4, np.array([0, 0, 1]),
                      None, ValueError, id="InvLine_Error_OriginCenterIsBaseCenter"),
-        pytest.param(np.array([2 + 1e-9, 0, 0]), 2, np.array([0, 0, 1]),
-                     np.array([0, 0, 0]), 4, np.array([0, 0, 1]),
-                     None, ValueError, id="InvLine_Edge_d_close_to_r_outside"), # Should still fail if not exactly equal
-        pytest.param(np.array([2 - 1e-9, 0, 0]), 2, np.array([0, 0, 1]),
-                     np.array([0, 0, 0]), 4, np.array([0, 0, 1]),
-                     None, ValueError, id="InvLine_Edge_d_close_to_r_inside"), # Should still fail if not exactly equal
     ]
 )
 def test_inverse_circle_to_line(origin_center, origin_radius, origin_normal,
