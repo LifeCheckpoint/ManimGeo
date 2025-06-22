@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import Field
-from ..base import BaseModelN
+from ..base import ArgsModelBase
 from typing import TYPE_CHECKING, Union, Literal
 
 type Number = Union[float, int]
@@ -13,27 +13,27 @@ if TYPE_CHECKING:
 
 type LineConcrete = Union["LineSegment", "Ray", "InfinityLine"]
 
-class PPArgs(BaseModelN):
+class PPArgs(ArgsModelBase):
     construct_type: Literal["PP"] = "PP"
     point1: Point
     point2: Point
 
-class PVArgs(BaseModelN):
+class PVArgs(ArgsModelBase):
     construct_type: Literal["PV"] = "PV"
     start: Point
     vector: Vector
 
-class TranslationLVArgs(BaseModelN):
+class TranslationLVArgs(ArgsModelBase):
     construct_type: Literal["TranslationLV"] = "TranslationLV"
     line: LineConcrete = Field(discriminator='line_type')
     vector: Vector
 
-class VerticalPLArgs(BaseModelN):
+class VerticalPLArgs(ArgsModelBase):
     construct_type: Literal["VerticalPL"] = "VerticalPL"
     point: Point
     line: LineConcrete = Field(discriminator='line_type')
 
-class ParallelPLArgs(BaseModelN):
+class ParallelPLArgs(ArgsModelBase):
     construct_type: Literal["ParallelPL"] = "ParallelPL"
     point: Point
     line: LineConcrete = Field(discriminator='line_type')

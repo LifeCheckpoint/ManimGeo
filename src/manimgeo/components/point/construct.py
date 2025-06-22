@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from ..base import BaseModelN
-from typing import TYPE_CHECKING, Union, Literal
+from ..base import ArgsModelBase
+from typing import TYPE_CHECKING, Union, Literal, List
 from typing_extensions import deprecated
 import numpy as np
 
 type Number = Union[float, int]
 
 from .intersections import ConcreteIntType
+from ..base import BaseGeometry
 
 if TYPE_CHECKING:
     from ..angle import Angle
@@ -16,95 +17,107 @@ if TYPE_CHECKING:
     from ..vector import Vector
     from .point import Point
 
-class FreeArgs(BaseModelN):
+class FreeArgs(ArgsModelBase):
     construct_type: Literal["Free"] = "Free"
     coord: np.ndarray
 
-class ConstraintArgs(BaseModelN):
+class ConstraintArgs(ArgsModelBase):
     construct_type: Literal["Constraint"] = "Constraint"
     coord: np.ndarray
 
-class MidPPArgs(BaseModelN):
+class MidPPArgs(ArgsModelBase):
     construct_type: Literal["MidPP"] = "MidPP"
     point1: Point
     point2: Point
 
-class MidLArgs(BaseModelN):
+class MidLArgs(ArgsModelBase):
     construct_type: Literal["MidL"] = "MidL"
     line: LineSegment
 
-class ExtensionPPArgs(BaseModelN):
+class ExtensionPPArgs(ArgsModelBase):
     construct_type: Literal["ExtensionPP"] = "ExtensionPP"
     start: Point
     through: Point
     factor: Number
 
-class AxisymmetricPLArgs(BaseModelN):
+class AxisymmetricPLArgs(ArgsModelBase):
     construct_type: Literal["AxisymmetricPL"] = "AxisymmetricPL"
     point: Point
     line: Line
 
-class VerticalPLArgs(BaseModelN):
+class VerticalPLArgs(ArgsModelBase):
     construct_type: Literal["VerticalPL"] = "VerticalPL"
     point: Point
     line: Line
 
-class ParallelPLArgs(BaseModelN):
+class ParallelPLArgs(ArgsModelBase):
     construct_type: Literal["ParallelPL"] = "ParallelPL"
     point: Point
     line: Line
     distance: Number
 
-class InversionPCirArgs(BaseModelN):
+class InversionPCirArgs(ArgsModelBase):
     construct_type: Literal["InversionPCir"] = "InversionPCir"
     point: Point
     circle: Circle
 
 @deprecated("求交点由通用参数模型 IntersectionsArgs 接管")
-class IntersectionLLArgs(BaseModelN):
+class IntersectionLLArgs(ArgsModelBase):
     construct_type: Literal["IntersectionLL"] = "IntersectionLL"
     line1: Line
     line2: Line
     regard_infinite: bool = False
 
-class IntersectionsArgs(BaseModelN):
+class IntersectionsArgs(ArgsModelBase):
     construct_type: Literal["Intersections"] = "Intersections"
     int_type: ConcreteIntType
 
-class TranslationPVArgs(BaseModelN):
+    def _get_deps(self):
+        """
+        交点参数模型的依赖对象来源于 int_type
+        """
+        dep_objects: List[BaseGeometry] = []
+        for field_name, field_info in self.int_type.__class__.model_fields.items():
+            field_value = getattr(self.int_type, field_name)
+            if isinstance(field_value, BaseGeometry):
+                dep_objects.append(field_value)
+
+        return dep_objects
+
+class TranslationPVArgs(ArgsModelBase):
     construct_type: Literal["TranslationPV"] = "TranslationPV"
     point: Point
     vector: Vector
 
-class CentroidPPPArgs(BaseModelN):
+class CentroidPPPArgs(ArgsModelBase):
     construct_type: Literal["CentroidPPP"] = "CentroidPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class CircumcenterPPPArgs(BaseModelN):
+class CircumcenterPPPArgs(ArgsModelBase):
     construct_type: Literal["CircumcenterPPP"] = "CircumcenterPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class IncenterPPPArgs(BaseModelN):
+class IncenterPPPArgs(ArgsModelBase):
     construct_type: Literal["IncenterPPP"] = "IncenterPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class OrthocenterPPPArgs(BaseModelN):
+class OrthocenterPPPArgs(ArgsModelBase):
     construct_type: Literal["OrthocenterPPP"] = "OrthocenterPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class CirArgs(BaseModelN):
+class CirArgs(ArgsModelBase):
     construct_type: Literal["Cir"] = "Cir"
     circle: Circle
 
-class RotatePPAArgs(BaseModelN):
+class RotatePPAArgs(ArgsModelBase):
     construct_type: Literal["RotatePPA"] = "RotatePPA"
     point: Point
     center: Point

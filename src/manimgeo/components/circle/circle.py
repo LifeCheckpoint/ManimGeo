@@ -41,24 +41,8 @@ class Circle(BaseGeometry):
         """模型初始化后，更新名字并添加依赖关系"""
         self.adapter = CircleAdapter(args=self.args)
         self.name = self.get_name(self.name)
-
-        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
-        # 普通类型将被忽略
-        for field_name, field_info in self.args.__class__.model_fields.items():
-            field_value = getattr(self.args, field_name)
-
-            # 基本几何对象
-            if isinstance(field_value, BaseGeometry):
-                self._add_dependency(field_value)
-
-            # 列表类型依赖 (extended)
-            elif isinstance(field_value, list):
-                for item in field_value:
-                    if isinstance(item, BaseGeometry):
-                        self._add_dependency(item)
-
-            # 可拓展
-
+        # 添加依赖关系
+        self._extract_dependencies_from_args(self.args)
         self.update() # 首次计算
 
     def get_point_at_angle(self, angle: Number) -> np.ndarray:

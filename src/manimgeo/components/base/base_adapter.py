@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from pydantic import Field, ConfigDict
+from pydantic import Field
 from ..base import BaseModelN
-from typing import TYPE_CHECKING, List, TypeVar, Generic
+from typing import TYPE_CHECKING, List, Generic
 
 if TYPE_CHECKING:
     from .base_geometry import BaseGeometry
 
-# 适配器的泛型参数模型
-ArgsModel = TypeVar('ArgsModel', bound=BaseModelN)
+from .base_argsmodel import _ArgsModelT
 
-class GeometryAdapter(BaseModelN, Generic[ArgsModel]):
+class GeometryAdapter(BaseModelN, Generic[_ArgsModelT]):
     """几何对象参数适配器基类"""
     # 适配器直接持有参数模型
-    args: ArgsModel = Field(description="适配器依赖的参数模型")
+    args: _ArgsModelT = Field(description="适配器依赖的参数模型")
 
     @property
     def construct_type(self) -> str:

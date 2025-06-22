@@ -19,6 +19,13 @@ if TYPE_CHECKING:
     from ..circle import Circle
     type ConcreteLine = Union[LineSegment, Ray, InfinityLine]
 
+from .intersections import (
+    LL as IntersectionLL,
+    LCir as IntersectionLCir,
+    CirCir as IntersectionCirCir,
+    ConcreteIntType
+)
+
 class Point(BaseGeometry):
     attrs: List[str] = Field(default=["coord"], description="点属性列表", init=False)
     coord: np.ndarray = Field(default=np.zeros(2), description="点坐标", init=False)
@@ -42,24 +49,8 @@ class Point(BaseGeometry):
         # 实例化 PointAdapter，传入 PointConstructArgs
         self.adapter = PointAdapter(args=self.args)
         self.name = self.get_name(self.name)
-
-        # 遍历 args 模型中的所有 BaseGeometry 实例，并添加到 _dependencies
-        # 普通类型将被忽略
-        for field_name, field_info in self.args.__class__.model_fields.items():
-            field_value = getattr(self.args, field_name)
-            
-            # 基本几何对象
-            if isinstance(field_value, BaseGeometry):
-                self._add_dependency(field_value)
-
-            # 列表类型依赖 (extended)
-            elif isinstance(field_value, list):
-                for item in field_value:
-                    if isinstance(item, BaseGeometry):
-                        self._add_dependency(item)
-        
-            # 可拓展
-
+        # 添加依赖关系
+        self._extract_dependencies_from_args(self.args)
         self.update() # 首次计算
     
     def set_coord(self, coord: np.ndarray):
@@ -200,10 +191,9 @@ class Point(BaseGeometry):
         `line2`: 第二条线  
         `regard_infinite`: 是否视为无限长直线
         """
-        from .intersections import LL
         return Point(
             name=name,
-            args=IntersectionsArgs(int_type=LL(line1=line1, line2=line2, as_infinity=regard_infinite))
+            args=IntersectionsArgs(int_type=IntersectionLL(line1=line1, line2=line2, as_infinity=regard_infinite))
         )
     
     @classmethod

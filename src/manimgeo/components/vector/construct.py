@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import ConfigDict
-from ..base import BaseModelN
+from ..base import ArgsModelBase
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
 
@@ -12,40 +12,40 @@ if TYPE_CHECKING:
     from ..line import LineSegment
     from .vector import Vector
 
-class PPArgs(BaseModelN):
+class PPArgs(ArgsModelBase):
     construct_type: Literal["PP"] = "PP"
     start: Point
     end: Point
 
-class LArgs(BaseModelN):
+class LArgs(ArgsModelBase):
     construct_type: Literal["L"] = "L"
     line: LineSegment
 
-class NArgs(BaseModelN):
+class NArgs(ArgsModelBase):
     construct_type: Literal["N"] = "N"
     vec: np.ndarray
 
-class NPPArgs(BaseModelN):
+class NPPArgs(ArgsModelBase):
     construct_type: Literal["NPP"] = "NPP"
     start: np.ndarray
     end: np.ndarray
 
-class NNormDirectionArgs(BaseModelN):
+class NNormDirectionArgs(ArgsModelBase):
     construct_type: Literal["NNormDirection"] = "NNormDirection"
     norm: Number
     direction: np.ndarray
 
-class AddVVArgs(BaseModelN):
+class AddVVArgs(ArgsModelBase):
     construct_type: Literal["AddVV"] = "AddVV"
     vec1: Vector
     vec2: Vector
 
-class SubVVArgs(BaseModelN):
+class SubVVArgs(ArgsModelBase):
     construct_type: Literal["SubVV"] = "SubVV"
     vec1: Vector
     vec2: Vector
 
-class MulNVArgs(BaseModelN):
+class MulNVArgs(ArgsModelBase):
     construct_type: Literal["MulNV"] = "MulNV"
     factor: Number
     vec: Vector

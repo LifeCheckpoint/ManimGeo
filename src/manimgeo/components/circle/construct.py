@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..base import BaseModelN
+from ..base import ArgsModelBase
 from typing import TYPE_CHECKING, Union, Literal, Optional
 
 type Number = Union[float, int]
@@ -11,46 +11,46 @@ if TYPE_CHECKING:
     from ..vector import Vector
     from .circle import Circle
 
-class CNRArgs(BaseModelN):
+class CNRArgs(ArgsModelBase):
     construct_type: Literal["CNR"] = "CNR"
     center: Point
     normal: Vector
     radius: Number
 
-class PRArgs(BaseModelN):
+class PRArgs(ArgsModelBase):
     construct_type: Literal["PR"] = "PR"
     center: Point
     radius: Number
     normal: Optional[Vector] = None
 
-class PPArgs(BaseModelN):
+class PPArgs(ArgsModelBase):
     construct_type: Literal["PP"] = "PP"
     center: Point
     point: Point
     normal: Optional[Vector] = None
 
-class LArgs(BaseModelN):
+class LArgs(ArgsModelBase):
     construct_type: Literal["L"] = "L"
     radius_segment: LineSegment
     normal: Optional[Vector] = None
 
-class PPPArgs(BaseModelN):
+class PPPArgs(ArgsModelBase):
     construct_type: Literal["PPP"] = "PPP"
     point1: Point
     point2: Point
     point3: Point
 
-class TranslationCirVArgs(BaseModelN):
+class TranslationCirVArgs(ArgsModelBase):
     construct_type: Literal["TranslationCirV"] = "TranslationCirV"
     circle: Circle
     vector: Vector
 
-class InverseCirCirArgs(BaseModelN):
+class InverseCirCirArgs(ArgsModelBase):
     construct_type: Literal["InverseCirCir"] = "InverseCirCir"
     circle: Circle
     base_circle: Circle
 
-class InscribePPPArgs(BaseModelN):
+class InscribePPPArgs(ArgsModelBase):
     construct_type: Literal["InscribePPP"] = "InscribePPP"
     point1: Point
     point2: Point
