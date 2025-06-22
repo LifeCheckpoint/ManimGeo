@@ -80,9 +80,10 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
                 result_num = result.num_results
                 result_points = result.result_points
                 
-                # TODO 多于一个点的情况
                 if result_num == 0:
                     raise ValueError(f"两对象无交点：{args.int_type}")
+                elif result_num > 1:
+                    raise ValueError(f"多于一个交点的求解结果不可以 Point 类导出：{result_num} 个交点")
                 else:
                     self.coord = result_points[0]
                 

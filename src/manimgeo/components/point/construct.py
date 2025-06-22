@@ -1,5 +1,5 @@
 from __future__ import annotations
-from pydantic import ConfigDict
+
 from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, Literal
 from typing_extensions import deprecated
@@ -7,14 +7,14 @@ import numpy as np
 
 type Number = Union[float, int]
 
+from .intersections import ConcreteIntType
+
 if TYPE_CHECKING:
-    from ..base import BaseGeometry
     from ..angle import Angle
     from ..circle import Circle
     from ..line import Line, LineSegment
     from ..vector import Vector
     from .point import Point
-    from .intersections import IntType
 
 class FreeArgs(BaseModelN):
     construct_type: Literal["Free"] = "Free"
@@ -69,7 +69,7 @@ class IntersectionLLArgs(BaseModelN):
 
 class IntersectionsArgs(BaseModelN):
     construct_type: Literal["Intersections"] = "Intersections"
-    int_type: IntType.ConcreteIntType
+    int_type: ConcreteIntType
 
 class TranslationPVArgs(BaseModelN):
     construct_type: Literal["TranslationPV"] = "TranslationPV"
@@ -116,20 +116,20 @@ class RotatePPAArgs(BaseModelN):
 type PointConstructArgs = Union[
     FreeArgs, ConstraintArgs, MidPPArgs, MidLArgs, ExtensionPPArgs,
     AxisymmetricPLArgs, VerticalPLArgs, ParallelPLArgs, InversionPCirArgs,
-    IntersectionLLArgs, TranslationPVArgs, CentroidPPPArgs, CircumcenterPPPArgs,
+    IntersectionLLArgs, IntersectionsArgs, TranslationPVArgs, CentroidPPPArgs, CircumcenterPPPArgs,
     IncenterPPPArgs, OrthocenterPPPArgs, CirArgs, RotatePPAArgs
 ]
 
 PointConstructArgsList = [
     FreeArgs, ConstraintArgs, MidPPArgs, MidLArgs, ExtensionPPArgs,
     AxisymmetricPLArgs, VerticalPLArgs, ParallelPLArgs, InversionPCirArgs,
-    IntersectionLLArgs, TranslationPVArgs, CentroidPPPArgs, CircumcenterPPPArgs,
+    IntersectionLLArgs, IntersectionsArgs, TranslationPVArgs, CentroidPPPArgs, CircumcenterPPPArgs,
     IncenterPPPArgs, OrthocenterPPPArgs, CirArgs, RotatePPAArgs
 ]
 
 type PointConstructType = Literal[
     "Free", "Constraint", "MidPP", "MidL", "ExtensionPP",
     "AxisymmetricPL", "VerticalPL", "ParallelPL", "InversionPCir",
-    "IntersectionLL", "TranslationPV", "CentroidPPP", "CircumcenterPPP",
+    "IntersectionLL", "Intersections", "TranslationPV", "CentroidPPP", "CircumcenterPPP",
     "IncenterPPP", "OrthocenterPPP", "Cir", "RotatePPA"
 ]

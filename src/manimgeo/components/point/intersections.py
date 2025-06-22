@@ -1,45 +1,49 @@
 from __future__ import annotations
 
 import numpy as np
-from pydantic import Field, ConfigDict
+from pydantic import Field
 from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, List, Callable, cast
 from ...math import (
     intersection_line_line,
 )
 
-if TYPE_CHECKING:
-    from ..base import BaseGeometry
-    from ..line import LineSegment, Ray, InfinityLine
-    from ..circle import Circle
-    from .point import Point
-    type ConcreteLine = Union[LineSegment, Ray, InfinityLine]
+from ..line import LineSegment, Ray, InfinityLine
+from ..circle import Circle
+type ConcreteLine = Union[LineSegment, Ray, InfinityLine]
 
 # Type of intersections
-class IntType:
-    class LL(BaseModelN):
-        line1: ConcreteLine
-        line2: ConcreteLine
-        as_infinity: bool
+class LL(BaseModelN):
+    line1: ConcreteLine
+    line2: ConcreteLine
+    as_infinity: bool
 
-    class LCir(BaseModelN):
-        line: ConcreteLine
-        circle: Circle
-        as_infinity: bool
+class LCir(BaseModelN):
+    line: ConcreteLine
+    circle: Circle
+    as_infinity: bool
 
-    class CirCir(BaseModelN):
-        circle1: Circle
-        circle2: Circle
+class CirCir(BaseModelN):
+    circle1: Circle
+    circle2: Circle
 
-    type ConcreteIntType = Union[LL, LCir, CirCir]
+type ConcreteIntType = Union[LL, LCir, CirCir]
 
 # Result of calculation
 def always_true(point: np.ndarray) -> bool: return True
 class IntResults(BaseModelN):
-    int_type: IntType.ConcreteIntType
+    int_type: ConcreteIntType
     num_results: int
     result_points: List[np.ndarray]
     filter: Callable[[np.ndarray], bool] = Field(default=always_true)
+
+    def __len__(self) -> int:
+        return self.num_results
+    
+    def __getitem__(self, index: int) -> np.ndarray:
+        if index < 0 or index >= self.num_results:
+            raise IndexError("Index out of range")
+        return self.result_points[index]
 
     def filt(self, filter: Callable[[np.ndarray], bool]) -> IntResults:
         """
@@ -59,7 +63,7 @@ class IntResults(BaseModelN):
 
 # Calculation
 class PointIntersections(BaseModelN):
-    int_type: IntType.ConcreteIntType
+    int_type: ConcreteIntType
 
     def __call__(self) -> IntResults:
         """
@@ -67,8 +71,8 @@ class PointIntersections(BaseModelN):
         """
 
         match self.int_type.__class__:
-            case IntType.LL:
-                self.int_type = cast(IntType.LL, self.int_type)
+            case LL():
+                self.int_type = cast(LL, self.int_type)
                 result = intersection_line_line(
                     self.int_type.line1.start, self.int_type.line1.end,
                     self.int_type.line2.start, self.int_type.line2.end,
@@ -89,11 +93,11 @@ class PointIntersections(BaseModelN):
                         result_points=[result],
                     )
 
-            case IntType.LCir:
+            case LCir():
                 # TODO
                 raise NotImplementedError
             
-            case IntType.CirCir:
+            case CirCir():
                 # TODO
                 raise NotImplementedError
             
