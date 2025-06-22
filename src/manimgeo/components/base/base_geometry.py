@@ -10,7 +10,7 @@ from .base_adapter import GeometryAdapter
 import logging
 logger = logging.getLogger(__name__)
 
-from .base_argsmodel import _ArgsModelT, ArgsModelBase
+from .base_argsmodel import _ArgsModelT
 
 class BaseGeometry(BaseModelN, Generic[_ArgsModelT]):
     """几何对象基类"""

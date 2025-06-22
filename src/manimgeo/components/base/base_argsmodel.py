@@ -33,6 +33,9 @@ class ArgsModelBase(BaseModelN):
 
         并返回这些对象。如果需要实现更复杂的依赖关系提取逻辑，子类需要重写此方法以返回其依赖的几何对象
         """
+        # 再次导入，避免在文件头循环依赖
+        from .base_geometry import BaseGeometry
+        
         dep_objects: List[BaseGeometry] = []
 
         for field_name, field_info in self.__class__.model_fields.items():
