@@ -17,7 +17,7 @@ sys.path.insert(0, str(src_dir))
 project = 'ManimGeo'
 copyright = '2025, LifeCheckpoint'
 author = 'LifeCheckpoint'
-release = '1.3.0'
+release = '1.3.0a2'
 
 html_theme = "furo"
 
