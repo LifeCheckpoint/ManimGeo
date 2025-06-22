@@ -1,5 +1,5 @@
 from __future__ import annotations
-from pydantic import BaseModel
+from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, Literal
 
 type Number = Union[float, int]
@@ -9,42 +9,42 @@ if TYPE_CHECKING:
     from ..line import Line, LineSegment
     from .angle import Angle
 
-class PPPArgs(BaseModel):
+class PPPArgs(BaseModelN):
     construct_type: Literal["PPP"] = "PPP"
     start: Point
     center: Point
     end: Point
 
-class LLArgs(BaseModel):
+class LLArgs(BaseModelN):
     construct_type: Literal["LL"] = "LL"
     line1: Line
     line2: Line
 
-class LPArgs(BaseModel):
+class LPArgs(BaseModelN):
     construct_type: Literal["LP"] = "LP"
     line: LineSegment
     point: Point
 
-class NArgs(BaseModel):
+class NArgs(BaseModelN):
     construct_type: Literal["N"] = "N"
     angle: Number
     turn: Literal["Clockwise", "Counterclockwise"]
 
-class TurnAArgs(BaseModel):
+class TurnAArgs(BaseModelN):
     construct_type: Literal["TurnA"] = "TurnA"
     angle: Angle
 
-class AddAAArgs(BaseModel):
+class AddAAArgs(BaseModelN):
     construct_type: Literal["AddAA"] = "AddAA"
     angle1: Angle
     angle2: Angle
 
-class SubAAArgs(BaseModel):
+class SubAAArgs(BaseModelN):
     construct_type: Literal["SubAA"] = "SubAA"
     angle1: Angle
     angle2: Angle
 
-class MulNAArgs(BaseModel):
+class MulNAArgs(BaseModelN):
     construct_type: Literal["MulNA"] = "MulNA"
     factor: Number
     angle: Angle

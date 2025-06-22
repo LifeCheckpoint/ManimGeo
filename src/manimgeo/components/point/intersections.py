@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import Field, ConfigDict
+from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, List, Callable, cast
 from ...math import (
     intersection_line_line,
@@ -16,17 +17,17 @@ if TYPE_CHECKING:
 
 # Type of intersections
 class IntType:
-    class LL(BaseModel):
+    class LL(BaseModelN):
         line1: ConcreteLine
         line2: ConcreteLine
         as_infinity: bool
 
-    class LCir(BaseModel):
+    class LCir(BaseModelN):
         line: ConcreteLine
         circle: Circle
         as_infinity: bool
 
-    class CirCir(BaseModel):
+    class CirCir(BaseModelN):
         circle1: Circle
         circle2: Circle
 
@@ -34,9 +35,7 @@ class IntType:
 
 # Result of calculation
 def always_true(point: np.ndarray) -> bool: return True
-class IntResults(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
-
+class IntResults(BaseModelN):
     int_type: IntType.ConcreteIntType
     num_results: int
     result_points: List[np.ndarray]
@@ -59,9 +58,7 @@ class IntResults(BaseModel):
         )
 
 # Calculation
-class PointIntersections(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
-
+class PointIntersections(BaseModelN):
     int_type: IntType.ConcreteIntType
 
     def __call__(self) -> IntResults:

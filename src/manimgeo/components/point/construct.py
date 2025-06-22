@@ -1,5 +1,6 @@
 from __future__ import annotations
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
+from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
 
@@ -14,97 +15,94 @@ if TYPE_CHECKING:
     from .point import Point
     from .intersections import IntType
 
-class FreeArgs(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class FreeArgs(BaseModelN):
     construct_type: Literal["Free"] = "Free"
     coord: np.ndarray
 
-class ConstraintArgs(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class ConstraintArgs(BaseModelN):
     construct_type: Literal["Constraint"] = "Constraint"
     coord: np.ndarray
 
-class MidPPArgs(BaseModel):
+class MidPPArgs(BaseModelN):
     construct_type: Literal["MidPP"] = "MidPP"
     point1: Point
     point2: Point
 
-class MidLArgs(BaseModel):
+class MidLArgs(BaseModelN):
     construct_type: Literal["MidL"] = "MidL"
     line: LineSegment
 
-class ExtensionPPArgs(BaseModel):
+class ExtensionPPArgs(BaseModelN):
     construct_type: Literal["ExtensionPP"] = "ExtensionPP"
     start: Point
     through: Point
     factor: Number
 
-class AxisymmetricPLArgs(BaseModel):
+class AxisymmetricPLArgs(BaseModelN):
     construct_type: Literal["AxisymmetricPL"] = "AxisymmetricPL"
     point: Point
     line: Line
 
-class VerticalPLArgs(BaseModel):
+class VerticalPLArgs(BaseModelN):
     construct_type: Literal["VerticalPL"] = "VerticalPL"
     point: Point
     line: Line
 
-class ParallelPLArgs(BaseModel):
+class ParallelPLArgs(BaseModelN):
     construct_type: Literal["ParallelPL"] = "ParallelPL"
     point: Point
     line: Line
     distance: Number
 
-class InversionPCirArgs(BaseModel):
+class InversionPCirArgs(BaseModelN):
     construct_type: Literal["InversionPCir"] = "InversionPCir"
     point: Point
     circle: Circle
 
-class IntersectionLLArgs(BaseModel):
+class IntersectionLLArgs(BaseModelN):
     construct_type: Literal["IntersectionLL"] = "IntersectionLL"
     line1: Line
     line2: Line
     regard_infinite: bool = False
 
-class Intersections(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class Intersections(BaseModelN):
     construct_type: Literal["Intersections"] = "Intersections"
     int_type: IntType.ConcreteIntType
 
-class TranslationPVArgs(BaseModel):
+class TranslationPVArgs(BaseModelN):
     construct_type: Literal["TranslationPV"] = "TranslationPV"
     point: Point
     vector: Vector
 
-class CentroidPPPArgs(BaseModel):
+class CentroidPPPArgs(BaseModelN):
     construct_type: Literal["CentroidPPP"] = "CentroidPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class CircumcenterPPPArgs(BaseModel):
+class CircumcenterPPPArgs(BaseModelN):
     construct_type: Literal["CircumcenterPPP"] = "CircumcenterPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class IncenterPPPArgs(BaseModel):
+class IncenterPPPArgs(BaseModelN):
     construct_type: Literal["IncenterPPP"] = "IncenterPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class OrthocenterPPPArgs(BaseModel):
+class OrthocenterPPPArgs(BaseModelN):
     construct_type: Literal["OrthocenterPPP"] = "OrthocenterPPP"
     point1: Point
     point2: Point
     point3: Point
 
-class CirArgs(BaseModel):
+class CirArgs(BaseModelN):
     construct_type: Literal["Cir"] = "Cir"
     circle: Circle
 
-class RotatePPAArgs(BaseModel):
+class RotatePPAArgs(BaseModelN):
     construct_type: Literal["RotatePPA"] = "RotatePPA"
     point: Point
     center: Point

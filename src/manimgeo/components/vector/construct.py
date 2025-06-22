@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
+from ..base import BaseModelN
 from typing import TYPE_CHECKING, Union, Literal
 import numpy as np
 
@@ -11,43 +12,40 @@ if TYPE_CHECKING:
     from ..line import LineSegment
     from .vector import Vector
 
-class PPArgs(BaseModel):
+class PPArgs(BaseModelN):
     construct_type: Literal["PP"] = "PP"
     start: Point
     end: Point
 
-class LArgs(BaseModel):
+class LArgs(BaseModelN):
     construct_type: Literal["L"] = "L"
     line: LineSegment
 
-class NArgs(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class NArgs(BaseModelN):
     construct_type: Literal["N"] = "N"
     vec: np.ndarray
 
-class NPPArgs(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class NPPArgs(BaseModelN):
     construct_type: Literal["NPP"] = "NPP"
     start: np.ndarray
     end: np.ndarray
 
-class NNormDirectionArgs(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class NNormDirectionArgs(BaseModelN):
     construct_type: Literal["NNormDirection"] = "NNormDirection"
     norm: Number
     direction: np.ndarray
 
-class AddVVArgs(BaseModel):
+class AddVVArgs(BaseModelN):
     construct_type: Literal["AddVV"] = "AddVV"
     vec1: Vector
     vec2: Vector
 
-class SubVVArgs(BaseModel):
+class SubVVArgs(BaseModelN):
     construct_type: Literal["SubVV"] = "SubVV"
     vec1: Vector
     vec2: Vector
 
-class MulNVArgs(BaseModel):
+class MulNVArgs(BaseModelN):
     construct_type: Literal["MulNV"] = "MulNV"
     factor: Number
     vec: Vector

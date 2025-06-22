@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, ConfigDict, ValidationError
+from pydantic import Field, ConfigDict, ValidationError
+from .base_pydantic import BaseModelN
 from typing import List, Optional, Any
 
 from .base_adapter import GeometryAdapter
@@ -9,10 +10,8 @@ from .base_adapter import GeometryAdapter
 import logging
 logger = logging.getLogger(__name__)
 
-class BaseGeometry(BaseModel):
+class BaseGeometry(BaseModelN):
     """几何对象基类"""
-    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
-    
     name: str = Field(description="几何对象名称")
     attrs: List[str] = Field(default_factory=list, description="几何对象属性列表", init=False)
     
@@ -22,7 +21,7 @@ class BaseGeometry(BaseModel):
     on_error: bool = Field(default=False, description="是否在更新过程中发生错误", init=False)
 
     def __repr__(self):
-        # 原始 BaseModel 的 __repr__ 方法开销巨大，改为简化输出
+        # 原始 BaseModelN 的 __repr__ 方法开销巨大，改为简化输出
         return f"{self.__class__.__name__}(name={self.name}, adapter={self.adapter}, attrs={self.attrs}, dependencies={len(self.dependencies)}, dependents={len(self.dependents)}, on_error={self.on_error})"
 
     def get_name(self, default_name: str):
@@ -88,7 +87,7 @@ class BaseGeometry(BaseModel):
             dep.update() # 递归更新下游
             dep.on_error = on_error
 
-    def update(self, new_args_model: Optional[BaseModel] = None):
+    def update(self, new_args_model: Optional[BaseModelN] = None):
         """
         执行当前对象的更新
         
