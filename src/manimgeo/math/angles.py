@@ -85,8 +85,10 @@ def point_3p_countclockwise(start: np.ndarray, center: np.ndarray, angle_rad: fl
         # 2D旋转矩阵
         cos_angle = np.cos(angle_rad)
         sin_angle = np.sin(angle_rad)
-        rotation_matrix = np.array([[cos_angle, -sin_angle],
-                                    [sin_angle, cos_angle]])
+        rotation_matrix = np.array([
+            [cos_angle, -sin_angle],
+            [sin_angle, cos_angle]
+        ])
         rotated_vec = rotation_matrix @ vec1
         return center + rotated_vec
     
@@ -97,9 +99,7 @@ def point_3p_countclockwise(start: np.ndarray, center: np.ndarray, angle_rad: fl
         cos_angle = np.cos(angle_rad)
         sin_angle = np.sin(angle_rad)
         
-        rotated_vec = (vec1 * cos_angle + np.cross(axis_vec, vec1) * sin_angle + 
-                       axis_vec * np.dot(axis_vec, vec1) * (1 - cos_angle))
-        
+        rotated_vec = (vec1 * cos_angle + np.cross(axis_vec, vec1) * sin_angle + axis_vec * np.dot(axis_vec, vec1) * (1 - cos_angle))
         return center + rotated_vec
     
     raise ValueError(f"不支持的维度：{len(vec1)}")
