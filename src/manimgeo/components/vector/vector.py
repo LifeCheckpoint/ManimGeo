@@ -6,7 +6,7 @@ import numpy as np
 
 from ..base import BaseGeometry
 from .adapter import VectorAdapter
-from .construct import *
+from .args import *
 
 if TYPE_CHECKING:
     from ..line import LineSegment

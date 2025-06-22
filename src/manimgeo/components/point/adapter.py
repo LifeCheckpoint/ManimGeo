@@ -15,7 +15,7 @@ from ...math import (
     point_3p_countclockwise
 )
 from ..base import GeometryAdapter
-from .construct import *
+from .args import *
 
 class PointAdapter(GeometryAdapter[PointConstructArgs]):
     coord: np.ndarray = Field(default_factory=lambda: np.zeros(3), description="计算点坐标", init=False)

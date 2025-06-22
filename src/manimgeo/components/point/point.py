@@ -10,7 +10,7 @@ import numpy as np
 
 from ..base import BaseGeometry
 from .adapter import PointAdapter
-from .construct import *
+from .args import *
 
 if TYPE_CHECKING:
     from ..angle import Angle

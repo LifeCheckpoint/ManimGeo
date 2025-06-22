@@ -8,7 +8,7 @@ from ...math import (
     angle_3p_countclockwise as angle_3p_ccw,
 )
 from ..base import GeometryAdapter
-from .construct import *
+from .args import *
 
 class AngleAdapter(GeometryAdapter[AngleConstructArgs]): # 继承 GeometryAdapter 并指定参数模型类型
     angle: Number = Field(default=0.0, description="计算角度", init=False)

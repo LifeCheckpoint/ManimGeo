@@ -6,7 +6,7 @@ import numpy as np
 
 from ..base import BaseGeometry
 from .adapter import CircleAdapter
-from .construct import *
+from .args import *
 from ...math.vectors import get_two_vector_from_normal
 
 if TYPE_CHECKING:

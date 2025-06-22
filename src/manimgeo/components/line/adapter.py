@@ -11,7 +11,7 @@ from typing import cast
 import numpy as np
 
 from ..base import GeometryAdapter
-from .construct import *
+from .args import *
 
 class LineAdapter(GeometryAdapter[LineConstructArgs]): # 继承 GeometryAdapter 并指定参数模型类型
     start: np.ndarray = Field(default=np.zeros(3), description="计算线首坐标", init=False)

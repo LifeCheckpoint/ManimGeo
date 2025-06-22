@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Literal, List, Any
 
 from ..base import BaseGeometry
 from .adapter import AngleAdapter
-from .construct import *
+from .args import *
 
 if TYPE_CHECKING:
     from ..point.point import Point
