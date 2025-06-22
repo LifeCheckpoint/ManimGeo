@@ -70,7 +70,7 @@ class PointIntersections(BaseModelN):
         计算交点
         """
 
-        match self.int_type.__class__:
+        match self.int_type:
             case LL():
                 self.int_type = cast(LL, self.int_type)
                 result = intersection_line_line(

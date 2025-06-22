@@ -73,7 +73,7 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
                 else:
                     self.coord = result
 
-            case "Intersection":
+            case "Intersections":
                 from .intersections import PointIntersections
                 args = cast(IntersectionsArgs, self.args)
                 result = PointIntersections(int_type=args.int_type)()
