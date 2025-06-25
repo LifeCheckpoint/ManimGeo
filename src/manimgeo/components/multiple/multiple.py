@@ -5,7 +5,7 @@ MultipleComponents 多对象类
 from __future__ import annotations
 
 from pydantic import Field, model_validator
-from typing import TYPE_CHECKING, Any, List, Callable
+from typing import TYPE_CHECKING, Any, List, Callable, Sequence
 
 from ..base import BaseGeometry
 from .adapter import MultipleAdapter
@@ -78,4 +78,52 @@ class MultipleComponents(BaseGeometry):
         return MultipleComponents(
             name=name,
             args=FilteredMultipleMonoArgs(geometry_objects=geometry_objects, filter_func=filter_func)
+        )
+    
+    @classmethod
+    def Union(cls, multiples: Sequence[MultipleComponents], name: str = "") -> MultipleComponents:
+        """
+        构造多个 MultipleComponents 的并集
+
+        `multiples`: 需要组合的 MultipleComponents 列表
+        """
+        return MultipleComponents(
+            name=name,
+            args=UnionArgs(multiples=multiples)
+        )
+    
+    @classmethod
+    def Intersection(cls, multiples: Sequence[MultipleComponents], name: str = "") -> MultipleComponents:
+        """
+        构造多个 MultipleComponents 的交集
+
+        `multiples`: 需要组合的 MultipleComponents 列表
+        """
+        return MultipleComponents(
+            name=name,
+            args=IntersectionArgs(multiples=multiples)
+        )
+    
+    # 魔术方法
+
+    def __add__(self, other: MultipleComponents) -> MultipleComponents:
+        """
+        即 Union，返回两个 MultipleComponents 的并集
+        """
+        return MultipleComponents.Union([self, other], name=f"{self.name} + {other.name}")
+    
+    def __and__(self, other: MultipleComponents) -> MultipleComponents:
+        """
+        即 Intersection，返回两个 MultipleComponents 的交集
+        """
+        return MultipleComponents.Intersection([self, other], name=f"{self.name} & {other.name}")
+    
+    def __sub__(self, other: MultipleComponents) -> MultipleComponents:
+        """
+        返回两个 MultipleComponents 的差集
+        """
+        return MultipleComponents.FilteredMultipleMono(
+            geometry_objects=self.geometry_objects,
+            filter_func=lambda obj: obj not in other.geometry_objects,
+            name=f"{self.name} - {other.name}"
         )
