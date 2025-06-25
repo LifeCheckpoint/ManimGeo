@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..base import ArgsModelBase
-from typing import TYPE_CHECKING, Union, Literal, List, Callable, Container
+from typing import TYPE_CHECKING, Union, Literal, List, Callable, Sequence
 
 type Number = Union[float, int]
 
@@ -37,14 +37,14 @@ class UnionArgs(ArgsModelBase):
     并集
     """
     construct_type: Literal["Union"] = "Union"
-    multiples: Container[MultipleComponents]
+    multiples: Sequence[MultipleComponents]
 
 class IntersectionArgs(ArgsModelBase):
     """
     交集
     """
     construct_type: Literal["Intersection"] = "Intersection"
-    multiples: Container[MultipleComponents]
+    multiples: Sequence[MultipleComponents]
 
 type MultipleConstructArgs = Union[
     MultipleArgs, FilteredMultipleArgs, FilteredMultipleMonoArgs,

@@ -29,5 +29,23 @@ class MultipleAdapter(GeometryAdapter[MultipleConstructArgs]):
                 args = cast(FilteredMultipleMonoArgs, self.args)
                 self.geometry_objects = [obj for obj in args.geometry_objects if args.filter_func(obj)]
 
+            case "Union":
+                args = cast(UnionArgs, self.args)
+                self.geometry_objects = []
+                for multiple in args.multiples:
+                    self.geometry_objects.extend(multiple.geometry_objects)
+                self.geometry_objects = list(set(self.geometry_objects))
+
+            case "Intersection":
+                args = cast(IntersectionArgs, self.args)
+                if not args.multiples:
+                    self.geometry_objects = []
+                else:
+                    # 取第一个 Multiple 的几何对象作为初始集合
+                    intersection_set = set(args.multiples[0].geometry_objects)
+                    for multiple in args.multiples[1:]:
+                        intersection_set.intersection_update(multiple.geometry_objects)
+                    self.geometry_objects = list(intersection_set)
+
             case _:
                 raise NotImplementedError(f"不支持的构造方式: {self.construct_type}")
