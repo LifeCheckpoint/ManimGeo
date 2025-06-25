@@ -202,3 +202,10 @@ class TestPoint:
         foot2 = Point.VerticalPL(point2, line2)
         assert np.allclose(foot2.coord, np.array([1.5, 1.5, 0]))  # 投影到y=x的垂足
         
+    def test_IncenterPPP(self):
+        # 内心点测试
+        p1 = Point.Free(np.array([0, 0, 0]))
+        p2 = Point.Free(np.array([4, 0, 0]))
+        p3 = Point.Free(np.array([2, 3, 0]))
+        incenter = Point.IncenterPPP(p1, p2, p3)
+        assert np.allclose(incenter.coord, np.array([2, 2 * (np.sqrt(13) - 2) / 3, 0]))
