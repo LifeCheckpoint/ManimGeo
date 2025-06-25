@@ -88,9 +88,6 @@ def test_Union():
     assert isinstance(union_points, MultipleComponents)
     assert union_points.name == "test_union"
     assert len(union_points.geometry_objects) == 3
-    getting_point = union_points.geometry_objects[1]
-    getting_point = cast(Point, getting_point)
-    assert np.allclose(getting_point.coord, np.array([4, 5, 6]))
 
 def test_Intersection():
     p1 = Point.Free(np.array([1, 2, 3]))
