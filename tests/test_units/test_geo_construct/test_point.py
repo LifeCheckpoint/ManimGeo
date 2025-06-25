@@ -164,11 +164,11 @@ class TestPoint:
         parallel = Point.ParallelPL(p1, line, np.sqrt(2))
         assert np.allclose(parallel.coord, np.array([0, 4, 0]))
 
-    def test_RotationPPA(self):
+    def test_RotatePPA(self):
         # 固定角度旋转点测试
         point = Point.Free(np.array([1, 2, 3]))
         center = Point.Free(np.array([1, 1, 4]))
-        angle = Angle.N(np.pi / 4+0.5)
+        angle = Angle.N(np.pi / 4)
         axis = Vector.N(np.array([2, 1, -1]))
         rotated_point = Point.RotatePPA(point, center, angle, axis)
         expected_coord = np.array([
