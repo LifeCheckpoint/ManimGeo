@@ -13,7 +13,7 @@ class MultipleAdapter(GeometryAdapter[MultipleArgs]):
         """
         多几何对象具体计算
 
-        不会产生任何自身更新，因为具体的参数更新是由下游的几何对象负责
+        具体的参数更新是由下游的几何对象负责
         """
 
         match self.construct_type:
@@ -21,5 +21,13 @@ class MultipleAdapter(GeometryAdapter[MultipleArgs]):
                 args = cast(MultipleArgs, self.args)
                 self.geometry_objects = args.geometry_objects
 
+            case "FilteredMultiple":
+                args = cast(FilteredMultipleArgs, self.args)
+                self.geometry_objects = [obj for obj, keep in zip(args.geometry_objects, args.filter_func(args.geometry_objects)) if keep]
+
+            case "FilteredMultipleMono":
+                args = cast(FilteredMultipleMonoArgs, self.args)
+                self.geometry_objects = [obj for obj in args.geometry_objects if args.filter_func(obj)]
+
             case _:
-                raise ValueError(f"不支持的构造方式: {self.construct_type}")
+                raise NotImplementedError(f"不支持的构造方式: {self.construct_type}")
