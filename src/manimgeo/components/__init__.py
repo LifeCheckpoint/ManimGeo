@@ -10,6 +10,7 @@ from .circle import Circle, CircleAdapter, CircleConstructArgsList
 from .line import Line, LineSegment, Ray, InfinityLine, LineAdapter, LineConstructArgsList
 from .point import Point, PointAdapter, PointConstructArgsList
 from .vector import Vector, VectorAdapter, VectorConstructArgsList
+from .multiple import MultipleComponents, MultipleAdapter, MultipleConstructArgsList
 
 # 在所有组件导入后进行模型重建
 
@@ -22,6 +23,7 @@ Ray.model_rebuild()
 InfinityLine.model_rebuild()
 Point.model_rebuild()
 Vector.model_rebuild()
+MultipleComponents.model_rebuild()
 
 # 重建适配器
 GeometryAdapter.model_rebuild()
@@ -30,9 +32,15 @@ CircleAdapter.model_rebuild()
 LineAdapter.model_rebuild()
 PointAdapter.model_rebuild()
 VectorAdapter.model_rebuild()
+MultipleAdapter.model_rebuild()
 
 # 重建所有组合方法
-construct_arg_list = AngleConstructArgsList + CircleConstructArgsList + LineConstructArgsList + PointConstructArgsList + VectorConstructArgsList
+construct_arg_list = AngleConstructArgsList \
+                    + CircleConstructArgsList \
+                    + LineConstructArgsList \
+                    + PointConstructArgsList \
+                    + VectorConstructArgsList \
+                    + MultipleConstructArgsList
 for construct_args in construct_arg_list:
     if hasattr(construct_args, 'model_rebuild'):
         construct_args.model_rebuild()
