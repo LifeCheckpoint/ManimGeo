@@ -106,9 +106,17 @@ ManimGeo 的核心设计理念是“三位一体”：
 
 ## 🎬 动画集成
 
-ManimGeo 旨在与流行的 Python 动画库（如 ManimGL 和 JAnim）无缝协作，将构建的几何场景转化为生动的动画。
+ManimGeo 旨在与动画库（如 ManimGL 和 JAnim）无缝协作，将构建的几何场景转化为动画。
 
-**developing**: 动画集成部分仍在积极开发中，敬请期待更多功能和示例！
+样例展示：
+
+https://github.com/user-attachments/assets/36fec8c6-ad72-4b34-b9fc-f636a6808cfb
+
+https://github.com/user-attachments/assets/b47f8a04-351a-42b2-8f1a-f4bcf2d0d79f
+
+https://github.com/user-attachments/assets/e94ea012-1053-4585-82dd-058d04feb9ac
+
+**developing**: 动画集成重构中，敬请期待
 
 ## 📚 项目文档
 
