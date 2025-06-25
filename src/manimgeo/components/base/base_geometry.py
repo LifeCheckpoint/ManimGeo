@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import Field, ValidationError
 from .base_pydantic import BaseModelN
-from typing import List, Optional, Any, Generic
+from typing import List, Optional, Any, Generic, Hashable
 
 from .base_adapter import GeometryAdapter
 
@@ -25,6 +25,20 @@ class BaseGeometry(BaseModelN, Generic[_ArgsModelT]):
     def __repr__(self):
         # 原始 BaseModelN 的 __repr__ 方法开销巨大，改为简化输出
         return f"{self.__class__.__name__}(name={self.name}, adapter={self.adapter}, attrs={self.attrs}, dependencies={len(self.dependencies)}, dependents={len(self.dependents)}, on_error={self.on_error})"
+
+    def __hash__(self):
+        """
+        每个几何对象实例都具有唯一的哈希值，即其内容相同
+        """
+        return hash(id(self))
+
+    def __eq__(self, other):
+        """
+        比较两个几何对象是否为同一个实例。
+        """
+        if not isinstance(other, BaseGeometry):
+            return NotImplemented
+        return id(self) == id(other)
 
     def get_name(self, default_name: str):
         """以统一方式设置几何对象名称"""
