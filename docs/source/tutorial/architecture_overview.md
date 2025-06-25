@@ -29,13 +29,13 @@
 - **`construct_type`**: 一个字符串字段，用于明确指定当前 `Args` 模型所代表的几何对象构造类型。例如，一个点可以通过“自由点”、“两点中点”或“两线交点”等方式构造，每种方式对应一个特定的 `construct_type`。
 - **`_get_deps()`**: 这个方法是 `Args` 模型的核心功能之一。它负责遍历 `Args` 模型中定义的参数，识别出其中包含的 `BaseGeometry` 实例，并返回这些实例的列表。这些实例就是当前几何对象所依赖的上游对象。
 
-### 4.1. 为什么需要 `Args` 模型？
+### 1. 为什么需要 `Args` 模型？
 
 1. **清晰的构造定义**: 不同的几何对象有不同的构造方式，即使是同一种几何对象，也可能有多种构造方法。`Args` 模型为每种构造方法提供了清晰、结构化的参数定义。
 2. **数据验证**: 借助 Pydantic，`Args` 模型能够自动验证传入的构造参数是否符合预期，例如类型是否正确，是否缺少必要参数等。
 3. **依赖识别**: `_get_deps()` 方法使得 ManimGeo 能够自动从构造参数中识别出几何对象之间的依赖关系，这是构建依赖图的关键。
 
-### 4.2. `Args` 模型的例子
+### 2. `Args` 模型的例子
 
 以 `Point` 为例，它可能有以下 `Args` 模型：
 
@@ -53,13 +53,13 @@
 - **`__call__()`**: 这是 `Adapter` 中最重要的方法。当 `BaseGeometry` 的 `update()` 方法被调用时，它会调用其关联 `Adapter` 的 `__call__()` 方法。`__call__()` 方法会根据 `args` 中定义的 `construct_type` 和参数，执行相应的几何计算。这些计算通常会调用 `src/manimgeo/math` 模块中的数学函数。
 - **`bind_attributes()`**: 这个方法负责将 `Adapter` 计算出的结果（例如点的坐标、线的起点/终点、圆的中心/半径等）绑定到其关联的 `BaseGeometry` 实例的相应属性上。
 
-### 5.1. 为什么需要 `Adapter`？
+### 1. 为什么需要 `Adapter`？
 
 1. **职责分离**: 将几何对象的属性管理（`BaseGeometry`）和具体的几何计算逻辑（`Adapter`）分离，使得代码结构更清晰，更易于维护。
 2. **可扩展性**: 当需要添加新的几何对象构造方法时，只需创建新的 `Args` 模型和在 `Adapter` 中添加相应的计算逻辑，而无需修改 `BaseGeometry` 的核心代码。
 3. **计算封装**: `Adapter` 封装了复杂的几何计算细节，使得 `BaseGeometry` 能够专注于依赖管理和更新传播。
 
-### 5.2. `Adapter` 的例子
+### 2. `Adapter` 的例子
 
 以 `PointAdapter` 为例，它的 `__call__()` 方法会根据 `self.args.construct_type` 的值，使用 `match` 语句来执行不同的计算：
 
@@ -67,7 +67,7 @@
 - 如果 `construct_type` 是 `MidPP`，它会获取 `self.args.p1` 和 `self.args.p2` 的坐标，然后计算中点坐标。
 - 如果 `construct_type` 是 `IntersectionLL`，它会获取 `self.args.l1` 和 `self.args.l2` 的信息，然后调用 `src/manimgeo/math` 中的 `intersection_line_line` 函数来计算交点坐标。
 
-## 6. 三者如何协同工作：一个点的生命周期
+## 三者如何协同工作：一个点的生命周期
 
 为了更好地理解 `Args`、`Base` 和 `Adapter` 如何协同工作，我们以创建一个“两点中点”为例：
 
@@ -108,7 +108,7 @@
     - `p1` 会通知 `mid_point` 进行更新。
     - `mid_point` 接收到更新通知后，会再次调用自身的 `update()` 方法，重新计算中点坐标，从而实现自动联动。
 
-## 7. 依赖管理和更新机制
+## 依赖管理和更新机制
 
 ManimGeo 的核心优势在于其强大的依赖管理和自动更新机制。这得益于 `BaseGeometry` 中维护的 `dependencies` 和 `dependents` 列表，以及 `update()` 方法的设计。
 
