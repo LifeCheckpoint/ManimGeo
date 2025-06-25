@@ -17,6 +17,11 @@ from manimgeo.math import *
             None, id="smoke"
         ),
         pytest.param(
+            [0, 0, 0], [4, 0, 0], [2, 3, 0],
+            2 * (np.sqrt(13) - 2) / 3, [2, 2 * (np.sqrt(13) - 2) / 3, 0], 
+            None, id="smoke"
+        ),
+        pytest.param(
             [0, 0, 0], [0, 0, 0], [0, 0, 0],
             0.0, [0, 0, 0],
             None, id="degenerate_all_identical_origin"

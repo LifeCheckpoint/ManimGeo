@@ -72,8 +72,15 @@ def point_3p_countclockwise(start: np.ndarray, center: np.ndarray, angle_rad: fl
 
     if axis_vec is None:
         axis_vec = np.array([0.0, 0.0, 1.0])
+    else:
+        # 确保轴向量是单位向量
+        norm_axis = np.linalg.norm(axis_vec)
+        if not close(float(norm_axis), 0): # 使用 close 来判断是否为零向量
+            axis_vec = axis_vec / norm_axis
+        else:
+            logger.warning("旋转轴向量不能为零向量")
+            raise ValueError("旋转轴向量不能为零向量")
     
-    # 检查零向量
     norm_vec1 = float(np.linalg.norm(vec1))
     if close(norm_vec1, 0):
         # 始点与中心重合，直接返回始点

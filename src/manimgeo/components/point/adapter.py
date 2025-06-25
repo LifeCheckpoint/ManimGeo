@@ -120,8 +120,9 @@ class PointAdapter(GeometryAdapter[PointConstructArgs]):
             case "RotatePPA":
                 args = cast(RotatePPAArgs, self.args)
                 angle_num = args.angle.angle if args.angle.turn == 'Counterclockwise' else (2 * np.pi - args.angle.angle)
+                axis = args.axis.vec if args.axis is not None else np.array([0, 0, 1])
                 self.coord = point_3p_countclockwise(
-                    args.point.coord, args.center.coord, angle_num, args.axis
+                    args.point.coord, args.center.coord, angle_num, axis
                 )
 
             case _:
