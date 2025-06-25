@@ -7,7 +7,7 @@ from ..base import GeometryAdapter
 from .args import *
 
 class MultipleAdapter(GeometryAdapter[MultipleConstructArgs]):
-    geometry_objects = Field(default_factory=list, description="计算多个几何对象", init=False)
+    geometry_objects: List[BaseGeometry] = Field(default_factory=list, description="计算多个几何对象", init=False)
 
     def __call__(self):
         """
