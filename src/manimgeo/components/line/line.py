@@ -108,13 +108,13 @@ class Line(BaseGeometry):
         ) # type: ignore[call-arg]
     
     @classmethod
-    def ParallelPL(cls: Type[_LineT], point: Point, line: LineConcrete, distance: Number = 0, name: str = "") -> _LineT:
+    def ParallelPL(cls: Type[_LineT], point: Point, line: LineConcrete, distance: Number = 1, name: str = "") -> _LineT:
         """
         点与线构造平行线
 
         - `point`: 平行线经过点
         - `line`: 原线
-        - `distance`: 平行线与原线的距离，默认为 0
+        - `distance`: 平行线终点与起点的距离，默认为 1
         """
         return cls(
             name=name,
