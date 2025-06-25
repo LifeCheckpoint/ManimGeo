@@ -47,3 +47,55 @@ def test_angle_3p_countclockwise(start, center, end, expected):
             pytest.fail(f"Expected ValueError but no exception was raised. get {result}")
         except ValueError:
             pass
+
+
+def normalize_angle_0_to_2pi(angle):
+    normalized = angle % (2 * np.pi)
+    # 确保负角度也正确映射到 [0, 2pi)
+    if normalized < 0:
+        normalized += 2 * np.pi
+    return normalized
+
+
+
+@pytest.mark.parametrize(
+    "start, center, angle_rad, axis_vec, expected_end_point, expected_error",
+    [
+        pytest.param([1, 0, 0], [0, 0, 0], np.pi / 2, None, [0, 1, 0], None, id="3d_z_axis_90_deg"),
+        pytest.param([0, 1, 0], [0, 0, 0], np.pi, None, [0, -1, 0], None, id="3d_z_axis_180_deg"),
+        pytest.param([0, 0, 5], [0, 0, 0], np.pi / 2, None, [0, 0, 5], None, id="3d_z_axis_on_axis"), # 点在旋转轴上
+        pytest.param([1, 1, 1], [0, 0, 0], np.pi / 2, None, [-1, 1, 1], None, id="3d_z_axis_general_point"),
+        pytest.param([1, 0, 0], [1, 0, 0], np.pi / 2, None, [1, 0, 0], None, id="3d_start_center_same"), # start==center，返回 start
+        pytest.param([0, 1, 0], [0, 0, 0], np.pi / 2, [1, 0, 0], [0, 0, 1], None, id="3d_x_axis_90_deg"),
+        pytest.param([1, 0, 0], [0, 0, 0], np.pi / 2, [0, 1, 0], [0, 0, -1], None, id="3d_y_axis_90_deg"),
+        pytest.param([1, 0, 0], [0, 0, 0], np.pi, [1, 1, 0], [0, 1, 0], None, id="3d_custom_axis_180_deg"),
+        pytest.param([1], [0], np.pi / 2, None, None, ValueError, id="unsupported_1d_dim"),
+        pytest.param([1, 0, 0, 0], [0, 0, 0, 0], np.pi / 2, None, None, ValueError, id="unsupported_4d_dim"),
+        pytest.param([1, 0, 0], [0, 0, 0], np.pi / 2, [0, 0, 0], None, ValueError, id="zero_axis_vec"),
+    ]
+)
+def test_point_3p_countclockwise_direct(
+    start, center, angle_rad, axis_vec, 
+    expected_end_point, expected_error
+):
+    """
+    直接测试 point_3p_countclockwise 函数的输出。
+    """
+    start_arr = np.array(start, dtype=float)
+    center_arr = np.array(center, dtype=float)
+    axis_vec_arr = np.array(axis_vec, dtype=float) if axis_vec is not None else None
+    if expected_error is not None:
+        # 预期 point_3p_countclockwise 会抛出错误
+        with pytest.raises(expected_error):
+            point_3p_countclockwise(start_arr, center_arr, angle_rad, axis_vec_arr)
+    else:
+        # 计算终点
+        result_end_point = point_3p_countclockwise(start_arr, center_arr, angle_rad, axis_vec_arr)
+        
+        # 验证计算出的终点是否符合预期
+        expected_end_point_arr = np.array(expected_end_point, dtype=float)
+        assert close(result_end_point, expected_end_point_arr), \
+            f"测试失败：\n" \
+            f"  输入: start={start_arr}, center={center_arr}, angle={angle_rad}, axis={axis_vec_arr}\n" \
+            f"  预期终点: {expected_end_point_arr}\n" \
+            f"  实际终点: {result_end_point}"
