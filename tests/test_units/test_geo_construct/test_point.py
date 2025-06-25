@@ -136,10 +136,12 @@ class TestPoint:
         except ValueError:
             pass
 
-    @pytest.mark.skip(reason="TODO")
     def test_InversionPCir(self):
         # 反演点测试
-        pass
+        p1 = Point.Free(np.array([1, 2, 0]))
+        circle = Circle.PR(Point.Free(np.array([0, 0, 0])), 1)
+        inverted_point = Point.InversionPCir(p1, circle)
+        assert np.allclose(inverted_point.coord, np.array([0.2, 0.4, 0]))
 
     def test_MidL(self):
         # 线段中点测试
