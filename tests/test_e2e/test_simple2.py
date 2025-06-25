@@ -1,6 +1,6 @@
 import numpy as np
 from manimgeo.components import *
-from manimgeo.utils import GeoUtils
+from manimgeo.utils.utils import print_dependencies
 
 def test_simple2():
     # 创建自由点
@@ -22,6 +22,6 @@ def test_simple2():
     circle = Circle.PPP(E, D, C, "ThreePointCircle")
     centerF = Point.Cir(circle, "CCF")
 
-    GeoUtils.print_dependencies(A)
+    print_dependencies(A)
     print(centerF.coord)
     assert np.allclose(centerF.coord, np.array([0, 0.625, 0]))

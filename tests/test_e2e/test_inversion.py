@@ -1,6 +1,6 @@
 import numpy as np
 from manimgeo.components import *
-from manimgeo.utils import GeoUtils
+from manimgeo.utils.utils import print_dependencies
 
 def test_inversion():
     # 使用两点构造法创建反演圆（圆心O，半径2）
@@ -14,7 +14,7 @@ def test_inversion():
 
     # 打印依赖关系
     print("Dependencies of O:")
-    GeoUtils.print_dependencies(O)
+    print_dependencies(O)
     print("")
 
     # 验证反演
