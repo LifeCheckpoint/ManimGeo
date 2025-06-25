@@ -11,6 +11,7 @@ Subpackages
    manimgeo.components.base
    manimgeo.components.circle
    manimgeo.components.line
+   manimgeo.components.multiple
    manimgeo.components.point
    manimgeo.components.vector
 
