@@ -5,7 +5,7 @@ MultipleComponents 多对象类
 from __future__ import annotations
 
 from pydantic import Field, model_validator
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, Any, List, Callable
 
 from ..base import BaseGeometry
 from .adapter import MultipleAdapter
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class MultipleComponents(BaseGeometry):
     attrs: List[str] = Field(default=["geometry_objects"], description="多个几何对象组成的列表", init=False)
     geometry_objects: List[BaseGeometry] = Field(default_factory=list, description="多个几何对象", init=False)
-    args: MultipleArgs = Field(discriminator='construct_type', description="多几何对象构造参数")
+    args: MultipleConstructArgs = Field(discriminator='construct_type', description="多几何对象构造参数")
 
     @model_validator(mode='before')
     @classmethod
@@ -52,4 +52,30 @@ class MultipleComponents(BaseGeometry):
         return MultipleComponents(
             name=name,
             args=MultipleArgs(geometry_objects=geometry_objects)
+        )
+    
+    @classmethod
+    def FilteredMultiple(cls, geometry_objects: List[BaseGeometry], filter_func: Callable[[List[BaseGeometry]], List[bool]], name: str = "") -> MultipleComponents:
+        """
+        构造多个几何对象组成的列表，并根据过滤函数筛选
+
+        `geometry_objects`: 需要组合的几何对象列表
+        `filter_func`: 过滤函数，接受一个几何对象列表，并返回一个布尔值列表
+        """
+        return MultipleComponents(
+            name=name,
+            args=FilteredMultipleArgs(geometry_objects=geometry_objects, filter_func=filter_func)
+        )
+    
+    @classmethod
+    def FilteredMultipleMono(cls, geometry_objects: List[BaseGeometry], filter_func: Callable[[BaseGeometry], bool], name: str = "") -> MultipleComponents:
+        """
+        构造多个几何对象组成的列表，并根据单个过滤函数筛选
+
+        `geometry_objects`: 需要组合的几何对象列表
+        `filter_func`: 单个过滤函数，接受一个几何对象，并返回一个布尔值
+        """
+        return MultipleComponents(
+            name=name,
+            args=FilteredMultipleMonoArgs(geometry_objects=geometry_objects, filter_func=filter_func)
         )
