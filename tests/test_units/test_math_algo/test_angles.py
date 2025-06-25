@@ -48,16 +48,6 @@ def test_angle_3p_countclockwise(start, center, end, expected):
         except ValueError:
             pass
 
-
-def normalize_angle_0_to_2pi(angle):
-    normalized = angle % (2 * np.pi)
-    # 确保负角度也正确映射到 [0, 2pi)
-    if normalized < 0:
-        normalized += 2 * np.pi
-    return normalized
-
-
-
 @pytest.mark.parametrize(
     "start, center, angle_rad, axis_vec, expected_end_point, expected_error",
     [
