@@ -164,10 +164,19 @@ class TestPoint:
         parallel = Point.ParallelPL(p1, line, np.sqrt(2))
         assert np.allclose(parallel.coord, np.array([0, 4, 0]))
 
-    @pytest.mark.skip(reason="TODO")
     def test_RotationPPA(self):
         # 固定角度旋转点测试
-        pass
+        point = Point.Free(np.array([1, 2, 3]))
+        center = Point.Free(np.array([1, 1, 4]))
+        angle = Angle.N(np.pi / 4+0.5)
+        axis = Vector.N(np.array([2, 1, -1]))
+        rotated_point = Point.RotatePPA(point, center, angle, axis)
+        expected_coord = np.array([
+            1.195262145875635,
+            2.382088123313991,
+            3.772612415065261
+        ])
+        assert np.allclose(rotated_point.coord, expected_coord)
 
     def test_TranslationPV(self):
         # 平移点测试
