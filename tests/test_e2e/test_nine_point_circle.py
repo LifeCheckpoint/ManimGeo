@@ -1,6 +1,6 @@
 import numpy as np
 from manimgeo.components import *
-from manimgeo.utils import GeoUtils
+from manimgeo.utils.utils import print_dependencies
 
 def test_nine_point_circle():
     # 构造三角形ABC
@@ -54,7 +54,7 @@ def test_nine_point_circle():
 
     # 打印依赖关系
     print("Dependencies of A:")
-    GeoUtils.print_dependencies(A)
+    print_dependencies(A)
     print("")
 
     # 验证所有点都在九点圆上

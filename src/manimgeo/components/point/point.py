@@ -278,15 +278,16 @@ class Point(BaseGeometry):
         )
     
     @classmethod
-    def RotatePPA(cls, point: Point, center: Point, angle: Angle, name: str = "") -> Point:
+    def RotatePPA(cls, point: Point, center: Point, angle: Angle, axis: Vector, name: str = "") -> Point:
         """
         构造旋转点
 
         `point`: 原始点  
         `center`: 旋转中心  
         `angle`: 旋转角度
+        `axis`: 旋转轴向量（默认为 z 轴单位向量）
         """
         return Point(
             name=name,
-            args=RotatePPAArgs(point=point, center=center, angle=angle)
+            args=RotatePPAArgs(point=point, center=center, angle=angle, axis=axis)
         )

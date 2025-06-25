@@ -1,6 +1,6 @@
 import numpy as np
 from manimgeo.components import *
-from manimgeo.utils import GeoUtils
+from manimgeo.utils.utils import print_dependencies
 
 def test_simple1():
     # 创建自由点
@@ -30,7 +30,7 @@ def test_simple1():
 
     # 打印 A 依赖关系
     print("Dependencies of B:")
-    GeoUtils.print_dependencies(B)
+    print_dependencies(B)
     print("")
 
     # 输出移动前坐标

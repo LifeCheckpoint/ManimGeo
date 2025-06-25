@@ -49,11 +49,10 @@ class LineAdapter(GeometryAdapter[LineConstructArgs]): # 继承 GeometryAdapter 
                     self.start = args.point.coord
                     self.end = self.start + direction
 
-            # FIXME: distance
             case "ParallelPL":
                 args = cast(ParallelPLArgs, self.args)
                 self.start = args.point.coord
-                self.end = args.point.coord + (args.line.end - args.line.start)
+                self.end = args.point.coord + args.line.unit_direction * args.distance
 
             case _:
                 raise NotImplementedError(f"不支持的直线构造方法: {self.construct_type}")

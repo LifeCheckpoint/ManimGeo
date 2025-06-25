@@ -122,7 +122,7 @@ class RotatePPAArgs(ArgsModelBase):
     point: Point
     center: Point
     angle: Angle
-    axis: np.ndarray | None = None
+    axis: Vector | None = None
 
 # 所有参数模型的联合类型
 
