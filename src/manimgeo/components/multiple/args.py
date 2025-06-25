@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from ..base import ArgsModelBase
-from typing import Union, Literal, List, Callable
+from typing import TYPE_CHECKING, Union, Literal, List, Callable, Container
 
 type Number = Union[float, int]
+
+if TYPE_CHECKING:
+    from .multiple import MultipleComponents
 
 from ..base import BaseGeometry
 
@@ -29,14 +32,31 @@ class FilteredMultipleMonoArgs(ArgsModelBase):
     filter_func: Callable[[BaseGeometry], bool]
     geometry_objects: List[BaseGeometry]
 
+class UnionArgs(ArgsModelBase):
+    """
+    并集
+    """
+    construct_type: Literal["Union"] = "Union"
+    multiples: Container[MultipleComponents]
+
+class IntersectionArgs(ArgsModelBase):
+    """
+    交集
+    """
+    construct_type: Literal["Intersection"] = "Intersection"
+    multiples: Container[MultipleComponents]
+
 type MultipleConstructArgs = Union[
-    MultipleArgs, FilteredMultipleArgs, FilteredMultipleMonoArgs
+    MultipleArgs, FilteredMultipleArgs, FilteredMultipleMonoArgs,
+    UnionArgs, IntersectionArgs,
 ]
 
 MultipleConstructArgsList = [
-    MultipleConstructArgs, FilteredMultipleArgs, FilteredMultipleMonoArgs
+    MultipleConstructArgs, FilteredMultipleArgs, FilteredMultipleMonoArgs,
+    UnionArgs, IntersectionArgs,
 ]
 
 type MultipleConstructType = Literal[
-    "Multiple", "FilteredMultiple", "FilteredMultipleMono"
+    "Multiple", "FilteredMultiple", "FilteredMultipleMono",
+    "Union", "Intersection",
 ]
