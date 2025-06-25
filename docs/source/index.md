@@ -21,4 +21,5 @@ components/index
 anime/index
 utils/index
 apidoc/index
+update/index
 ```
