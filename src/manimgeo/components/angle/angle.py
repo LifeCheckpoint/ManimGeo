@@ -116,6 +116,8 @@ class Angle(BaseGeometry):
         """
         反转角旋转方向构造角
 
+        注意，反转角实质上表示同一个角，但是方向相反，角度取 2π - 原角度
+
         - `angle`: 角
         """
         return Angle(
