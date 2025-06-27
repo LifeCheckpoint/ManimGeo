@@ -40,6 +40,37 @@ class MultipleComponents(BaseGeometry):
         self._extract_dependencies_from_args(self.args)
         self.update()
 
+    def __getitem__(self, index: Union[int, str]) -> BaseGeometry:
+        """
+        返回指定索引的几何对象，索引可为序号或几何对象名称
+
+        如果希望类型提示，可使用 `cast` 以转换几何对象为具体类型
+
+        ```python
+        from typing import cast
+        point = cast(Point, multiple_components[0])  # 获取第一个几何对象并转换为 Point 类型
+        line = cast(Ray, multiple_components["line_name"])  # 获取名称为 "line_name" 的几何对象并转换为 Ray 类型
+        ```
+        """
+        if isinstance(index, int):
+            return self.geometry_objects[index]
+        elif isinstance(index, str):
+            for obj in self.geometry_objects:
+                if obj.name == index:
+                    return obj
+            raise KeyError(f"'{self.name}' 中找不到名称为 '{index}' 的几何对象")
+        else:
+            raise TypeError()
+        
+    def __setitem__(self, index: Any, value: Any) -> None:
+        raise TypeError("不支持动态修改几何对象")
+    
+    def __len__(self) -> int:
+        """
+        几何对象列表的长度
+        """
+        return len(self.geometry_objects)
+
     # 构造方法
 
     @classmethod
